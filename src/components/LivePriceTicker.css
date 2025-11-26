@@ -1,0 +1,141 @@
+.price-ticker {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(26, 31, 46, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 12px;
+    padding: 12px 0;
+    position: relative;
+}
+
+.price-ticker::before,
+.price-ticker::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 50px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.price-ticker::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(26, 31, 46, 0.8), transparent);
+}
+
+.price-ticker::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(26, 31, 46, 0.8), transparent);
+}
+
+.ticker-content {
+    display: flex;
+    gap: 32px;
+    animation: scroll 30s linear infinite;
+    will-change: transform;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pause animation on hover */
+.price-ticker:hover .ticker-content {
+    animation-play-state: paused;
+}
+
+.ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.ticker-item:hover {
+    background: rgba(6, 182, 212, 0.1);
+    transform: scale(1.05);
+}
+
+.ticker-item.skeleton {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.ticker-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.ticker-symbol {
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: #f8fafc;
+    font-size: 13px;
+}
+
+.ticker-price {
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+.ticker-change {
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.ticker-change.positive {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.ticker-change.negative {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .ticker-content {
+        animation: none;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ticker-content {
+        animation-duration: 20s;
+    }
+
+    .ticker-item {
+        gap: 6px;
+        padding: 4px 8px;
+    }
+
+    .ticker-symbol,
+    .ticker-price {
+        font-size: 12px;
+    }
+
+    .ticker-change {
+        font-size: 11px;
+    }
+}

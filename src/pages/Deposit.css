@@ -1,0 +1,632 @@
+/* ================================================
+   DEPOSIT PAGE - MODERN DESIGN
+   ================================================ */
+
+.deposit-page {
+    min-height: 100vh;
+    padding: 20px;
+    padding-bottom: 100px;
+    position: relative;
+}
+
+.deposit-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* ================================================
+   HEADER
+   ================================================ */
+
+.deposit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.back-btn {
+    background: rgba(26, 31, 46, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: #06b6d4;
+    color: #06b6d4;
+    transform: translateX(-2px);
+}
+
+.deposit-title {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.header-spacer {
+    width: 80px;
+}
+
+/* ================================================
+   BALANCE CARD
+   ================================================ */
+
+.balance-card {
+    padding: 32px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1));
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.balance-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.balance-info {
+    flex: 1;
+}
+
+.balance-label {
+    font-size: 12px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.balance-amount {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px;
+}
+
+.balance-subtitle {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* ================================================
+   KYC NOTICE
+   ================================================ */
+
+.kyc-notice {
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.kyc-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.kyc-content {
+    flex: 1;
+}
+
+.kyc-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 4px;
+}
+
+.kyc-text {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.kyc-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 20px;
+    color: #f59e0b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ================================================
+   SEARCH BAR
+   ================================================ */
+
+.search-container {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    background: rgba(26, 31, 46, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 12px;
+    color: #f8fafc;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+    background: rgba(26, 31, 46, 0.8);
+}
+
+.search-input::placeholder {
+    color: #64748b;
+}
+
+/* ================================================
+   TABS
+   ================================================ */
+
+.deposit-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    background: rgba(26, 31, 46, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tab-btn:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    color: white;
+}
+
+.tab-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ================================================
+   CONTENT SECTIONS
+   ================================================ */
+
+.assets-content,
+.history-content {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.section-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 4px;
+}
+
+.section-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+/* ================================================
+   CRYPTO LIST
+   ================================================ */
+
+.crypto-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.crypto-item {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.crypto-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.4);
+}
+
+.crypto-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 2px solid currentColor;
+}
+
+.crypto-info {
+    flex: 1;
+}
+
+.crypto-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 4px;
+}
+
+.crypto-symbol {
+    font-size: 13px;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+}
+
+.crypto-balance {
+    text-align: right;
+}
+
+.balance-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #cbd5e1;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+}
+
+.view-details-btn {
+    background: transparent;
+    border: none;
+    color: #06b6d4;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.view-details-btn:hover {
+    color: #10b981;
+    transform: translateX(2px);
+}
+
+/* ================================================
+   EMPTY STATE
+   ================================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 8px;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: #94a3b8;
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ================================================
+   MODAL
+   ================================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    max-width: 500px;
+    width: 100%;
+    padding: 32px;
+    position: relative;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 8px;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 auto 16px;
+    border: 3px solid currentColor;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 4px;
+}
+
+.modal-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.deposit-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-item {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px solid rgba(100, 116, 139, 0.1);
+}
+
+.info-label {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f8fafc;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.wallet-address {
+    margin-bottom: 24px;
+}
+
+.address-label {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.address-box {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 10px;
+}
+
+.address-code {
+    flex: 1;
+    font-size: 13px;
+    color: #06b6d4;
+    font-family: 'JetBrains Mono', monospace;
+    word-break: break-all;
+    line-height: 1.6;
+}
+
+.copy-btn {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: #06b6d4;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.copy-btn:hover {
+    background: rgba(6, 182, 212, 0.2);
+    transform: translateY(-1px);
+}
+
+.deposit-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 10px;
+    color: #f59e0b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.deposit-warning svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+
+@media (max-width: 768px) {
+    .deposit-page {
+        padding: 16px;
+    }
+
+    .deposit-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .header-spacer {
+        display: none;
+    }
+
+    .balance-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px;
+    }
+
+    .balance-amount {
+        font-size: 2rem;
+    }
+
+    .kyc-notice {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .deposit-info {
+        grid-template-columns: 1fr;
+    }
+
+    .address-box {
+        flex-direction: column;
+    }
+
+    .copy-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
