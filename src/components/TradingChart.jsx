@@ -49,7 +49,7 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       timezone: "Etc/UTC",
       hide_side_toolbar: false,
       hide_top_toolbar: false,
-      container_id: "tv_chart_container", // ✅ FIXED
+      container_id: "tv_chart_container",
     });
   }
 
@@ -93,7 +93,7 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
 
   return (
     <div className="w-full h-full flex flex-col bg-[#0d1117] rounded-lg overflow-hidden">
-      
+
       <div className="flex gap-2 px-3 py-2 border-b border-gray-800">
         {COINS.map((c) => (
           <button
@@ -102,11 +102,10 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
               setSelectedCoin(c.id);
               onChangeCoin?.(c.id);
             }}
-            className={`px-3 py-1 rounded text-sm font-semibold ${
-              selectedCoin === c.id
+            className={`px-3 py-1 rounded text-sm font-semibold ${selectedCoin === c.id
                 ? "bg-yellow-500 text-black"
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-            }`}
+              }`}
           >
             {c.label}
           </button>
@@ -115,9 +114,10 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
 
       {/* Container MUST have an id */}
       <div
-        id="tv_chart_container"        // ✅ FIX
+        id="tv_chart_container"
         ref={containerRef}
-        className="flex-1 min-h-[500px] w-full"
+        className="flex-1 w-full"
+        style={{ minHeight: '650px', height: '650px' }}
       />
     </div>
   );

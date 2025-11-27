@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import BottomNav from "../components/BottomNav";
 import MarketCard from "../components/MarketCard";
 import CryptoRow from "../components/CryptoRow";
 import "./Home.css";
@@ -22,7 +21,7 @@ export default function Home() {
       .then((d) => {
         if (d?.coins) setTrending(d.coins.slice(0, 3));
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -31,7 +30,7 @@ export default function Home() {
       .then((d) => {
         if (d?.Data) setNews(d.Data.slice(0, 3));
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -42,7 +41,7 @@ export default function Home() {
       .then((d) => {
         if (Array.isArray(d)) setTop(d.slice(0, 6));
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -164,8 +163,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      <BottomNav />
     </div>
   );
 }

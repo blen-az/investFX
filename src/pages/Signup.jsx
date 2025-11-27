@@ -1,25 +1,56 @@
 // src/pages/Signup.jsx
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ParticleBackground from "../components/ParticleBackground";
 import "./Login.css"; // Reuse Login.css for consistent styling
 
 export default function Signup() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [invitationCode, setInvitationCode] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Auto-fill invitation code from URL
+  useEffect(() => {
+    const refCode = searchParams.get("ref");
+    if (refCode) {
+      setInvitationCode(refCode);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
+
     try {
-      await signup(email, password);
+      console.log("Starting signup process...");
+      // Use invitation code if provided, otherwise null
+      const referralCode = invitationCode.trim() || null;
+      await signup(email, password, referralCode, name);
+      console.log("Signup successful, navigating to home...");
       navigate("/home");
     } catch (err) {
-      setError("Failed to create account. Please try again.");
+      console.error("Signup error:", err);
+
+      // Show specific error messages
+      if (err.code === "auth/email-already-in-use") {
+        setError("This email is already registered. Please login instead.");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password should be at least 6 characters.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address.");
+      } else {
+        setError(err.message || "Failed to create account. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,6 +70,18 @@ export default function Signup() {
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
               <label className="form-label">Email Address</label>
               <input
                 type="email"
@@ -55,15 +98,33 @@ export default function Signup() {
               <input
                 type="password"
                 className="form-input"
-                placeholder="Create a password"
+                placeholder="Create a password (min 6 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
 
-            <button type="submit" className="login-btn">
-              Create Account
+            <div className="form-group">
+              <label className="form-label">
+                Invitation Code <span style={{ color: '#94a3b8', fontSize: '12px' }}>(Optional)</span>
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter invitation code if you have one"
+                value={invitationCode}
+                onChange={(e) => setInvitationCode(e.target.value)}
+              />
+              {invitationCode && (
+                <div style={{ fontSize: '12px', color: '#10b981', marginTop: '4px' }}>
+                  ✓ You'll be registered under this referral
+                </div>
+              )}
+            </div>
+
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
 

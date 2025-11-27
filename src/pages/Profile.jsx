@@ -2,191 +2,220 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
+import StatsCard from "../components/StatsCard";
+import DataTable from "../components/DataTable";
 import "./Profile.css";
 
 export default function Profile() {
   const { user } = useAuth();
-  const [balanceHidden, setBalanceHidden] = useState(true);
-  const [activeTab, setActiveTab] = useState("transactions"); // transactions | trading | achievements
+  const [activeTab, setActiveTab] = useState("transactions");
+  const [balanceHidden, setBalanceHidden] = useState(false);
 
-  // placeholder data (replace with real data later)
-  const referral = "1L1XHP4Q";
-  const totalPortfolio = 150000;
-  const todayPL = 0;
-  const totalTrades = 0;
-  const trustScore = 100;
-  const memberSince = "Nov 2025";
+  // Mock Data
+  const portfolioValue = 150000;
+  const todayPL = 450.25;
+  const totalTrades = 128;
+  const winRate = 68;
+  const referralCode = "TRADER2025";
 
   const transactions = [
+    { id: 1, type: "Deposit", amount: 5000, status: "completed", date: "2025-11-26" },
+    { id: 2, type: "Trade Profit", amount: 450.25, status: "completed", date: "2025-11-26" },
+    { id: 3, type: "Withdrawal", amount: -1000, status: "pending", date: "2025-11-25" },
+    { id: 4, type: "Trade Loss", amount: -120.50, status: "completed", date: "2025-11-24" },
+    { id: 5, type: "Deposit", amount: 10000, status: "completed", date: "2025-11-20" },
+  ];
+
+  const columns = [
     {
-      id: 1,
-      type: "Deposit",
-      desc: "Deposit transaction",
-      date: "Nov 6, 2025",
-      amount: "+$150,000.00",
-      status: "approved",
+      header: "Type",
+      key: "type",
+      render: (value) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: value.includes('Deposit') || value.includes('Profit') ? '#10b981' :
+              value.includes('Withdrawal') || value.includes('Loss') ? '#ef4444' : '#3b82f6'
+          }} />
+          {value}
+        </div>
+      )
     },
-    // add more placeholder items if desired
+    {
+      header: "Amount",
+      key: "amount",
+      render: (value) => (
+        <span style={{
+          color: value > 0 ? '#10b981' : value < 0 ? '#ef4444' : '#f8fafc',
+          fontWeight: 600
+        }}>
+          {value > 0 ? '+' : ''}{value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+        </span>
+      )
+    },
+    {
+      header: "Status",
+      key: "status",
+      render: (value) => (
+        <span className={`badge ${value === 'completed' ? 'badge-success' : 'badge-warning'}`}>
+          {value}
+        </span>
+      )
+    },
+    {
+      header: "Date",
+      key: "date",
+      render: (value) => new Date(value).toLocaleDateString()
+    }
   ];
 
   return (
-    <div className="fx-profile container">
-      {/* top header */}
-      <div className="profile-header card-gradient">
-        <div className="profile-top">
-          <div className="avatar">
-            <div className="avatar-inner">{(user?.email || "U")[0].toUpperCase()}</div>
-          </div>
-
-          <div className="profile-meta">
-            <div className="profile-name">
-              {user?.email ? user.email.split("@")[0] : "trader10602"}
-              <span className="badge-real">REAL</span>
+    <div className="profile-page">
+      {/* Header Section */}
+      <div className="profile-header-section">
+        <div className="profile-card">
+          <div className="profile-info">
+            <div className="profile-avatar">
+              {(user?.email || "U")[0].toUpperCase()}
             </div>
-            <div className="profile-sub">Unknown</div>
+            <div className="profile-details">
+              <h1>
+                {user?.email ? user.email.split("@")[0] : "Trader"}
+                <span className="profile-badge">Verified Trader</span>
+              </h1>
+              <div className="profile-email">{user?.email}</div>
+            </div>
           </div>
 
-          <div className="profile-actions">
-            <button className="dots">⋮</button>
-          </div>
-        </div>
-
-        {/* portfolio card */}
-        <div className="portfolio-card">
-          <div className="portfolio-left">
-            <div className="portfolio-title">Total Portfolio Value</div>
-
-            <div className="portfolio-value-row">
-              <div className="portfolio-value">
-                {balanceHidden ? "•••••••" : `$${Number(totalPortfolio).toLocaleString()}`}
+          <div className="profile-stats-row">
+            <div className="profile-stat">
+              <div className="stat-label">Total Balance</div>
+              <div className="stat-value highlight">
+                {balanceHidden ? "••••••" : `$${portfolioValue.toLocaleString()}`}
+                <button
+                  onClick={() => setBalanceHidden(!balanceHidden)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', marginLeft: '8px', cursor: 'pointer' }}
+                >
+                  {balanceHidden ? "👁️" : "👁️‍🗨️"}
+                </button>
               </div>
-
-              <button
-                className="eye-toggle"
-                onClick={() => setBalanceHidden((s) => !s)}
-                aria-label={balanceHidden ? "Show balance" : "Hide balance"}
-                title={balanceHidden ? "Show balance" : "Hide balance"}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7z" stroke="currentColor" strokeWidth="1.2"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.2"/>
-                </svg>
-              </button>
             </div>
-
-            <div className="portfolio-change">↑ <span className="positive">+$0.00 today</span></div>
-          </div>
-
-          <div className="portfolio-right">
-            <div className="ref-wrap">
-              <div className="ref-title">Referral Code</div>
-              <div className="ref-code">{referral}</div>
+            <div className="profile-stat">
+              <div className="stat-label">Today's P&L</div>
+              <div className="stat-value" style={{ color: '#10b981' }}>+${todayPL}</div>
             </div>
-
-            <Link to="/assets" className="btn small ghost">Assets</Link>
           </div>
         </div>
 
-        {/* quick actions row inside header */}
-        <div className="profile-quick">
-          <Link to="/assets" className="quick-card">Assets</Link>
-          <Link to="/swap" className="quick-card">Swap</Link>
-          <Link to="/history" className="quick-card">History</Link>
+        {/* Quick Actions */}
+        <div className="quick-actions-grid">
+          <Link to="/deposit" className="action-card">
+            <div className="action-icon">💰</div>
+            <div className="action-info">
+              <h3>Deposit</h3>
+              <p>Add funds instantly</p>
+            </div>
+          </Link>
+          <Link to="/trade" className="action-card">
+            <div className="action-icon">📈</div>
+            <div className="action-info">
+              <h3>Trade</h3>
+              <p>Start trading now</p>
+            </div>
+          </Link>
+          <Link to="/withdraw" className="action-card">
+            <div className="action-icon">🏦</div>
+            <div className="action-info">
+              <h3>Withdraw</h3>
+              <p>Cash out earnings</p>
+            </div>
+          </Link>
+          <Link to="/settings" className="action-card">
+            <div className="action-icon">⚙️</div>
+            <div className="action-info">
+              <h3>Settings</h3>
+              <p>Account preferences</p>
+            </div>
+          </Link>
         </div>
-
-        <div className="member-since">Member since {memberSince}</div>
       </div>
 
-      {/* main content grid */}
-      <div className="profile-grid">
-        {/* left column */}
-        <div className="profile-left">
-          {/* tabs */}
-          <div className="tabs card">
-            <button
-              className={activeTab === "transactions" ? "tab active" : "tab"}
-              onClick={() => setActiveTab("transactions")}
-            >
-              Transactions
-            </button>
-            <button
-              className={activeTab === "trading" ? "tab active" : "tab"}
-              onClick={() => setActiveTab("trading")}
-            >
-              Trading
-            </button>
-            <button
-              className={activeTab === "achievements" ? "tab active" : "tab"}
-              onClick={() => setActiveTab("achievements")}
-            >
-              Achievements
-            </button>
+      {/* Main Content Grid */}
+      <div className="profile-content-grid">
+        {/* Left Column - Transactions & History */}
+        <div className="content-card">
+          <div className="card-header">
+            <div className="card-title">Activity History</div>
+            <div className="tabs">
+              <button
+                className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('transactions')}
+              >
+                Transactions
+              </button>
+              <button
+                className={`tab-btn ${activeTab === 'trades' ? 'active' : ''}`}
+                onClick={() => setActiveTab('trades')}
+              >
+                Trade History
+              </button>
+            </div>
           </div>
 
-          {/* tab content */}
-          <div className="tab-content card">
-            {activeTab === "transactions" && (
-              <>
-                <h3>Recent Transactions</h3>
-                <div className="tx-list">
-                  {transactions.map((t) => (
-                    <div key={t.id} className="tx-row">
-                      <div className="tx-left">
-                        <div className="tx-icon">⬇️</div>
-                        <div>
-                          <div className="tx-title">{t.type}</div>
-                          <div className="tx-desc">{t.desc}</div>
-                          <div className="tx-date">{t.date}</div>
-                        </div>
-                      </div>
-
-                      <div className="tx-right">
-                        <div className="tx-amount positive">{t.amount}</div>
-                        <div className={`tx-status ${t.status}`}>{t.status}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {activeTab === "trading" && (
-              <div className="placeholder-block">
-                <p>No trading history yet — start trading to see history here.</p>
+          {activeTab === 'transactions' ? (
+            <DataTable columns={columns} data={transactions} />
+          ) : (
+            <div className="empty-state">
+              <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                No trade history available yet.
               </div>
-            )}
-
-            {activeTab === "achievements" && (
-              <div className="placeholder-block">
-                <p>No achievements yet — complete actions to unlock badges.</p>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* right column */}
-        <aside className="profile-right">
-          <div className="stat-card card">
-            <div className="stat-title">Today's P&amp;L</div>
-            <div className="stat-value positive">+${todayPL.toFixed(2)}</div>
-          </div>
-
-          <div className="stat-card card">
-            <div className="stat-title">Total Trades</div>
-            <div className="stat-value">{totalTrades}</div>
-          </div>
-
-          <div className="trust-card card">
-            <div className="trust-title">Trust Score</div>
-            <div className="trust-bar">
-              <div className="fill" style={{ width: `${trustScore}%` }} />
-            </div>
-            <div className="trust-percent">{trustScore}%</div>
-            <div className="verified">
-              <span className="verified-badge">✔</span> Verified
+        {/* Right Column - Stats & Trust */}
+        <div className="sidebar-column" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="content-card">
+            <div className="card-title" style={{ marginBottom: '20px' }}>Trust Score</div>
+            <div className="trust-score-container">
+              <div className="trust-circle">
+                <div className="trust-value">100</div>
+                <div className="trust-label">Score</div>
+              </div>
+              <div className="verification-status">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Fully Verified
+              </div>
             </div>
           </div>
-        </aside>
+
+          <div className="content-card">
+            <div className="card-title">Trading Stats</div>
+            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                <span style={{ color: '#94a3b8' }}>Total Trades</span>
+                <span style={{ fontWeight: '600' }}>{totalTrades}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                <span style={{ color: '#94a3b8' }}>Win Rate</span>
+                <span style={{ fontWeight: '600', color: '#10b981' }}>{winRate}%</span>
+              </div>
+            </div>
+
+            <div className="referral-box">
+              <div className="referral-label">Your Referral Code</div>
+              <div className="referral-code-display">
+                <span className="code">{referralCode}</span>
+                <span className="copy-icon" title="Copy Code">📋</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
