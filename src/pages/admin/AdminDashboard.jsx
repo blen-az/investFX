@@ -131,7 +131,7 @@ export default function AdminDashboard() {
                         <div className="action-desc">View and force trade results</div>
                     </a>
 
-                    <a href="/admin/set-balance" className="action-card glass-card">
+                    <a href="/admin/users" className="action-card glass-card">
                         <div className="action-icon">💵</div>
                         <div className="action-title">Set Balance</div>
                         <div className="action-desc">Edit user balances</div>
@@ -141,6 +141,12 @@ export default function AdminDashboard() {
                         <div className="action-icon">⭐</div>
                         <div className="action-title">Create Agent</div>
                         <div className="action-desc">Upgrade users to agents</div>
+                    </a>
+
+                    <a href="/admin/trade-settings" className="action-card glass-card">
+                        <div className="action-icon">🎮</div>
+                        <div className="action-title">Trade Settings</div>
+                        <div className="action-desc">Control trade outcomes</div>
                     </a>
                 </div>
             </div>

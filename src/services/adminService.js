@@ -122,12 +122,39 @@ export const getAllDeposits = async (status = null) => {
         }
 
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate(),
-            processedAt: doc.data().processedAt?.toDate()
-        }));
+        const deposits = [];
+
+        for (const depositDoc of snapshot.docs) {
+            const depositData = depositDoc.data();
+
+            // Fetch user details
+            let userName = null;
+            let userEmail = null;
+
+            if (depositData.uid) {
+                try {
+                    const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", depositData.uid)));
+                    if (!userDoc.empty) {
+                        const userData = userDoc.docs[0].data();
+                        userName = userData.name;
+                        userEmail = userData.email;
+                    }
+                } catch (err) {
+                    console.error("Error fetching user for deposit:", err);
+                }
+            }
+
+            deposits.push({
+                id: depositDoc.id,
+                ...depositData,
+                userName,
+                userEmail,
+                createdAt: depositData.createdAt?.toDate(),
+                processedAt: depositData.processedAt?.toDate()
+            });
+        }
+
+        return deposits;
     } catch (error) {
         console.error("Error fetching deposits:", error);
         throw error;
@@ -176,12 +203,39 @@ export const getAllWithdrawals = async (status = null) => {
         }
 
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate(),
-            processedAt: doc.data().processedAt?.toDate()
-        }));
+        const withdrawals = [];
+
+        for (const withdrawalDoc of snapshot.docs) {
+            const withdrawalData = withdrawalDoc.data();
+
+            // Fetch user details
+            let userName = null;
+            let userEmail = null;
+
+            if (withdrawalData.uid) {
+                try {
+                    const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", withdrawalData.uid)));
+                    if (!userDoc.empty) {
+                        const userData = userDoc.docs[0].data();
+                        userName = userData.name;
+                        userEmail = userData.email;
+                    }
+                } catch (err) {
+                    console.error("Error fetching user for withdrawal:", err);
+                }
+            }
+
+            withdrawals.push({
+                id: withdrawalDoc.id,
+                ...withdrawalData,
+                userName,
+                userEmail,
+                createdAt: withdrawalData.createdAt?.toDate(),
+                processedAt: withdrawalData.processedAt?.toDate()
+            });
+        }
+
+        return withdrawals;
     } catch (error) {
         console.error("Error fetching withdrawals:", error);
         throw error;

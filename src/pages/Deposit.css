@@ -1,168 +1,121 @@
-/* ================================================
-   DEPOSIT PAGE - MODERN DESIGN
-   ================================================ */
+/* src/pages/Deposit.css */
 
 .deposit-page {
-    min-height: 100vh;
-    padding: 20px;
-    padding-bottom: 100px;
-    position: relative;
-}
-
-.deposit-container {
+    padding: 24px;
     max-width: 800px;
     margin: 0 auto;
+    padding-bottom: 100px;
 }
-
-/* ================================================
-   HEADER
-   ================================================ */
 
 .deposit-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 24px;
 }
 
 .back-btn {
-    background: rgba(26, 31, 46, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(100, 116, 139, 0.2);
-    border-radius: 10px;
-    padding: 10px 16px;
-    color: #cbd5e1;
-    font-size: 14px;
-    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
 }
 
 .back-btn:hover {
-    background: rgba(6, 182, 212, 0.1);
-    border-color: #06b6d4;
-    color: #06b6d4;
-    transform: translateX(-2px);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .deposit-title {
-    font-size: 2rem;
-    font-weight: 900;
+    font-size: 24px;
+    font-weight: 700;
     margin: 0;
 }
 
 .header-spacer {
-    width: 80px;
+    width: 60px;
+    /* Balance back button width */
 }
 
-/* ================================================
-   BALANCE CARD
-   ================================================ */
-
+/* Balance Card */
 .balance-card {
-    padding: 32px;
-    margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 20px;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1));
-    border: 1px solid rgba(6, 182, 212, 0.3);
+    padding: 24px;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1));
+    border: 1px solid rgba(6, 182, 212, 0.2);
 }
 
 .balance-icon {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #06b6d4, #10b981);
-    border-radius: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(6, 182, 212, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.balance-info {
-    flex: 1;
+    color: #06b6d4;
 }
 
 .balance-label {
     font-size: 12px;
     color: #94a3b8;
-    text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 1px;
-    font-weight: 700;
-    margin-bottom: 8px;
 }
 
 .balance-amount {
-    font-size: 2.5rem;
-    font-weight: 900;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 4px;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 4px 0;
 }
 
 .balance-subtitle {
     font-size: 13px;
-    color: #64748b;
+    color: #94a3b8;
 }
 
-/* ================================================
-   KYC NOTICE
-   ================================================ */
-
+/* KYC Notice */
 .kyc-notice {
-    padding: 20px;
-    margin-bottom: 24px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 16px;
-    background: rgba(245, 158, 11, 0.05);
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 16px;
+    margin-bottom: 24px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .kyc-icon {
-    font-size: 32px;
-    flex-shrink: 0;
-}
-
-.kyc-content {
-    flex: 1;
+    font-size: 24px;
 }
 
 .kyc-title {
-    font-size: 15px;
     font-weight: 700;
-    color: #f8fafc;
+    color: #f59e0b;
     margin-bottom: 4px;
 }
 
 .kyc-text {
     font-size: 13px;
-    color: #94a3b8;
-    line-height: 1.5;
-}
-
-.kyc-status {
-    flex-shrink: 0;
+    color: #cbd5e1;
 }
 
 .status-badge {
-    padding: 6px 12px;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 20px;
+    background: rgba(245, 158, 11, 0.2);
     color: #f59e0b;
-    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
-/* ================================================
-   SEARCH BAR
-   ================================================ */
-
+/* Search */
 .search-container {
     position: relative;
     margin-bottom: 24px;
@@ -173,110 +126,74 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #64748b;
-    pointer-events: none;
+    color: #94a3b8;
 }
 
 .search-input {
     width: 100%;
-    padding: 14px 16px 14px 48px;
-    background: rgba(26, 31, 46, 0.6);
-    backdrop-filter: blur(10px);
+    padding: 14px 14px 14px 48px;
+    background: rgba(30, 34, 45, 0.6);
     border: 1px solid rgba(100, 116, 139, 0.2);
     border-radius: 12px;
-    color: #f8fafc;
-    font-size: 15px;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.3s ease;
+    color: #fff;
+    font-size: 16px;
     outline: none;
+    transition: all 0.2s;
 }
 
 .search-input:focus {
     border-color: #06b6d4;
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
-    background: rgba(26, 31, 46, 0.8);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1);
 }
 
-.search-input::placeholder {
-    color: #64748b;
-}
-
-/* ================================================
-   TABS
-   ================================================ */
-
+/* Tabs */
 .deposit-tabs {
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
-    background: rgba(26, 31, 46, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(100, 116, 139, 0.2);
-    border-radius: 12px;
-    padding: 6px;
 }
 
 .tab-btn {
     flex: 1;
-    padding: 12px 20px;
-    background: transparent;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     color: #94a3b8;
     font-weight: 600;
-    font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    transition: all 0.2s;
 }
 
 .tab-btn:hover {
-    color: #f8fafc;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #06b6d4, #3b82f6);
-    color: white;
+    background: #06b6d4;
+    color: #fff;
 }
 
-.tab-btn svg {
-    width: 18px;
-    height: 18px;
-}
-
-/* ================================================
-   CONTENT SECTIONS
-   ================================================ */
-
-.assets-content,
-.history-content {
-    animation: fadeIn 0.4s ease-out;
-}
-
+/* Crypto List */
 .section-header {
-    margin-bottom: 20px;
-    text-align: center;
+    margin-bottom: 16px;
 }
 
 .section-title {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #f8fafc;
-    margin-bottom: 4px;
+    font-size: 18px;
+    margin: 0 0 4px 0;
 }
 
 .section-subtitle {
-    font-size: 14px;
+    font-size: 13px;
     color: #94a3b8;
+    margin: 0;
 }
-
-/* ================================================
-   CRYPTO LIST
-   ================================================ */
 
 .crypto-list {
     display: flex;
@@ -285,32 +202,28 @@
 }
 
 .crypto-item {
-    padding: 20px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    padding: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
 }
 
 .crypto-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
-    border-color: rgba(6, 182, 212, 0.4);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .crypto-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.05);
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    font-weight: 700;
-    flex-shrink: 0;
-    border: 2px solid currentColor;
+    font-size: 20px;
+    margin-right: 16px;
 }
 
 .crypto-info {
@@ -318,17 +231,13 @@
 }
 
 .crypto-name {
-    font-size: 16px;
     font-weight: 700;
-    color: #f8fafc;
-    margin-bottom: 4px;
+    color: #fff;
 }
 
 .crypto-symbol {
-    font-size: 13px;
+    font-size: 12px;
     color: #94a3b8;
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
 }
 
 .crypto-balance {
@@ -336,183 +245,105 @@
 }
 
 .balance-value {
-    font-size: 14px;
     font-weight: 600;
-    color: #cbd5e1;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .view-details-btn {
     background: transparent;
     border: none;
     color: #06b6d4;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
 }
 
-.view-details-btn:hover {
-    color: #10b981;
-    transform: translateX(2px);
-}
-
-/* ================================================
-   EMPTY STATE
-   ================================================ */
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-}
-
-.empty-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
-    opacity: 0.5;
-}
-
-.empty-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #f8fafc;
-    margin-bottom: 8px;
-}
-
-.empty-text {
-    font-size: 14px;
-    color: #94a3b8;
-    max-width: 400px;
-    margin: 0 auto;
-    line-height: 1.6;
-}
-
-/* ================================================
-   MODAL
-   ================================================ */
-
+/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 20px;
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.2s ease;
 }
 
 .modal-content {
-    max-width: 500px;
-    width: 100%;
+    width: 90%;
+    max-width: 480px;
     padding: 32px;
     position: relative;
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-close {
     position: absolute;
     top: 16px;
     right: 16px;
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(100, 116, 139, 0.2);
-    border-radius: 8px;
+    background: transparent;
+    border: none;
     color: #94a3b8;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-close:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-    color: #ef4444;
 }
 
 .modal-header {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .modal-icon {
     width: 64px;
     height: 64px;
-    background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 32px;
-    font-weight: 700;
     margin: 0 auto 16px;
-    border: 3px solid currentColor;
 }
 
 .modal-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #f8fafc;
-    margin-bottom: 4px;
+    margin: 0 0 4px 0;
+    font-size: 24px;
 }
 
 .modal-subtitle {
-    font-size: 14px;
     color: #94a3b8;
-    font-family: 'JetBrains Mono', monospace;
+    margin: 0;
 }
 
 .deposit-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 16px;
     margin-bottom: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    border-radius: 12px;
 }
 
 .info-item {
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-    border: 1px solid rgba(100, 116, 139, 0.1);
+    flex: 1;
+    text-align: center;
 }
 
 .info-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #94a3b8;
-    margin-bottom: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
+    margin-bottom: 4px;
 }
 
 .info-value {
-    font-size: 15px;
     font-weight: 700;
-    color: #f8fafc;
-    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
 }
 
 .wallet-address {
@@ -522,111 +353,171 @@
 .address-label {
     font-size: 13px;
     color: #94a3b8;
-    margin-bottom: 12px;
-    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 .address-box {
     display: flex;
-    gap: 12px;
-    padding: 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(100, 116, 139, 0.2);
-    border-radius: 10px;
+    gap: 8px;
 }
 
 .address-code {
     flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     color: #06b6d4;
-    font-family: 'JetBrains Mono', monospace;
     word-break: break-all;
-    line-height: 1.6;
+    border: 1px solid rgba(100, 116, 139, 0.2);
 }
 
 .copy-btn {
     background: rgba(6, 182, 212, 0.1);
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    border-radius: 8px;
-    padding: 8px 16px;
+    border: 1px solid rgba(6, 182, 212, 0.2);
     color: #06b6d4;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 0 16px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 6px;
-    flex-shrink: 0;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
 .copy-btn:hover {
     background: rgba(6, 182, 212, 0.2);
-    transform: translateY(-1px);
+}
+
+/* Deposit Form */
+.deposit-form {
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: #06b6d4;
+}
+
+.file-upload-box {
+    position: relative;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(100, 116, 139, 0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.file-label:hover {
+    border-color: #06b6d4;
+    color: #06b6d4;
+    background: rgba(6, 182, 212, 0.05);
+}
+
+.upload-icon {
+    font-size: 18px;
+}
+
+.file-name {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.submit-deposit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.submit-deposit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
 }
 
 .deposit-warning {
     display: flex;
-    align-items: flex-start;
     gap: 12px;
     padding: 16px;
-    background: rgba(245, 158, 11, 0.05);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 10px;
-    color: #f59e0b;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    color: #ef4444;
     font-size: 13px;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
-.deposit-warning svg {
-    flex-shrink: 0;
-    margin-top: 2px;
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 48px 0;
+    color: #94a3b8;
 }
 
-/* ================================================
-   RESPONSIVE
-   ================================================ */
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
 
-@media (max-width: 768px) {
-    .deposit-page {
-        padding: 16px;
-    }
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
 
-    .deposit-header {
-        flex-direction: column;
-        gap: 16px;
-        align-items: flex-start;
-    }
-
-    .header-spacer {
-        display: none;
-    }
-
-    .balance-card {
-        flex-direction: column;
-        text-align: center;
-        padding: 24px;
-    }
-
-    .balance-amount {
-        font-size: 2rem;
-    }
-
-    .kyc-notice {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .deposit-info {
-        grid-template-columns: 1fr;
-    }
-
-    .address-box {
-        flex-direction: column;
-    }
-
-    .copy-btn {
-        width: 100%;
-        justify-content: center;
-    }
+.empty-text {
+    font-size: 14px;
+    max-width: 300px;
+    margin: 0 auto;
 }

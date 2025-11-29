@@ -1,0 +1,308 @@
+/* src/components/ActiveTradeModal.css */
+
+.active-trade-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.active-trade-modal {
+    background: #ffffff;
+    width: 90%;
+    max-width: 420px;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: slideUp 0.3s ease;
+    color: #1e293b;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+}
+
+.trade-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.coin-icon-modal {
+    background: #f59e0b;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.trade-title {
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+/* Status Bar */
+.status-bar {
+    background: #ecfdf5;
+    color: #10b981;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.status-indicator {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-indicator::after {
+    content: '▶';
+    font-size: 8px;
+    color: #10b981;
+}
+
+/* Details Grid */
+.trade-grid-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.detail-item {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-item .label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.detail-item .value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.detail-item .value.positive {
+    color: #10b981;
+}
+
+/* Live P&L */
+.live-pnl-section {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pnl-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pnl-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.pnl-value {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.pnl-value.positive {
+    color: #10b981;
+}
+
+.pnl-value.negative {
+    color: #ef4444;
+}
+
+.pnl-status {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pnl-status.winning {
+    color: #10b981;
+}
+
+.pnl-status.losing {
+    color: #ef4444;
+}
+
+/* Timer */
+.timer-section {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.time-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.time-label {
+    font-size: 10px;
+    color: #64748b;
+}
+
+/* Completion Overlay */
+.completion-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    animation: fadeIn 0.3s ease;
+}
+
+.completion-card {
+    text-align: center;
+    padding: 24px;
+    width: 100%;
+}
+
+.completion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.completion-card h3 {
+    color: #0f172a;
+    margin-bottom: 8px;
+    font-size: 20px;
+}
+
+.final-pnl {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 32px;
+}
+
+.final-pnl.positive {
+    color: #10b981;
+}
+
+.final-pnl.negative {
+    color: #ef4444;
+}
+
+.close-completion-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.close-completion-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}

@@ -75,16 +75,61 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       dogecoin: "dogeusdt",
     };
 
+    const coinIds = {
+      bitcoin: "bitcoin",
+      ethereum: "ethereum",
+      solana: "solana",
+      dogecoin: "dogecoin",
+    };
+
+    // Fallback: Fetch price from API if WebSocket doesn't connect quickly
+    const fetchPriceFallback = async () => {
+      try {
+        const response = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds[selectedCoin]}&vs_currencies=usd`
+        );
+        const data = await response.json();
+        const price = data[coinIds[selectedCoin]]?.usd;
+        if (price) {
+          onPrice(price);
+        }
+      } catch (error) {
+        console.error("Error fetching fallback price:", error);
+      }
+    };
+
+    // Try WebSocket first
     const ws = new WebSocket(
       "wss://stream.binance.com:9443/ws/" + streams[selectedCoin] + "@ticker"
     );
 
+    let priceReceived = false;
+
     ws.onmessage = (e) => {
       const d = JSON.parse(e.data);
-      if (d?.c) onPrice(parseFloat(d.c));
+      if (d?.c) {
+        priceReceived = true;
+        onPrice(parseFloat(d.c));
+      }
     };
 
-    return () => ws.close();
+    ws.onerror = () => {
+      console.log("WebSocket error, using fallback API");
+      fetchPriceFallback();
+    };
+
+    // If no price after 3 seconds, use fallback
+    const fallbackTimer = setTimeout(() => {
+      if (!priceReceived) {
+        console.log("WebSocket slow, using fallback API");
+        fetchPriceFallback();
+      }
+    }, 3000);
+
+    return () => {
+      clearTimeout(fallbackTimer);
+      ws.close();
+    };
   }, [selectedCoin]);
 
   useEffect(() => {
@@ -103,8 +148,8 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
               onChangeCoin?.(c.id);
             }}
             className={`px-3 py-1 rounded text-sm font-semibold ${selectedCoin === c.id
-                ? "bg-yellow-500 text-black"
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+              ? "bg-yellow-500 text-black"
+              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
               }`}
           >
             {c.label}

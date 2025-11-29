@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import MarketCard from "../components/MarketCard";
 import CryptoRow from "../components/CryptoRow";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 import "./Home.css";
 
 export default function Home() {
@@ -13,7 +15,19 @@ export default function Home() {
   const [top, setTop] = useState([]);
   const [balanceHidden, setBalanceHidden] = useState(true);
 
-  const [balance] = useState(150000);
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+      if (doc.exists()) {
+        setBalance(doc.data().balance || 0);
+      }
+    });
+
+    return () => unsub();
+  }, [user]);
 
   useEffect(() => {
     fetch("https://api.coingecko.com/api/v3/search/trending")
@@ -56,35 +70,39 @@ export default function Home() {
       </section>
 
       {/* BALANCE CARD */}
+      {/* BALANCE CARD */}
       <section className="fx-balance container">
-        <div className="balance-left">
-          <div className="bal-title">Total Assets</div>
-          <div className="bal-amount">
-            {balanceHidden ? "******* **" : `$${Number(balance).toFixed(2)}`}
-            <button
-              className="eye-btn"
-              title={balanceHidden ? "Show balance" : "Hide balance"}
-              onClick={() => setBalanceHidden(!balanceHidden)}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7z"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                />
-                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.2" />
-              </svg>
-            </button>
+        <div className="glass-card">
+          <div className="balance-info">
+            <div className="bal-title">Total Assets</div>
+            <div className="bal-amount">
+              {balanceHidden ? "******* **" : `$${Number(balance).toFixed(2)}`}
+              <button
+                className="eye-btn"
+                title={balanceHidden ? "Show balance" : "Hide balance"}
+                onClick={() => setBalanceHidden(!balanceHidden)}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7z"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                  />
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.2" />
+                </svg>
+              </button>
+            </div>
+            <div className="bal-sub">-1.5% this week</div>
           </div>
 
-          <div className="bal-sub">-1.5% this week</div>
-        </div>
-
-        <div className="balance-right">
-          <div className="mini-chart" />
-          <Link to="/deposit" className="btn deposit">
-            ➕ Deposit
-          </Link>
+          <div className="action-buttons">
+            <Link to="/deposit" className="btn deposit">
+              ➕ Deposit
+            </Link>
+            <Link to="/withdraw" className="btn withdraw">
+              ➖ Withdraw
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -92,7 +110,7 @@ export default function Home() {
       <section className="fx-quick container">
         <h3>Quick Actions</h3>
         <div className="qa-grid">
-          <Link to="/transactions" className="qa-card">
+          <Link to="/profile" className="qa-card">
             <div className="qa-ico">⏱</div>
             <div className="qa-title">Transactions</div>
           </Link>

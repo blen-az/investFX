@@ -51,20 +51,22 @@
 }
 
 .fx-balance .glass-card {
-  padding: 24px;
+  padding: 32px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
   background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1));
   border: 1px solid rgba(6, 182, 212, 0.3);
+  color: #f8fafc;
 }
 
-.balance-left {
-  flex: 1;
+.balance-info {
+  width: 100%;
 }
 
 .bal-title {
-  font-size: 13px;
+  font-size: 14px;
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -73,7 +75,7 @@
 }
 
 .bal-amount {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 900;
   font-family: 'JetBrains Mono', monospace;
   background: linear-gradient(135deg, #06b6d4, #10b981);
@@ -82,7 +84,7 @@
   background-clip: text;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 8px;
 }
 
@@ -106,40 +108,55 @@
 }
 
 .bal-sub {
-  font-size: 14px;
+  font-size: 15px;
   color: #ef4444;
   font-weight: 600;
 }
 
-.balance-right {
+.action-buttons {
   display: flex;
-  align-items: center;
   gap: 16px;
+  width: 100%;
 }
 
-.mini-chart {
-  width: 120px;
-  height: 60px;
-  background: rgba(6, 182, 212, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(6, 182, 212, 0.2);
+.btn {
+  flex: 1;
+  justify-content: center;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
 }
 
 .btn.deposit {
   background: linear-gradient(135deg, #06b6d4, #3b82f6);
   color: white;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   border: none;
   cursor: pointer;
 }
 
 .btn.deposit:hover {
-  transform: translateY(-2px);
   box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+}
+
+.btn.withdraw {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn.withdraw:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ================================================

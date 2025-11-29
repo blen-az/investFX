@@ -1,9 +1,11 @@
 // src/pages/Profile.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 import "./Profile.css";
 
 export default function Profile() {
@@ -11,8 +13,22 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("transactions");
   const [balanceHidden, setBalanceHidden] = useState(false);
 
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+      if (doc.exists()) {
+        setBalance(doc.data().balance || 0);
+      }
+    });
+
+    return () => unsub();
+  }, [user]);
+
   // Mock Data
-  const portfolioValue = 150000;
+  const portfolioValue = balance;
   const todayPL = 450.25;
   const totalTrades = 128;
   const winRate = 68;

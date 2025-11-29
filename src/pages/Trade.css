@@ -27,17 +27,70 @@
     overflow: hidden;
 }
 
-.trade-order-section {
-    margin: 20px auto;
+/* Tabs Bar */
+.trade-tabs-bar {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px;
+    background: #1e222d;
+    /* Match chart bg or slightly different? */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-tab {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.main-tab:hover {
+    color: #f8fafc;
+}
+
+.main-tab.active {
+    color: #3b82f6;
+}
+
+.main-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -17px;
+    /* Align with border-bottom of container */
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #3b82f6;
+}
+
+/* Bottom Section */
+.trade-bottom-section {
+    padding: 20px;
     max-width: 1400px;
-    /* Limit width of order section for readability */
-    width: calc(100% - 48px);
-    /* Account for margins */
+    margin: 0 auto;
+    width: 100%;
+}
+
+.trade-order-section {
+    margin: 0 auto;
+    max-width: 800px;
+    /* Limit width */
     background: rgba(30, 34, 45, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 20px;
     backdrop-filter: blur(10px);
+}
+
+.trade-positions-section {
+    margin: 0 auto;
+    max-width: 1000px;
 }
 
 .quick-trade-header {
