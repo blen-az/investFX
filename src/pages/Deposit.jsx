@@ -12,6 +12,7 @@ export default function Deposit() {
   const [searchQuery, setSearchQuery] = useState("");
   const [depositAmount, setDepositAmount] = useState("");
   const [proofFile, setProofFile] = useState(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleDepositSubmit = async () => {
     if (!depositAmount || !proofFile) {
@@ -24,16 +25,14 @@ export default function Deposit() {
         user.uid,
         depositAmount,
         selectedCrypto?.symbol || "BTC",
-        proofFile.name
+        proofFile // Pass the file object, not just name
       );
 
-      alert(`Deposit request submitted!\nAmount: ${depositAmount}\nProof: ${proofFile.name}`);
-      setDepositAmount("");
-      setProofFile(null);
-      setSelectedCrypto(null);
+      setIsSuccess(true);
+      // Don't clear state immediately so we can show details in success view
     } catch (error) {
       console.error("Error submitting deposit:", error);
-      alert("Failed to submit deposit request. Please try again.");
+      alert(`Failed to submit deposit request: ${error.message}`);
     }
   };
 
@@ -264,111 +263,165 @@ export default function Deposit() {
               <p className="modal-subtitle">{selectedCrypto.symbol}</p>
             </div>
 
-            <div className="deposit-info">
-              <div className="info-item">
-                <div className="info-label">Network</div>
-                <div className="info-value">
-                  {selectedCrypto.symbol === "USDT" ? "TRC20" : selectedCrypto.symbol}
-                </div>
-              </div>
-              <div className="info-item">
-                <div className="info-label">Minimum Deposit</div>
-                <div className="info-value">
-                  {selectedCrypto.symbol === "BTC" ? "0.0001" : selectedCrypto.symbol === "ETH" ? "0.001" : "10"} {selectedCrypto.symbol}
-                </div>
-              </div>
-            </div>
+            {isSuccess ? (
+              <div className="success-state" style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div className="success-icon" style={{
+                  width: '60px',
+                  height: '60px',
+                  background: 'rgba(16, 185, 129, 0.2)',
+                  color: '#10b981',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '30px',
+                  margin: '0 auto 20px'
+                }}>✓</div>
+                <h2 style={{ fontSize: '24px', marginBottom: '10px', color: '#fff' }}>Deposit Submitted</h2>
+                <p style={{ color: '#94a3b8', marginBottom: '30px' }}>Your deposit request has been received and is being processed.</p>
 
-            <div className="wallet-address">
-              <div className="address-label">Deposit Address</div>
-              <div className="address-box">
-                <code className="address-code">
-                  {selectedCrypto.symbol === "BTC"
-                    ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
-                    : selectedCrypto.symbol === "ETH"
-                      ? "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
-                      : "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"}
-                </code>
-                <button className="copy-btn" onClick={() => {
-                  navigator.clipboard.writeText(
-                    selectedCrypto.symbol === "BTC"
-                      ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
-                      : selectedCrypto.symbol === "ETH"
-                        ? "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
-                        : "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
-                  );
-                  alert("Address copied!");
+                <div className="tx-details" style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginBottom: '30px'
                 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24162C20 6.7034 19.7831 6.18789 19.3982 5.81161L16.6018 3.08839C16.2171 2.71211 15.7016 2.5 15.1634 2.5H10C8.89543 2.5 8 3.39543 8 4.5V4Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V9C4 7.89543 4.89543 7 6 7H8"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  Copy
+                  <div className="tx-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{ color: '#94a3b8' }}>Amount</span>
+                    <span style={{ color: '#fff', fontWeight: 600 }}>{depositAmount} {selectedCrypto.symbol}</span>
+                  </div>
+                  <div className="tx-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{ color: '#94a3b8' }}>Status</span>
+                    <span style={{ color: '#f59e0b', fontWeight: 500 }}>Pending Review</span>
+                  </div>
+                  <div className="tx-row" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#94a3b8' }}>Proof</span>
+                    <span style={{ color: '#fff', fontSize: '12px' }}>{proofFile?.name}</span>
+                  </div>
+                </div>
+
+                <button
+                  className="submit-deposit-btn"
+                  onClick={() => {
+                    setIsSuccess(false);
+                    setDepositAmount("");
+                    setProofFile(null);
+                    setSelectedCrypto(null);
+                    setActiveTab("history"); // Switch to history tab
+                  }}
+                >
+                  Return to Dashboard
                 </button>
               </div>
-            </div>
-
-            <div className="deposit-form">
-              <div className="form-group">
-                <label className="form-label">Amount Deposited ({selectedCrypto.symbol})</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  placeholder="0.00"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Proof of Payment (Screenshot)</label>
-                <div className="file-upload-box">
-                  <input
-                    type="file"
-                    id="proof-upload"
-                    className="file-input"
-                    accept="image/*"
-                    onChange={(e) => setProofFile(e.target.files[0])}
-                  />
-                  <label htmlFor="proof-upload" className="file-label">
-                    {proofFile ? (
-                      <span className="file-name">{proofFile.name}</span>
-                    ) : (
-                      <>
-                        <span className="upload-icon">📁</span>
-                        <span>Click to upload screenshot</span>
-                      </>
-                    )}
-                  </label>
+            ) : (
+              <>
+                <div className="deposit-info">
+                  <div className="info-item">
+                    <div className="info-label">Network</div>
+                    <div className="info-value">
+                      {selectedCrypto.symbol === "USDT" ? "TRC20" : selectedCrypto.symbol}
+                    </div>
+                  </div>
+                  <div className="info-item">
+                    <div className="info-label">Minimum Deposit</div>
+                    <div className="info-value">
+                      {selectedCrypto.symbol === "BTC" ? "0.0001" : selectedCrypto.symbol === "ETH" ? "0.001" : "10"} {selectedCrypto.symbol}
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <button className="submit-deposit-btn" onClick={handleDepositSubmit}>
-                Submit Deposit Request
-              </button>
-            </div>
+                <div className="wallet-address">
+                  <div className="address-label">Deposit Address</div>
+                  <div className="address-box">
+                    <code className="address-code">
+                      {selectedCrypto.symbol === "BTC"
+                        ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        : selectedCrypto.symbol === "ETH"
+                          ? "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+                          : "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"}
+                    </code>
+                    <button className="copy-btn" onClick={() => {
+                      navigator.clipboard.writeText(
+                        selectedCrypto.symbol === "BTC"
+                          ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                          : selectedCrypto.symbol === "ETH"
+                            ? "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+                            : "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+                      );
+                      alert("Address copied!");
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24162C20 6.7034 19.7831 6.18789 19.3982 5.81161L16.6018 3.08839C16.2171 2.71211 15.7016 2.5 15.1634 2.5H10C8.89543 2.5 8 3.39543 8 4.5V4Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V9C4 7.89543 4.89543 7 6 7H8"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                      Copy
+                    </button>
+                  </div>
+                </div>
 
-            <div className="deposit-warning">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span>
-                Send only {selectedCrypto.symbol} to this address. Sending other assets may result in permanent loss.
-              </span>
-            </div>
+                <div className="deposit-form">
+                  <div className="form-group">
+                    <label className="form-label">Amount Deposited ({selectedCrypto.symbol})</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      placeholder="0.00"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Proof of Payment (Screenshot)</label>
+                    <div className="file-upload-box">
+                      <input
+                        type="file"
+                        id="proof-upload"
+                        className="file-input"
+                        accept="image/*"
+                        onChange={(e) => setProofFile(e.target.files[0])}
+                      />
+                      <label htmlFor="proof-upload" className="file-label">
+                        {proofFile ? (
+                          <span className="file-name">{proofFile.name}</span>
+                        ) : (
+                          <>
+                            <span className="upload-icon">📁</span>
+                            <span>Click to upload screenshot</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  </div>
+
+                  <button className="submit-deposit-btn" onClick={handleDepositSubmit}>
+                    Submit Deposit Request
+                  </button>
+                </div>
+
+                <div className="deposit-warning">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span>
+                    Send only {selectedCrypto.symbol} to this address. Sending other assets may result in permanent loss.
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

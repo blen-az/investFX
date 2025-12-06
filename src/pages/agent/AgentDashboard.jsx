@@ -2,19 +2,39 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import StatsCard from "../../components/StatsCard";
-import { generateReferralLink } from "../../services/agentService";
+import { generateReferralLink, getAgentStats } from "../../services/agentService";
 import "./AgentDashboard.css";
 
 export default function AgentDashboard() {
     const { user } = useAuth();
     const [referralLink, setReferralLink] = useState("");
     const [copied, setCopied] = useState(false);
+    const [stats, setStats] = useState({
+        totalReferrals: 0,
+        totalCommissions: 0,
+        thisMonthCommissions: 0,
+        commissionBalance: 0
+    });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (user) {
-            const link = generateReferralLink(user.uid);
-            setReferralLink(link);
-        }
+        const loadData = async () => {
+            if (user?.uid) {
+                const link = generateReferralLink(user.uid);
+                setReferralLink(link);
+
+                try {
+                    setLoading(true);
+                    const agentStats = await getAgentStats(user.uid);
+                    setStats(agentStats);
+                } catch (error) {
+                    console.error("Error loading agent stats:", error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        loadData();
     }, [user]);
 
     const copyReferralLink = () => {
@@ -37,25 +57,25 @@ export default function AgentDashboard() {
                 <StatsCard
                     icon="👥"
                     label="Total Referrals"
-                    value="0"
+                    value={loading ? "..." : stats.totalReferrals.toString()}
                     color="cyan"
                 />
                 <StatsCard
                     icon="💰"
                     label="Total Commissions"
-                    value="$0.00"
+                    value={loading ? "..." : `$${stats.totalCommissions.toFixed(2)}`}
                     color="green"
                 />
                 <StatsCard
                     icon="📊"
                     label="This Month"
-                    value="$0.00"
+                    value={loading ? "..." : `$${stats.thisMonthCommissions.toFixed(2)}`}
                     color="blue"
                 />
                 <StatsCard
                     icon="⏳"
-                    label="Pending"
-                    value="$0.00"
+                    label="Available Balance"
+                    value={loading ? "..." : `$${stats.commissionBalance.toFixed(2)}`}
                     color="yellow"
                 />
             </div>
@@ -111,7 +131,7 @@ export default function AgentDashboard() {
                     <a href="/agent/commissions" className="action-card glass-card">
                         <div className="action-icon">💰</div>
                         <div className="action-title">Commission History</div>
-                        <div className="action-desc">Track your earnings</div>
+                        <div className="action-desc">View detailed earnings breakdown</div>
                     </a>
 
                     <div className="action-card glass-card" onClick={copyReferralLink}>

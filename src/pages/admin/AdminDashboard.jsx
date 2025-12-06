@@ -148,6 +148,12 @@ export default function AdminDashboard() {
                         <div className="action-title">Trade Settings</div>
                         <div className="action-desc">Control trade outcomes</div>
                     </a>
+
+                    <a href="/admin/commissions" className="action-card glass-card">
+                        <div className="action-icon">💰</div>
+                        <div className="action-title">Commissions</div>
+                        <div className="action-desc">Track platform revenue</div>
+                    </a>
                 </div>
             </div>
         </div>

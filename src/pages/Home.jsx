@@ -14,11 +14,16 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [top, setTop] = useState([]);
   const [balanceHidden, setBalanceHidden] = useState(true);
-
   const [balance, setBalance] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+      setLoading(true);
+      return;
+    }
+
+    setLoading(false);
 
     const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
@@ -58,6 +63,23 @@ export default function Home() {
       .catch(() => { });
   }, []);
 
+  if (loading) {
+    return (
+      <div className="fx-home">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '80vh',
+          color: '#94a3b8',
+          fontSize: '16px'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fx-home">
 
@@ -69,7 +91,6 @@ export default function Home() {
         />
       </section>
 
-      {/* BALANCE CARD */}
       {/* BALANCE CARD */}
       <section className="fx-balance container">
         <div className="glass-card">

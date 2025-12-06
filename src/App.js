@@ -9,8 +9,10 @@ import News from "./pages/News";
 import Profile from "./pages/Profile";
 import Deposit from "./pages/Deposit";
 import Withdraw from "./pages/Withdraw";
+import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
 import LiveChat from "./pages/LiveChat";
+import Verification from "./pages/Verification";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -23,10 +25,14 @@ import Deposits from "./pages/admin/Deposits";
 import Withdrawals from "./pages/admin/Withdrawals";
 import Trades from "./pages/admin/Trades";
 import TradeSettings from "./pages/admin/TradeSettings";
+import AdminCommissions from "./pages/admin/Commissions";
+import Verifications from "./pages/admin/Verifications";
 
 // Agent Pages
 import AgentDashboard from "./pages/agent/AgentDashboard";
 import Referrals from "./pages/agent/Referrals";
+import AgentCommissions from "./pages/agent/Commissions";
+import AgentChats from "./pages/agent/AgentChats";
 
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
@@ -105,6 +111,15 @@ export default function App() {
             />
 
             <Route
+              path="/transactions"
+              element={
+                <RequireAuth>
+                  <Transactions />
+                </RequireAuth>
+              }
+            />
+
+            <Route
               path="/support"
               element={
                 <RequireAuth>
@@ -118,6 +133,15 @@ export default function App() {
               element={
                 <RequireAuth>
                   <LiveChat />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/verification"
+              element={
+                <RequireAuth>
+                  <Verification />
                 </RequireAuth>
               }
             />
@@ -179,12 +203,28 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/commissions"
+              element={
+                <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                  <AdminCommissions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/verifications"
+              element={
+                <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                  <Verifications />
+                </ProtectedRoute>
+              }
+            />
 
             {/* AGENT ROUTES */}
             <Route
               path="/agent/dashboard"
               element={
-                <ProtectedRoute requiredRole={ROLES.AGENT}>
+                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
                   <AgentDashboard />
                 </ProtectedRoute>
               }
@@ -192,8 +232,24 @@ export default function App() {
             <Route
               path="/agent/referrals"
               element={
-                <ProtectedRoute requiredRole={ROLES.AGENT}>
+                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
                   <Referrals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent/commissions"
+              element={
+                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                  <AgentCommissions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/agent/chats"
+              element={
+                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                  <AgentChats />
                 </ProtectedRoute>
               }
             />

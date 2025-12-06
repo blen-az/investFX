@@ -5,8 +5,11 @@ import {
     collection,
     query,
     getDocs,
+    getDoc,
     doc,
     updateDoc,
+    setDoc,
+    addDoc,
     where,
     orderBy,
     limit
@@ -165,10 +168,95 @@ export const getAllDeposits = async (status = null) => {
 export const approveDeposit = async (depositId) => {
     try {
         const depositRef = doc(db, "deposits", depositId);
+        const depositSnap = await getDoc(depositRef);
+
+        if (!depositSnap.exists()) {
+            throw new Error("Deposit not found");
+        }
+
+        const depositData = depositSnap.data();
+        const { uid, amount } = depositData;
+        const depositAmount = parseFloat(amount);
+
+        if (isNaN(depositAmount)) {
+            throw new Error("Invalid deposit amount");
+        }
+
+        // Update user's wallet balance
+        const walletRef = doc(db, "wallets", uid);
+        const walletSnap = await getDoc(walletRef);
+
+        if (!walletSnap.exists()) {
+            // Create wallet if it doesn't exist
+            await setDoc(walletRef, {
+                balance: depositAmount,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+        } else {
+            const currentBalance = parseFloat(walletSnap.data().balance) || 0;
+            await updateDoc(walletRef, {
+                balance: currentBalance + depositAmount,
+                updatedAt: new Date()
+            });
+        }
+
+        // Check for referrer and handle commission
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+
+        if (userData && userData.referredBy) {
+            const referredBy = userData.referredBy;
+
+            // NEW SPLIT (Total 100% of deposit):
+            // Platform (Dev): 10%
+            // Admin (Client): 50%
+            // Agent: 40%
+            const platformFee = depositAmount * 0.10;      // $100 on $1000
+            const platformProfit = depositAmount * 0.50;   // $500 on $1000
+            const agentCommission = depositAmount * 0.40;  // $400 on $1000
+
+            // Create commission record
+            await addDoc(collection(db, "commissions"), {
+                agentId: referredBy,
+                userId: uid,
+                depositId: depositId,
+                depositAmount: depositAmount,
+                platformFee,
+                agentCommission,
+                platformProfit,
+                status: "approved",
+                createdAt: new Date()
+            });
+
+            // Add commission to agent's commission balance
+            const agentWalletRef = doc(db, "wallets", referredBy);
+            const agentWalletSnap = await getDoc(agentWalletRef);
+
+            if (agentWalletSnap.exists()) {
+                const currentCommissionBalance = agentWalletSnap.data().commissionBalance || 0;
+                await updateDoc(agentWalletRef, {
+                    commissionBalance: currentCommissionBalance + agentCommission,
+                    updatedAt: new Date()
+                });
+            } else {
+                // Create wallet for agent if doesn't exist
+                await setDoc(agentWalletRef, {
+                    balance: 0,
+                    commissionBalance: agentCommission,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+            }
+        }
+
+        // Update deposit status
         await updateDoc(depositRef, {
             status: "approved",
             processedAt: new Date()
         });
+
         return { success: true };
     } catch (error) {
         console.error("Error approving deposit:", error);
@@ -306,6 +394,160 @@ export const forceTradeResult = async (tradeId, result, pnl) => {
         return { success: true };
     } catch (error) {
         console.error("Error forcing trade result:", error);
+        throw error;
+    }
+};
+
+/**
+ * Manually assign a user to an agent (for users who didn't use referral code)
+ */
+export const assignUserToAgent = async (userId, agentId) => {
+    try {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            throw new Error("User not found");
+        }
+
+        // Verify agent exists and has agent role
+        const agentRef = doc(db, "users", agentId);
+        const agentSnap = await getDoc(agentRef);
+
+        if (!agentSnap.exists()) {
+            throw new Error("Agent not found");
+        }
+
+        if (agentSnap.data().role !== "agent") {
+            throw new Error("Selected user is not an agent");
+        }
+
+        // Update user document with referredBy field
+        await updateDoc(userRef, {
+            referredBy: agentId,
+            updatedAt: new Date()
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error assigning user to agent:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get all agents (for dropdown selection)
+ */
+export const getAllAgents = async () => {
+    try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("role", "==", "agent"));
+        const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error("Error fetching agents:", error);
+        throw error;
+    }
+};
+
+/**
+ * Recalculate commissions for all past approved deposits
+ * This is useful for backfilling data or fixing missing commissions
+ */
+export const recalculateCommissions = async () => {
+    try {
+        console.log("Starting commission recalculation...");
+
+        // 1. Get all approved deposits
+        const depositsRef = collection(db, "deposits");
+        const q = query(depositsRef, where("status", "==", "approved"));
+        const depositSnap = await getDocs(q);
+
+        console.log(`Found ${depositSnap.size} approved deposits`);
+
+        let createdCount = 0;
+        let skippedCount = 0;
+
+        for (const depositDoc of depositSnap.docs) {
+            const deposit = depositDoc.data();
+            const depositId = depositDoc.id;
+
+            // 2. Check if commission already exists for this deposit
+            const commRef = collection(db, "commissions");
+            const commQ = query(commRef, where("depositId", "==", depositId));
+            const commSnap = await getDocs(commQ);
+
+            if (!commSnap.empty) {
+                skippedCount++;
+                continue; // Commission already exists
+            }
+
+            // 3. Get user to check for referrer
+            if (!deposit.uid) continue;
+
+            const userRef = doc(db, "users", deposit.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) continue;
+
+            const userData = userSnap.data();
+
+            if (userData.referredBy) {
+                const amount = parseFloat(deposit.amount);
+                if (isNaN(amount)) continue;
+
+                const platformFee = amount * 0.10;
+
+                // NEW SPLIT:
+                // Agent gets 50% of the fee
+                // Platform gets 10% of the fee
+                const agentCommission = platformFee * 0.50;
+                const platformProfit = platformFee * 0.10;
+
+                // 4. Create commission record
+                await addDoc(collection(db, "commissions"), {
+                    agentId: userData.referredBy,
+                    userId: deposit.uid,
+                    depositId: depositId,
+                    depositAmount: amount,
+                    platformFee,
+                    agentCommission,
+                    platformProfit,
+                    status: "approved",
+                    createdAt: deposit.createdAt || new Date(), // Use deposit date if available
+                    recalculatedAt: new Date()
+                });
+
+                // 5. Update agent wallet
+                const agentWalletRef = doc(db, "wallets", userData.referredBy);
+                const agentWalletSnap = await getDoc(agentWalletRef);
+
+                if (agentWalletSnap.exists()) {
+                    const currentComm = parseFloat(agentWalletSnap.data().commissionBalance) || 0;
+                    await updateDoc(agentWalletRef, {
+                        commissionBalance: currentComm + agentCommission,
+                        updatedAt: new Date()
+                    });
+                } else {
+                    await setDoc(agentWalletRef, {
+                        balance: 0,
+                        commissionBalance: agentCommission,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    });
+                }
+
+                createdCount++;
+            }
+        }
+
+        return { success: true, created: createdCount, skipped: skippedCount };
+    } catch (error) {
+        console.error("Error recalculating commissions:", error);
         throw error;
     }
 };

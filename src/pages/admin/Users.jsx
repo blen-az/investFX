@@ -14,6 +14,11 @@ export default function Users() {
     const [balanceAmount, setBalanceAmount] = useState("");
     const [balanceOperation, setBalanceOperation] = useState("set");
 
+    const [showAgentModal, setShowAgentModal] = useState(false);
+    const [agents, setAgents] = useState([]);
+    const [selectedAgent, setSelectedAgent] = useState("");
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+
     useEffect(() => {
         loadUsers();
     }, []);
@@ -50,6 +55,33 @@ export default function Users() {
         }
     };
 
+    const handleAssignAgent = async () => {
+        try {
+            const { assignUserToAgent } = await import("../../services/adminService");
+            await assignUserToAgent(selectedUser.id, selectedAgent);
+            setShowAgentModal(false);
+            setSelectedAgent("");
+            await loadUsers();
+            alert("User assigned to agent successfully!");
+        } catch (error) {
+            console.error("Error assigning agent:", error);
+            alert("Failed to assign agent: " + error.message);
+        }
+    };
+
+    const openAgentModal = async (user) => {
+        setSelectedUser(user);
+        try {
+            const { getAllAgents } = await import("../../services/adminService");
+            const agentList = await getAllAgents();
+            setAgents(agentList);
+            setShowAgentModal(true);
+        } catch (error) {
+            console.error("Error loading agents:", error);
+            alert("Failed to load agents list");
+        }
+    };
+
     const columns = [
         {
             header: "Name",
@@ -76,23 +108,6 @@ export default function Users() {
             render: (value) => `$${value?.toFixed(2) || '0.00'}`
         },
         {
-            header: "Referred By",
-            key: "referredBy",
-            render: (value, row) => {
-                if (!value) return <span style={{ color: '#64748b' }}>Direct signup</span>;
-
-                // Find the agent who referred this user
-                const agent = users.find(u => u.id === value);
-                return (
-                    <div>
-                        <span className="badge badge-agent" style={{ fontSize: '10px' }}>
-                            {agent ? agent.name || agent.email.split('@')[0] : value}
-                        </span>
-                    </div>
-                );
-            }
-        },
-        {
             header: "Status",
             key: "frozen",
             render: (value) => (
@@ -100,28 +115,6 @@ export default function Users() {
                     {value ? 'Frozen' : 'Active'}
                 </span>
             )
-        },
-        {
-            header: "Trade Control",
-            key: "tradeControl",
-            render: (value) => {
-                const mode = value || 'auto';
-                const colors = {
-                    auto: '#06b6d4',
-                    force_win: '#10b981',
-                    force_loss: '#ef4444'
-                };
-                const labels = {
-                    auto: 'Auto',
-                    force_win: 'Force Win',
-                    force_loss: 'Force Loss'
-                };
-                return (
-                    <span className="badge" style={{ background: colors[mode], color: 'white' }}>
-                        {labels[mode]}
-                    </span>
-                );
-            }
         },
         {
             header: "Joined",
@@ -133,6 +126,16 @@ export default function Users() {
     const actions = (row) => (
         <>
             <button
+                className="action-btn"
+                style={{ background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', border: '1px solid rgba(99, 102, 241, 0.3)' }}
+                onClick={() => {
+                    setSelectedUser(row);
+                    setShowDetailsModal(true);
+                }}
+            >
+                View Details
+            </button>
+            <button
                 className="action-btn action-btn-primary"
                 onClick={() => {
                     setSelectedUser(row);
@@ -142,37 +145,18 @@ export default function Users() {
                 Set Balance
             </button>
             <button
+                className="action-btn"
+                style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', border: '1px solid rgba(139, 92, 246, 0.3)' }}
+                onClick={() => openAgentModal(row)}
+            >
+                Assign Agent
+            </button>
+            <button
                 className={`action-btn ${row.frozen ? 'action-btn-success' : 'action-btn-danger'}`}
                 onClick={() => handleFreezeUser(row.id, !row.frozen)}
             >
                 {row.frozen ? 'Unfreeze' : 'Freeze'}
             </button>
-            <select
-                className="action-btn"
-                value={row.tradeControl || 'auto'}
-                onChange={async (e) => {
-                    try {
-                        await setUserTradeControl(row.id, e.target.value);
-                        await loadUsers();
-                    } catch (error) {
-                        console.error("Error setting trade control:", error);
-                    }
-                }}
-                style={{
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    background: 'rgba(6, 182, 212, 0.1)',
-                    border: '1px solid rgba(6, 182, 212, 0.3)',
-                    borderRadius: '6px',
-                    color: '#06b6d4',
-                    fontWeight: 600,
-                    fontSize: '13px'
-                }}
-            >
-                <option value="auto" style={{ background: '#1a1f2e', color: '#06b6d4' }}>Auto</option>
-                <option value="force_win" style={{ background: '#1a1f2e', color: '#10b981' }}>Force Win</option>
-                <option value="force_loss" style={{ background: '#1a1f2e', color: '#ef4444' }}>Force Loss</option>
-            </select>
         </>
     );
 
@@ -258,6 +242,156 @@ export default function Users() {
                             disabled={!balanceAmount}
                         >
                             Confirm
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Agent Assignment Modal */}
+            <Modal
+                isOpen={showAgentModal}
+                onClose={() => setShowAgentModal(false)}
+                title="Assign Agent"
+            >
+                <div className="modal-content">
+                    <div className="form-group">
+                        <label className="form-label">User</label>
+                        <div className="user-info-display">
+                            {selectedUser?.name || selectedUser?.email}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Select Agent</label>
+                        <select
+                            className="form-input"
+                            value={selectedAgent}
+                            onChange={(e) => setSelectedAgent(e.target.value)}
+                        >
+                            <option value="">-- Select an Agent --</option>
+                            {agents.map(agent => (
+                                <option key={agent.id} value={agent.id}>
+                                    {agent.name || agent.email} ({agent.email})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="modal-actions">
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => setShowAgentModal(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleAssignAgent}
+                            disabled={!selectedAgent}
+                        >
+                            Assign Agent
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* User Details Modal */}
+            <Modal
+                isOpen={showDetailsModal}
+                onClose={() => setShowDetailsModal(false)}
+                title="User Details"
+            >
+                <div className="modal-content">
+                    <div className="form-group">
+                        <label className="form-label">Name</label>
+                        <div className="user-info-display">
+                            {selectedUser?.name || selectedUser?.email?.split('@')[0]}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <div className="user-info-display">
+                            {selectedUser?.email}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Role</label>
+                        <div className="user-info-display">
+                            <span className={`badge badge-${selectedUser?.role}`}>
+                                {selectedUser?.role}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Balance</label>
+                        <div className="user-info-display">
+                            ${selectedUser?.balance?.toFixed(2) || '0.00'}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Referred By</label>
+                        <div className="user-info-display">
+                            {selectedUser?.referredBy ? (
+                                <span className="badge badge-agent">
+                                    {users.find(u => u.id === selectedUser.referredBy)?.name ||
+                                        users.find(u => u.id === selectedUser.referredBy)?.email ||
+                                        'Unknown Agent'}
+                                </span>
+                            ) : (
+                                <span style={{ color: '#64748b' }}>Direct signup</span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Trade Control</label>
+                        <div className="user-info-display">
+                            <select
+                                className="form-input"
+                                value={selectedUser?.tradeControl || 'auto'}
+                                onChange={async (e) => {
+                                    try {
+                                        await setUserTradeControl(selectedUser.id, e.target.value);
+                                        await loadUsers();
+                                        setSelectedUser({ ...selectedUser, tradeControl: e.target.value });
+                                    } catch (error) {
+                                        console.error("Error setting trade control:", error);
+                                    }
+                                }}
+                            >
+                                <option value="auto">Auto</option>
+                                <option value="force_win">Force Win</option>
+                                <option value="force_loss">Force Loss</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Account Status</label>
+                        <div className="user-info-display">
+                            <span className={`badge ${selectedUser?.frozen ? 'badge-danger' : 'badge-success'}`}>
+                                {selectedUser?.frozen ? 'Frozen' : 'Active'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Joined</label>
+                        <div className="user-info-display">
+                            {selectedUser?.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : '-'}
+                        </div>
+                    </div>
+
+                    <div className="modal-actions">
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => setShowDetailsModal(false)}
+                        >
+                            Close
                         </button>
                     </div>
                 </div>

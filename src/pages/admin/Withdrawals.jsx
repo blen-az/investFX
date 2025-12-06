@@ -65,7 +65,7 @@ export default function Withdrawals() {
         {
             header: "Amount",
             key: "amount",
-            render: (value) => <span style={{ color: '#ef4444', fontWeight: 600, fontSize: '16px' }}>-${value?.toFixed(2)}</span>
+            render: (value) => <span style={{ color: '#ef4444', fontWeight: 600, fontSize: '16px' }}>${value?.toFixed(2)}</span>
         },
         {
             header: "Asset",
@@ -76,8 +76,16 @@ export default function Withdrawals() {
             header: "Wallet Address",
             key: "address",
             render: (value) => (
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace' }}>
-                    {value ? value.substring(0, 12) + '...' + value.substring(value.length - 8) : '-'}
+                <span style={{
+                    fontSize: '11px',
+                    color: '#94a3b8',
+                    fontFamily: 'monospace',
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-all',
+                    display: 'block',
+                    minWidth: '150px'
+                }}>
+                    {value || '-'}
                 </span>
             )
         },

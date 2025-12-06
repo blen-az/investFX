@@ -77,9 +77,36 @@ export default function Deposits() {
             header: "Transaction ID",
             key: "transactionId",
             render: (value) => (
-                <span style={{ fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace' }}>
-                    {value ? value.substring(0, 16) + '...' : '-'}
+                <span style={{
+                    fontSize: '11px',
+                    color: '#94a3b8',
+                    fontFamily: 'monospace',
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-all',
+                    display: 'block',
+                    minWidth: '150px'
+                }}>
+                    {value || '-'}
                 </span>
+            )
+        },
+        {
+            header: "Proof",
+            key: "proofUrl",
+            render: (value) => value ? (
+                <a href={value} target="_blank" rel="noopener noreferrer" style={{
+                    display: 'inline-block',
+                    padding: '4px 8px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    color: '#3b82f6',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    textDecoration: 'none'
+                }}>
+                    View Image ↗
+                </a>
+            ) : (
+                <span style={{ color: '#64748b', fontSize: '12px' }}>No Proof</span>
             )
         },
         {

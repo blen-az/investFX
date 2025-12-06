@@ -154,3 +154,87 @@
 .send-btn:hover {
     transform: scale(1.05);
 }
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Loading State */
+.chat-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.chat-loading p {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* Error State */
+.chat-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 40px;
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.chat-error h2 {
+    font-size: 20px;
+    color: #f8fafc;
+    margin: 0 0 8px 0;
+}
+
+.chat-error p {
+    color: #94a3b8;
+    font-size: 14px;
+    margin: 4px 0;
+}
+
+/* Empty Chat State */
+.empty-chat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-chat p {
+    color: #94a3b8;
+    margin: 4px 0;
+}

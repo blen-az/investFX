@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import DataTable from "../../components/DataTable";
-import { getAllUsers } from "../../services/adminService";
-import { generateReferralLink } from "../../services/agentService";
+import { getReferredUsers, generateReferralLink } from "../../services/agentService";
 import "./Referrals.css";
 
 export default function Referrals() {
@@ -14,7 +13,7 @@ export default function Referrals() {
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
-        if (user) {
+        if (user?.uid) {
             const link = generateReferralLink(user.uid);
             setReferralLink(link);
             loadReferredUsers();
@@ -24,9 +23,7 @@ export default function Referrals() {
     const loadReferredUsers = async () => {
         try {
             setLoading(true);
-            const allUsers = await getAllUsers();
-            // Filter users who were referred by this agent
-            const referred = allUsers.filter(u => u.referredBy === user.uid);
+            const referred = await getReferredUsers(user.uid);
             setReferredUsers(referred);
         } catch (error) {
             console.error("Error loading referred users:", error);
