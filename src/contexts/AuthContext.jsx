@@ -70,6 +70,7 @@ export function AuthProvider({ children }) {
         email: user.email,
         name: name || email.split('@')[0], // Use provided name or email username
         role: ROLES.USER,
+        kycStatus: "unverified", // Default to unverified
         referredBy: referralCode || null,
         frozen: false,
         createdAt: new Date(),
