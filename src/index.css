@@ -9,54 +9,66 @@
 /* CSS Custom Properties - Design Tokens */
 :root {
   /* Color Palette - Deep Space Theme */
-  --color-bg-primary: #0a0e1a;        /* Deep space black */
-  --color-bg-secondary: #1a1f2e;      /* Charcoal gray */
-  --color-bg-tertiary: #252b3d;       /* Lighter charcoal */
-  
+  --color-bg-primary: #0a0e1a;
+  /* Deep space black */
+  --color-bg-secondary: #1a1f2e;
+  /* Charcoal gray */
+  --color-bg-tertiary: #252b3d;
+  /* Lighter charcoal */
+
   /* Accent Colors */
-  --color-accent-cyan: #06b6d4;       /* Electric cyan */
-  --color-accent-green: #10b981;      /* Neon green */
-  --color-accent-blue: #3b82f6;       /* Bright blue */
-  
+  --color-accent-cyan: #06b6d4;
+  /* Electric cyan */
+  --color-accent-green: #10b981;
+  /* Neon green */
+  --color-accent-blue: #3b82f6;
+  /* Bright blue */
+
   /* Semantic Colors */
-  --color-positive: #10b981;          /* Green for gains */
-  --color-negative: #ef4444;          /* Red for losses */
-  --color-warning: #f59e0b;           /* Amber for warnings */
-  
+  --color-positive: #10b981;
+  /* Green for gains */
+  --color-negative: #ef4444;
+  /* Red for losses */
+  --color-warning: #f59e0b;
+  /* Amber for warnings */
+
   /* Text Colors */
-  --color-text-primary: #f8fafc;      /* Almost white */
-  --color-text-secondary: #cbd5e1;    /* Light gray */
-  --color-text-muted: #64748b;        /* Muted gray */
-  
+  --color-text-primary: #f8fafc;
+  /* Almost white */
+  --color-text-secondary: #cbd5e1;
+  /* Light gray */
+  --color-text-muted: #64748b;
+  /* Muted gray */
+
   /* Glass Morphism */
   --glass-bg: rgba(26, 31, 46, 0.8);
   --glass-border: rgba(100, 116, 139, 0.2);
   --glass-hover: rgba(26, 31, 46, 0.9);
-  
+
   /* Shadows */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.3);
   --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.3);
-  
+
   /* Typography */
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  
+
   /* Border Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 300ms ease;
@@ -73,7 +85,9 @@
   padding: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   font-family: var(--font-primary);
@@ -257,6 +271,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -268,6 +283,7 @@ body {
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -275,9 +291,12 @@ body {
 }
 
 @keyframes glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
   }
@@ -287,15 +306,19 @@ body {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -368,6 +391,7 @@ body {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -528,4 +552,188 @@ a:hover {
   font-weight: 600;
   color: var(--color-accent-cyan);
   font-family: var(--font-mono);
+}
+
+/* ================================================
+   MOBILE RESPONSIVE STYLES
+   ================================================ */
+
+/* Tablets and below (768px) */
+@media (max-width: 768px) {
+
+  /* Base font size adjustment */
+  html {
+    font-size: 14px;
+  }
+
+  /* Reduce padding on glass cards */
+  .glass-card {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Adjust button sizes */
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  /* Smaller inputs */
+  .glass-input,
+  .field input {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  /* Auth buttons */
+  .auth-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  /* Trade buttons */
+  .trade-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  /* Reduce spacing */
+  :root {
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+  }
+}
+
+/* Mobile phones (480px) */
+@media (max-width: 480px) {
+
+  /* Further reduce font size */
+  html {
+    font-size: 13px;
+  }
+
+  /* Tighter padding */
+  .glass-card {
+    padding: 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Stack buttons vertically */
+  .auth-section {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .auth-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Full width buttons */
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger,
+  .trade-btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* Smaller inputs */
+  .glass-input,
+  .field input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  /* Reduce shadows for performance */
+  .glass-card {
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Disable hover effects on mobile */
+  .glass-card:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  button:hover {
+    transform: none;
+  }
+
+  /* Reduce spacing */
+  :root {
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.25rem;
+  }
+}
+
+/* Small phones (360px) */
+@media (max-width: 360px) {
+  html {
+    font-size: 12px;
+  }
+
+  .glass-card {
+    padding: 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger,
+  .trade-btn,
+  .auth-btn {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .glass-input,
+  .field input {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Landscape mode on phones */
+@media (max-height: 500px) and (orientation: landscape) {
+  .glass-card {
+    padding: 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger {
+    padding: 8px 16px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+
+  /* Larger tap targets */
+  button,
+  .auth-btn,
+  .trade-btn,
+  .tab {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects */
+  *:hover {
+    transform: none !important;
+  }
+
+  /* Disable animations for better performance */
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-glow,
+  .animate-float {
+    animation: none !important;
+  }
 }
