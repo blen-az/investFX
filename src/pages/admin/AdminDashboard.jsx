@@ -208,7 +208,7 @@ export default function AdminDashboard() {
                                 background: migrationMessage.includes('failed') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                                 border: `1px solid ${migrationMessage.includes('failed') ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
                                 borderRadius: '8px',
-                                color: mig rationMessage.includes('failed') ? '#ef4444' : '#10b981',
+                                color: migrationMessage.includes('failed') ? '#ef4444' : '#10b981',
                                 fontSize: '14px'
                             }}>
                                 {migrationMessage}
