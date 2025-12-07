@@ -8,17 +8,21 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     try {
       await login(email, password);
       navigate("/home");
     } catch (err) {
       setError("Failed to login. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,9 +65,29 @@ export default function Login() {
               />
             </div>
 
-            <button type="submit" className="login-btn">
-              Sign In
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? (
+                <>
+                  <div className="spinner" style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderTop: '2px solid white',
+                    borderRadius: '50%',
+                    animation: 'spin 0.6s linear infinite',
+                    display: 'inline-block',
+                    marginRight: '8px'
+                  }} />
+                  Signing in...
+                </>
+              ) : "Sign In"}
             </button>
+            <style>{`
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
           </form>
 
           <div className="login-footer">

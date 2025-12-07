@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
 
 import Layout from "./components/Layout";
+import LoadingPage from "./components/LoadingPage";
 import Home from "./pages/Home";              // Dashboard (protected)
 import Market from "./pages/Market";
 import CoinDetails from "./pages/CoinDetails";
@@ -50,211 +52,213 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Layout>
-          <Routes>
+          <Suspense fallback={<LoadingPage />}>
+            <Routes>
 
-            {/* ROOT PATH - Shows landing page for guests, redirects based on role for logged-in users */}
-            <Route path="/" element={<HomeRedirect />} />
+              {/* ROOT PATH - Shows landing page for guests, redirects based on role for logged-in users */}
+              <Route path="/" element={<HomeRedirect />} />
 
-            {/* PUBLIC ROUTES */}
-            <Route path="/market" element={<Market />} />
-            <Route path="/coin/:id" element={<CoinDetails />} />
-            <Route path="/news" element={<News />} />
+              {/* PUBLIC ROUTES */}
+              <Route path="/market" element={<Market />} />
+              <Route path="/coin/:id" element={<CoinDetails />} />
+              <Route path="/news" element={<News />} />
 
-            {/* AUTH ROUTES */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+              {/* AUTH ROUTES */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
 
-            {/* USER PROTECTED ROUTES */}
-            <Route
-              path="/home"
-              element={
-                <RequireAuth>
-                  <Home />
-                </RequireAuth>
-              }
-            />
+              {/* USER PROTECTED ROUTES */}
+              <Route
+                path="/home"
+                element={
+                  <RequireAuth>
+                    <Home />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/trade"
-              element={
-                <RequireAuth>
-                  <Trade />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/trade"
+                element={
+                  <RequireAuth>
+                    <Trade />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/profile"
-              element={
-                <RequireAuth>
-                  <Profile />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/profile"
+                element={
+                  <RequireAuth>
+                    <Profile />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/deposit"
-              element={
-                <RequireAuth>
-                  <Deposit />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/deposit"
+                element={
+                  <RequireAuth>
+                    <Deposit />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/withdraw"
-              element={
-                <RequireAuth>
-                  <Withdraw />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/withdraw"
+                element={
+                  <RequireAuth>
+                    <Withdraw />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/transactions"
-              element={
-                <RequireAuth>
-                  <Transactions />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/transactions"
+                element={
+                  <RequireAuth>
+                    <Transactions />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/support"
-              element={
-                <RequireAuth>
-                  <Support />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/support"
+                element={
+                  <RequireAuth>
+                    <Support />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/chat"
-              element={
-                <RequireAuth>
-                  <LiveChat />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/chat"
+                element={
+                  <RequireAuth>
+                    <LiveChat />
+                  </RequireAuth>
+                }
+              />
 
-            <Route
-              path="/verification"
-              element={
-                <RequireAuth>
-                  <Verification />
-                </RequireAuth>
-              }
-            />
+              <Route
+                path="/verification"
+                element={
+                  <RequireAuth>
+                    <Verification />
+                  </RequireAuth>
+                }
+              />
 
-            {/* ADMIN ROUTES */}
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/create-agent"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <AgentCreator />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/deposits"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <Deposits />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/withdrawals"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <Withdrawals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/trades"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <Trades />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/trade-settings"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <TradeSettings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/commissions"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <AdminCommissions />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/verifications"
-              element={
-                <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                  <Verifications />
-                </ProtectedRoute>
-              }
-            />
+              {/* ADMIN ROUTES */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Users />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/create-agent"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AgentCreator />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/deposits"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Deposits />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/withdrawals"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Withdrawals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/trades"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Trades />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/trade-settings"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <TradeSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/commissions"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AdminCommissions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/verifications"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Verifications />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* AGENT ROUTES */}
-            <Route
-              path="/agent/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                  <AgentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agent/referrals"
-              element={
-                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                  <Referrals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agent/commissions"
-              element={
-                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                  <AgentCommissions />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agent/chats"
-              element={
-                <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                  <AgentChats />
-                </ProtectedRoute>
-              }
-            />
+              {/* AGENT ROUTES */}
+              <Route
+                path="/agent/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/referrals"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <Referrals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/commissions"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentCommissions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/chats"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentChats />
+                  </ProtectedRoute>
+                }
+              />
 
-          </Routes>
+            </Routes>
+          </Suspense>
         </Layout>
       </Router>
     </AuthProvider>

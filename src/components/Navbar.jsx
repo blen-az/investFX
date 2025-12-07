@@ -12,7 +12,7 @@ export default function Navbar() {
   };
 
   const isActive = (path) => {
-    return location.pathname === path || location.pathname.startsWith(path);
+    return location.pathname === path;
   };
 
   return (
