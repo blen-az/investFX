@@ -9,7 +9,7 @@ import { db } from "../firebase";
 import "./Home.css";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [trending, setTrending] = useState([]);
   const [news, setNews] = useState([]);
   const [top, setTop] = useState([]);
@@ -19,14 +19,18 @@ export default function Home() {
 
   useEffect(() => {
     if (!user?.uid) {
-      setLoading(true);
+      // User not loaded yet or doesn't exist, keep waiting
       return;
     }
 
+    // User exists, fetch wallet data
     const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
         setBalance(doc.data().balance || 0);
       }
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching wallet:", error);
       setLoading(false);
     });
 
@@ -62,7 +66,7 @@ export default function Home() {
       .catch(() => { });
   }, []);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="fx-home">
         <div style={{
