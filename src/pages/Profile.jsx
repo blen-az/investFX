@@ -4,28 +4,72 @@ import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "../firebase"; // Ensure storage is exported in firebase.js
 import "./Profile.css";
 
 export default function Profile() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("transactions");
   const [balanceHidden, setBalanceHidden] = useState(false);
-
   const [balance, setBalance] = useState(0);
+
+  // KYC State
+  const [kycStatus, setKycStatus] = useState("unverified"); // unverified | pending | verified
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [idFile, setIdFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user?.uid) return;
 
-    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+    // Listen to wallet balance
+    const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
         setBalance(doc.data().balance || 0);
       }
     });
 
-    return () => unsub();
+    // Listen to user profile for KYC status
+    const unsubUser = onSnapshot(doc(db, "users", user.uid), (doc) => {
+      if (doc.exists()) {
+        setKycStatus(doc.data().kycStatus || "unverified");
+      }
+    });
+
+    return () => {
+      unsubWallet();
+      unsubUser();
+    };
   }, [user]);
+
+  // Handle ID Upload
+  const handleUploadID = async () => {
+    if (!idFile) return;
+    try {
+      setUploading(true);
+      // Upload to Firebase Storage
+      const fileRef = ref(storage, `kyc/${user.uid}/${idFile.name}`);
+      await uploadBytes(fileRef, idFile);
+      const url = await getDownloadURL(fileRef);
+
+      // Update Firestore
+      await updateDoc(doc(db, "users", user.uid), {
+        kycStatus: "pending",
+        idUrl: url,
+        kycSubmittedAt: new Date().toISOString()
+      });
+
+      setShowUploadModal(false);
+      alert("ID submitted for review! Verification takes 24-48h.");
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Failed to upload ID. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   // Mock Data
   const portfolioValue = balance;
@@ -33,6 +77,13 @@ export default function Profile() {
   const totalTrades = 128;
   const winRate = 68;
   const referralCode = "TRADER2025";
+
+  // Dynamic Badge Logic
+  const getBadge = () => {
+    if (kycStatus === "verified") return <span className="profile-badge status-verified">Verified</span>;
+    if (kycStatus === "pending") return <span className="profile-badge status-pending">Under Review</span>;
+    return <span className="profile-badge status-unverified">Unverified</span>;
+  };
 
   const transactions = [
     { id: 1, type: "Deposit", amount: 5000, status: "completed", date: "2025-11-26" },
@@ -99,7 +150,7 @@ export default function Profile() {
             <div className="profile-details">
               <h1>
                 {user?.email ? user.email.split("@")[0] : "Trader"}
-                <span className="profile-badge">Verified Trader</span>
+                {getBadge()}
               </h1>
               <div className="profile-email">{user?.email}</div>
             </div>
@@ -148,13 +199,13 @@ export default function Profile() {
               <p>Cash out earnings</p>
             </div>
           </Link>
-          <Link to="/settings" className="action-card">
+          <button onClick={() => { }} className="action-card" style={{ cursor: 'not-allowed', opacity: 0.7 }}>
             <div className="action-icon">⚙️</div>
             <div className="action-info">
               <h3>Settings</h3>
               <p>Account preferences</p>
             </div>
-          </Link>
+          </button>
         </div>
       </div>
 
@@ -196,16 +247,43 @@ export default function Profile() {
           <div className="content-card">
             <div className="card-title" style={{ marginBottom: '20px' }}>Trust Score</div>
             <div className="trust-score-container">
-              <div className="trust-circle">
-                <div className="trust-value">100</div>
+              <div className="trust-circle" style={{
+                borderColor: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#f59e0b' : '#ef4444',
+                borderTopColor: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#f59e0b' : '#ef4444'
+              }}>
+                <div className="trust-value" style={{
+                  color: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#f59e0b' : '#ef4444'
+                }}>
+                  {kycStatus === 'verified' ? '100' : kycStatus === 'pending' ? '50' : '20'}
+                </div>
                 <div className="trust-label">Score</div>
               </div>
-              <div className="verification-status">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Fully Verified
+
+              {/* Verification Call to Action */}
+              <div className="verification-status" style={{ flexDirection: 'column', gap: 12 }}>
+                {kycStatus === 'verified' ? (
+                  <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    ✓ Fully Verified
+                  </div>
+                ) : kycStatus === 'pending' ? (
+                  <div style={{ color: '#f59e0b' }}>⧗ In Review</div>
+                ) : (
+                  <button
+                    className="btn-verify"
+                    onClick={() => setShowUploadModal(true)}
+                    style={{
+                      background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '8px',
+                      color: 'white',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Upload ID to Verify
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -233,6 +311,39 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Upload ID Modal */}
+      {showUploadModal && (
+        <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
+          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowUploadModal(false)}>✕</button>
+            <h2 style={{ marginTop: 0, color: 'white' }}>Verify Identity</h2>
+            <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Please upload a clear photo of your ID (Passport, Driver's License) to unlock full features.</p>
+
+            <div className="file-upload-box" style={{ marginBottom: '20px' }}>
+              <input
+                type="file"
+                id="id-proof-upload"
+                className="file-input"
+                accept="image/*"
+                onChange={(e) => setIdFile(e.target.files[0])}
+              />
+              <label htmlFor="id-proof-upload" className="file-label">
+                {idFile ? <span style={{ color: '#10b981' }}>{idFile.name}</span> : <span>📁 Click to Select Image</span>}
+              </label>
+            </div>
+
+            <button
+              className="submit-deposit-btn"
+              onClick={handleUploadID}
+              disabled={uploading}
+              style={{ opacity: uploading ? 0.7 : 1 }}
+            >
+              {uploading ? "Uploading..." : "Submit for Verification"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
