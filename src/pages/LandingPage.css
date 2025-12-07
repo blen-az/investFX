@@ -477,7 +477,7 @@
 
   /* Hero section */
   .hero-modern {
-    padding: 40px 20px;
+    padding: 30px 16px;
     min-height: auto;
   }
 
@@ -485,14 +485,21 @@
     gap: 30px;
   }
 
+  .hero-text {
+    max-width: 100%;
+  }
+
   .hero-title {
     font-size: 2rem;
     line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
     max-width: 100%;
+    word-wrap: break-word;
   }
 
   .hero-buttons {
@@ -504,7 +511,9 @@
   .hero-buttons .btn-secondary {
     width: 100%;
     text-align: center;
-    padding: 12px 24px;
+    padding: 14px 20px;
+    font-size: 15px;
+    white-space: normal;
   }
 
   .hero-features {
@@ -530,11 +539,12 @@
   .trending-section,
   .news-section,
   .cta-section {
-    padding: 40px 20px;
+    padding: 40px 16px;
   }
 
   .section-title {
     font-size: 1.75rem;
+    word-wrap: break-word;
   }
 
   .trending-grid,
@@ -554,6 +564,7 @@
 
   .cta-title {
     font-size: 1.75rem;
+    word-wrap: break-word;
   }
 
   .cta-subtitle {
