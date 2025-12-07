@@ -21,7 +21,7 @@ export default function Navbar() {
         {/* BRAND */}
         <Link to={user ? (isAdmin() ? "/admin/dashboard" : isAgent() ? "/agent/dashboard" : "/home") : "/"} className="brand">
           <span className="brand-icon">⚡</span>
-          <span className="brand-text">InvestFX</span>
+          <span className="brand-text">AvaTrade</span>
           {isAdmin() && <span className="role-badge admin-badge">ADMIN</span>}
           {isAgent() && !isAdmin() && <span className="role-badge agent-badge">AGENT</span>}
         </Link>

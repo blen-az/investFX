@@ -165,7 +165,7 @@ export default function LandingPage() {
         <div className="glass-card cta-card">
           <h2 className="cta-title gradient-text">Ready to Start Trading?</h2>
           <p className="cta-subtitle">
-            Join thousands of traders already using InvestFX to trade cryptocurrencies
+            Join thousands of traders already using AvaTrade to trade cryptocurrencies
           </p>
           <Link to="/signup" className="btn-primary btn-large">
             Create Free Account

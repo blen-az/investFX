@@ -61,7 +61,7 @@ export default function Signup() {
       <div className="login-container">
         <div className="login-card">
           <div className="login-header">
-            <div className="login-logo">InvestFX</div>
+            <div className="login-logo">AvaTrade</div>
             <h2 className="login-title">Create Account</h2>
             <p className="login-subtitle">Start your trading journey today</p>
           </div>
