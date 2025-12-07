@@ -176,7 +176,7 @@ export default function AgentDashboard() {
                     <div className="referral-icon">🔗</div>
                     <div>
                         <h2 className="referral-title">Your Referral Link</h2>
-                        <p className="referral-subtitle">Share this link to earn 10% commission on deposits</p>
+                        <p className="referral-subtitle">Share this link to earn 40% commission on deposits</p>
                     </div>
                 </div>
 
@@ -240,7 +240,7 @@ export default function AgentDashboard() {
                     <ul className="info-list">
                         <li>Share your referral link with friends</li>
                         <li>They sign up using your link</li>
-                        <li>When they make a deposit, you earn 10% commission</li>
+                        <li>When they make a deposit, you earn 40% commission</li>
                         <li>Commissions are added to your balance automatically</li>
                         <li>Withdraw your earnings anytime</li>
                     </ul>

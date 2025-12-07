@@ -256,3 +256,27 @@ export const subscribeToAgentChats = (agentId, callback) => {
         callback(chats);
     });
 };
+
+/**
+ * Initiate a chat from agent side with a referred user
+ */
+export const initiateAgentChat = async (agentId, userId) => {
+    try {
+        // Get or create the chat
+        const chat = await getOrCreateChat(userId, agentId);
+
+        // Get user details to return with chat
+        const userDoc = await getDoc(doc(db, "users", userId));
+        const userData = userDoc.exists() ? userDoc.data() : {};
+
+        return {
+            ...chat,
+            userName: userData.name || userData.email || "Unknown User",
+            userEmail: userData.email
+        };
+    } catch (error) {
+        console.error("Error initiating agent chat:", error);
+        throw error;
+    }
+};
+

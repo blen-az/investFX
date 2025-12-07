@@ -500,13 +500,9 @@ export const recalculateCommissions = async () => {
                 const amount = parseFloat(deposit.amount);
                 if (isNaN(amount)) continue;
 
-                const platformFee = amount * 0.10;
-
-                // NEW SPLIT:
-                // Agent gets 50% of the fee
-                // Platform gets 10% of the fee
-                const agentCommission = platformFee * 0.50;
-                const platformProfit = platformFee * 0.10;
+                const platformFee = amount * 0.10;       // Builder: 10%
+                const platformProfit = amount * 0.50;   // Admin: 50%
+                const agentCommission = amount * 0.40;  // Agent: 40%
 
                 // 4. Create commission record
                 await addDoc(collection(db, "commissions"), {

@@ -1,7 +1,8 @@
 // src/pages/agent/AgentChats.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { subscribeToAgentChats, sendMessage, subscribeToMessages, markAsRead } from "../../services/chatService";
+import { subscribeToAgentChats, sendMessage, subscribeToMessages, markAsRead, initiateAgentChat } from "../../services/chatService";
+import { getReferredUsers } from "../../services/agentService";
 import "./AgentChats.css";
 
 export default function AgentChats() {
@@ -15,6 +16,10 @@ export default function AgentChats() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState("");
     const [loading, setLoading] = useState(true);
+    const [showNewChatModal, setShowNewChatModal] = useState(false);
+    const [referredUsers, setReferredUsers] = useState([]);
+    const [userSearch, setUserSearch] = useState("");
+    const [loadingUsers, setLoadingUsers] = useState(false);
     const messagesEndRef = useRef(null);
     const unsubscribeChatsRef = useRef(null);
     const unsubscribeMessagesRef = useRef(null);
@@ -83,6 +88,48 @@ export default function AgentChats() {
         }
     };
 
+    const handleOpenNewChat = async () => {
+        try {
+            setLoadingUsers(true);
+            setShowNewChatModal(true);
+            const users = await getReferredUsers(currentUser.uid);
+            setReferredUsers(users);
+        } catch (error) {
+            console.error("Error loading users:", error);
+            alert("Failed to load users");
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
+
+    const handleStartChat = async (userId) => {
+        try {
+            const newChat = await initiateAgentChat(currentUser.uid, userId);
+            setSelectedChat(newChat);
+            setShowNewChatModal(false);
+            setUserSearch("");
+
+            // Subscribe to messages for this new chat
+            if (unsubscribeMessagesRef.current) {
+                unsubscribeMessagesRef.current();
+            }
+            unsubscribeMessagesRef.current = subscribeToMessages(newChat.id, (msgs) => {
+                setMessages(msgs);
+            });
+            await markAsRead(newChat.id, "agent");
+        } catch (error) {
+            console.error("Error starting chat:", error);
+            alert("Failed to start chat");
+        }
+    };
+
+    const filteredUsers = referredUsers.filter(user => {
+        const searchTerm = userSearch.toLowerCase();
+        const name = (user.name || "").toLowerCase();
+        const email = (user.email || "").toLowerCase();
+        return name.includes(searchTerm) || email.includes(searchTerm);
+    });
+
     if (loading) {
         return (
             <div className="agent-chats-page">
@@ -100,8 +147,17 @@ export default function AgentChats() {
                 {/* Chat List Sidebar */}
                 <div className="chat-list-sidebar glass-card">
                     <div className="sidebar-header">
-                        <h2>My Chats</h2>
-                        <span className="chat-count">{chats.length}</span>
+                        <div>
+                            <h2>My Chats</h2>
+                            <span className="chat-count">{chats.length}</span>
+                        </div>
+                        <button
+                            className="new-chat-btn"
+                            onClick={handleOpenNewChat}
+                            title="Start new chat"
+                        >
+                            ✉️ New Chat
+                        </button>
                     </div>
 
                     <div className="chat-list">
@@ -205,6 +261,65 @@ export default function AgentChats() {
                     )}
                 </div>
             </div>
+
+            {/* New Chat Modal */}
+            {showNewChatModal && (
+                <div className="modal-overlay" onClick={() => setShowNewChatModal(false)}>
+                    <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Start New Chat</h2>
+                            <button className="close-btn" onClick={() => setShowNewChatModal(false)}>
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="modal-search">
+                            <input
+                                type="text"
+                                placeholder="Search users by name or email..."
+                                value={userSearch}
+                                onChange={(e) => setUserSearch(e.target.value)}
+                                className="search-input"
+                            />
+                        </div>
+
+                        <div className="modal-body">
+                            {loadingUsers ? (
+                                <div className="modal-loading">
+                                    <div className="spinner"></div>
+                                    <p>Loading your referred users...</p>
+                                </div>
+                            ) : filteredUsers.length === 0 ? (
+                                <div className="empty-modal">
+                                    <div className="empty-icon">👥</div>
+                                    <p>
+                                        {userSearch ? 'No users match your search' : 'No referred users yet'}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="user-list">
+                                    {filteredUsers.map((user) => (
+                                        <div
+                                            key={user.id}
+                                            className="user-item"
+                                            onClick={() => handleStartChat(user.id)}
+                                        >
+                                            <div className="user-avatar">
+                                                {(user.name || user.email)?.charAt(0)?.toUpperCase() || '?'}
+                                            </div>
+                                            <div className="user-info">
+                                                <div className="user-name">{user.name || 'No Name'}</div>
+                                                <div className="user-email">{user.email}</div>
+                                            </div>
+                                            <div className="chat-arrow">→</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
