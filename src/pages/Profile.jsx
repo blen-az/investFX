@@ -6,7 +6,8 @@ import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../firebase"; // Ensure storage is exported in firebase.js
+import { db, storage } from "../firebase";
+import { getUserTransactions } from "../services/transactionService";
 import "./Profile.css";
 
 export default function Profile() {
@@ -16,10 +17,14 @@ export default function Profile() {
   const [balance, setBalance] = useState(0);
 
   // KYC State
-  const [kycStatus, setKycStatus] = useState("unverified"); // unverified | pending | verified
+  const [kycStatus, setKycStatus] = useState("unverified");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [idFile, setIdFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  // Transactions State
+  const [transactions, setTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -38,23 +43,54 @@ export default function Profile() {
       }
     });
 
+    // Load transactions
+    loadTransactions();
+
     return () => {
       unsubWallet();
       unsubUser();
     };
   }, [user]);
 
+  const loadTransactions = async () => {
+    if (!user?.uid) return;
+    try {
+      setLoadingTransactions(true);
+      const data = await getUserTransactions(user.uid);
+      setTransactions(data || []);
+    } catch (error) {
+      console.error("Error loading transactions:", error);
+      setTransactions([]);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
   // Handle ID Upload
   const handleUploadID = async () => {
     if (!idFile) return;
+
+    // Validate file
+    if (idFile.size > 10 * 1024 * 1024) { // 10MB limit
+      alert("File is too large. Please upload an image smaller than 10MB.");
+      return;
+    }
+
     try {
       setUploading(true);
+      console.log("Starting ID upload...");
+
       // Upload to Firebase Storage
       const fileRef = ref(storage, `kyc/${user.uid}/${idFile.name}`);
+      console.log("Uploading to:", `kyc/${user.uid}/${idFile.name}`);
       await uploadBytes(fileRef, idFile);
+      console.log("Upload complete, getting URL...");
+
       const url = await getDownloadURL(fileRef);
+      console.log("URL obtained:", url);
 
       // Update Firestore
+      console.log("Updating Firestore...");
       await updateDoc(doc(db, "users", user.uid), {
         kycStatus: "pending",
         idUrl: url,
@@ -62,10 +98,26 @@ export default function Profile() {
       });
 
       setShowUploadModal(false);
+      setIdFile(null);
       alert("ID submitted for review! Verification takes 24-48h.");
     } catch (error) {
-      console.error("Upload failed", error);
-      alert("Failed to upload ID. Please try again.");
+      console.error("Upload failed:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+
+      // Show specific error
+      let errorMsg = "Failed to upload ID. ";
+      if (error.code === 'storage/unauthorized') {
+        errorMsg += "Permission denied. Please contact support.";
+      } else if (error.code === 'storage/canceled') {
+        errorMsg += "Upload was cancelled.";
+      } else if (error.code === 'storage/unknown') {
+        errorMsg += "Network error. Please check your connection.";
+      } else {
+        errorMsg += error.message || "Please try again.";
+      }
+
+      alert(errorMsg);
     } finally {
       setUploading(false);
     }
@@ -85,13 +137,7 @@ export default function Profile() {
     return <span className="profile-badge status-unverified">Unverified</span>;
   };
 
-  const transactions = [
-    { id: 1, type: "Deposit", amount: 5000, status: "completed", date: "2025-11-26" },
-    { id: 2, type: "Trade Profit", amount: 450.25, status: "completed", date: "2025-11-26" },
-    { id: 3, type: "Withdrawal", amount: -1000, status: "pending", date: "2025-11-25" },
-    { id: 4, type: "Trade Loss", amount: -120.50, status: "completed", date: "2025-11-24" },
-    { id: 5, type: "Deposit", amount: 10000, status: "completed", date: "2025-11-20" },
-  ];
+  // Transactions are now fetched from Firestore via loadTransactions()
 
   const columns = [
     {
