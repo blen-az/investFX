@@ -99,20 +99,22 @@ export const getVerificationStatus = async (userId) => {
 export const getPendingVerifications = async () => {
     try {
         const usersRef = collection(db, "users");
-        const q = query(usersRef, where("verification.status", "==", "pending"));
-
-        const snapshot = await getDocs(q);
+        // Fetch all users to avoid nested field index requirement
+        const snapshot = await getDocs(usersRef);
         const verifications = [];
 
         snapshot.forEach((doc) => {
             const userData = doc.data();
-            verifications.push({
-                userId: doc.id,
-                name: userData.name || userData.email,
-                email: userData.email,
-                verification: userData.verification,
-                createdAt: userData.createdAt
-            });
+            // Filter for pending verifications client-side
+            if (userData.verification && userData.verification.status === "pending") {
+                verifications.push({
+                    userId: doc.id,
+                    name: userData.name || userData.email,
+                    email: userData.email,
+                    verification: userData.verification,
+                    createdAt: userData.createdAt
+                });
+            }
         });
 
         // Sort by submission date (newest first)
@@ -135,15 +137,8 @@ export const getPendingVerifications = async () => {
 export const getAllVerifications = async (statusFilter = null) => {
     try {
         const usersRef = collection(db, "users");
-        let q;
-
-        if (statusFilter) {
-            q = query(usersRef, where("verification.status", "==", statusFilter));
-        } else {
-            q = query(usersRef);
-        }
-
-        const snapshot = await getDocs(q);
+        // Fetch all users to avoid nested field index requirement
+        const snapshot = await getDocs(usersRef);
         const verifications = [];
 
         snapshot.forEach((doc) => {
@@ -151,14 +146,17 @@ export const getAllVerifications = async (statusFilter = null) => {
 
             // Only include users who have verification data
             if (userData.verification && userData.verification.status !== "unverified") {
-                verifications.push({
-                    userId: doc.id,
-                    name: userData.name || userData.email,
-                    email: userData.email,
-                    role: userData.role,
-                    verification: userData.verification,
-                    createdAt: userData.createdAt
-                });
+                // Apply status filter if provided
+                if (!statusFilter || userData.verification.status === statusFilter) {
+                    verifications.push({
+                        userId: doc.id,
+                        name: userData.name || userData.email,
+                        email: userData.email,
+                        role: userData.role,
+                        verification: userData.verification,
+                        createdAt: userData.createdAt
+                    });
+                }
             }
         });
 
