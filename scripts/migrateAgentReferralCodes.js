@@ -4,15 +4,14 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, doc, updateDoc, query, where } from "firebase/firestore";
 
-// Your Firebase configuration (copy from src/firebase.js)
+// Your Firebase configuration
 const firebaseConfig = {
-    // Add your Firebase config here
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_APP_ID
+    apiKey: "AIzaSyDTdhyBMYdpOy3a7SDYHyXmFJPgD5Ao7nA",
+    authDomain: "investfx-1faf1.firebaseapp.com",
+    projectId: "investfx-1faf1",
+    storageBucket: "investfx-1faf1.firebasestorage.app",
+    messagingSenderId: "310036681524",
+    appId: "1:310036681524:web:7937a954a237d15c030b61"
 };
 
 // Initialize Firebase
