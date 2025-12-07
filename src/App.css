@@ -600,51 +600,49 @@ canvas {
 /* Mobile Navbar Optimizations */
 @media (max-width: 768px) {
   .navbar-container {
-    flex-direction: row;
-    /* Changed to row to allow wrapping */
-    flex-wrap: wrap;
-    /* Allow wrapping */
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 12px;
     padding: 12px 16px;
   }
 
-  /* 1. Logo - Top Left */
-  .brand {
-    width: auto;
-    order: 1;
+  /* 1. Top Row: Logo + Auth */
+  .navbar-container> :nth-child(1),
+  .navbar-container> :nth-child(3) {
+    display: flex;
+    align-items: center;
   }
 
-  /* 2. Auth/User - Top Right */
+  /* Logo - Left */
+  .brand {
+    margin-right: auto;
+  }
+
+  /* Auth Section - Right */
   .auth-section {
-    width: auto;
-    order: 2;
+    margin-left: auto;
     gap: 8px;
   }
 
   .auth-btn {
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 13px;
   }
 
-  /* 3. Navigation - Bottom Row (Full Width) */
+  /* 2. Navigation - Bottom Row (Full Width) */
   .nav-links {
     order: 3;
     width: 100%;
-    margin: 0 -16px;
-    /* Negative margin to touch edges */
-    padding: 4px 16px 12px;
+    margin: 0;
+    padding: 8px 0 4px;
     border-top: 1px solid rgba(100, 116, 139, 0.1);
-    margin-top: 4px;
 
     /* Horizontal Scroll */
     justify-content: flex-start;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
   }
 
   /* Hide scrollbar */
@@ -659,7 +657,6 @@ canvas {
     background: rgba(26, 31, 46, 0.4);
     border: 1px solid rgba(100, 116, 139, 0.1);
     border-radius: 20px;
-    /* Pill shape */
     flex-shrink: 0;
   }
 
@@ -670,30 +667,27 @@ canvas {
 
   .nav-link.active::after {
     display: none;
-    /* Remove underline styling for pills */
   }
 
   /* Adjust User Info for Mobile */
   .user-info {
-    display: none;
-    /* Hide user name/email on mobile as per request */
-  }
-
-  .logout-btn {
-    display: none;
-    /* Hide logout button on mobile as per request (user can logout from Profile) */
-  }
-
-  /* Ensure Auth Section doesn't take up space if empty */
-  .auth-section {
-    width: auto;
-    order: 2;
+    padding: 6px 10px;
     gap: 8px;
   }
 
-  /* Only show login/signup if not logged in */
-  .auth-section:not(:has(.user-info)) {
-    display: flex;
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .user-email {
+    display: none;
+  }
+
+  .logout-btn {
+    padding: 8px 12px;
+    font-size: 13px;
   }
 }
 

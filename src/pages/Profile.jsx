@@ -1,7 +1,7 @@
 // src/pages/Profile.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
 import Toast from "../components/Toast";
@@ -12,7 +12,8 @@ import "./Profile.css";
 
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("transactions");
   const [balanceHidden, setBalanceHidden] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -290,11 +291,21 @@ export default function Profile() {
               <p>Cash out earnings</p>
             </div>
           </Link>
-          <button onClick={() => { }} className="action-card" style={{ cursor: 'not-allowed', opacity: 0.7 }}>
-            <div className="action-icon">⚙️</div>
+          <button
+            onClick={async () => {
+              try {
+                await logout();
+                navigate('/');
+              } catch (error) {
+                console.error('Logout error:', error);
+              }
+            }}
+            className="action-card logout-card"
+          >
+            <div className="action-icon">🚪</div>
             <div className="action-info">
-              <h3>Settings</h3>
-              <p>Account preferences</p>
+              <h3>Logout</h3>
+              <p>Sign out of account</p>
             </div>
           </button>
         </div>
