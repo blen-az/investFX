@@ -174,7 +174,6 @@ export default function Profile() {
   const todayPL = 450.25;
   const totalTrades = 128;
   const winRate = 68;
-  const referralCode = "TRADER2025";
 
   // Dynamic Badge Logic
   const getBadge = () => {
@@ -390,14 +389,6 @@ export default function Profile() {
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
                 <span style={{ color: '#94a3b8' }}>Win Rate</span>
                 <span style={{ fontWeight: '600', color: '#10b981' }}>{winRate}%</span>
-              </div>
-            </div>
-
-            <div className="referral-box">
-              <div className="referral-label">Your Referral Code</div>
-              <div className="referral-code-display">
-                <span className="code">{referralCode}</span>
-                <span className="copy-icon" title="Copy Code">📋</span>
               </div>
             </div>
           </div>
