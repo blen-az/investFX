@@ -16,20 +16,66 @@ import {
 } from "firebase/firestore";
 
 /**
+ * Generate a unique 6-character referral code
+ */
+const generateReferralCode = () => {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+};
+
+/**
+ * Check if referral code is unique
+ */
+const isReferralCodeUnique = async (code) => {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("referralCode", "==", code));
+    const snapshot = await getDocs(q);
+    return snapshot.empty;
+};
+
+/**
+ * Generate a unique referral code (retry until unique)
+ */
+const generateUniqueReferralCode = async () => {
+    let code = generateReferralCode();
+    let attempts = 0;
+
+    while (!(await isReferralCodeUnique(code)) && attempts < 10) {
+        code = generateReferralCode();
+        attempts++;
+    }
+
+    if (attempts >= 10) {
+        throw new Error("Failed to generate unique referral code");
+    }
+
+    return code;
+};
+
+
+/**
  * Create a user document in Firestore
  */
-export const createUserDocument = async (uid, email, name, role = "user") => {
+export const createUserDocument = async (uid, email, name, role = "user", referralCode = null) => {
     try {
         const userRef = doc(db, "users", uid);
 
-        await setDoc(userRef, {
+        const userData = {
             uid,
             email,
             name: name || email.split("@")[0],
             role,
             createdAt: new Date(),
             frozen: false
-        });
+        };
+
+        // Add referral code for agents
+        if (role === "agent" && !referralCode) {
+            userData.referralCode = await generateUniqueReferralCode();
+        } else if (referralCode) {
+            userData.referralCode = referralCode;
+        }
+
+        await setDoc(userRef, userData);
 
         // Also create wallet for the user
         const walletRef = doc(db, "wallets", uid);
@@ -39,7 +85,7 @@ export const createUserDocument = async (uid, email, name, role = "user") => {
             updatedAt: new Date()
         });
 
-        return { success: true };
+        return { success: true, referralCode: userData.referralCode };
     } catch (error) {
         console.error("Error creating user document:", error);
         throw error;
@@ -65,12 +111,19 @@ export const setUserRole = async (uid, role) => {
             throw new Error("User not found");
         }
 
-        await updateDoc(userRef, {
+        const updateData = {
             role,
             updatedAt: new Date()
-        });
+        };
 
-        return { success: true, role };
+        // Generate referral code if upgrading to agent and doesn't have one
+        if (role === "agent" && !userSnap.data().referralCode) {
+            updateData.referralCode = await generateUniqueReferralCode();
+        }
+
+        await updateDoc(userRef, updateData);
+
+        return { success: true, role, referralCode: updateData.referralCode };
     } catch (error) {
         console.error("Error setting user role:", error);
         throw error;

@@ -90,9 +90,26 @@ export const getCommissionHistory = async (agentId) => {
     }
 };
 
+// Get agent's referral code
+export const getAgentReferralCode = async (agentId) => {
+    try {
+        const userRef = doc(db, "users", agentId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            throw new Error("Agent not found");
+        }
+
+        return userSnap.data().referralCode || null;
+    } catch (error) {
+        console.error("Error fetching referral code:", error);
+        throw error;
+    }
+};
+
 // Generate referral link
-export const generateReferralLink = (agentId) => {
+export const generateReferralLink = (referralCode) => {
     const baseUrl = window.location.origin;
-    return `${baseUrl}/signup?ref=${agentId}`;
+    return `${baseUrl}/signup?ref=${referralCode}`;
 };
 
