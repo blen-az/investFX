@@ -186,6 +186,12 @@ export default function AdminDashboard() {
                         <div className="action-title">Commissions</div>
                         <div className="action-desc">Track platform revenue</div>
                     </a>
+
+                    <a href="/admin/verifications" className="action-card glass-card">
+                        <div className="action-icon">🆔</div>
+                        <div className="action-title">ID Verifications</div>
+                        <div className="action-desc">Review user documents</div>
+                    </a>
                 </div>
             </div>
 
