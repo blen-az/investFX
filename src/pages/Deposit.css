@@ -497,27 +497,54 @@
     line-height: 1.5;
 }
 
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 48px 0;
-    color: #94a3b8;
-}
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .deposit-page {
+        padding: 16px;
+        padding-bottom: 80px;
+    }
 
-.empty-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.5;
-}
+    .balance-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 16px;
+    }
 
-.empty-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
+    .balance-icon {
+        margin: 0 auto;
+    }
 
-.empty-text {
-    font-size: 14px;
-    max-width: 300px;
-    margin: 0 auto;
+    .kyc-notice {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .kyc-icon {
+        color: #f59e0b;
+    }
+
+    /* Tabs scroll optimization */
+    .deposit-tabs {
+        overflow-x: auto;
+        padding-bottom: 4px;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        min-width: 120px;
+    }
+
+    /* Address box vertical on very small screens */
+    .address-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .copy-btn {
+        justify-content: center;
+        padding: 12px;
+    }
 }

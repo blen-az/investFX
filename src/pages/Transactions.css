@@ -1,0 +1,165 @@
+/* Transactions Page Styles */
+
+.transactions-page {
+    min-height: 100vh;
+    padding: 24px;
+    position: relative;
+    /* Background handled by global index.css or parent */
+}
+
+.transactions-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.t-title {
+    margin: 0;
+}
+
+.t-title h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #facc15, #ca8a04);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.t-desc {
+    color: #94a3b8;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.transactions-filters {
+    background: rgba(30, 41, 59, 0.5);
+    padding: 4px;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+    display: flex;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: #94a3b8;
+}
+
+.filter-btn:hover {
+    color: white;
+    background: rgba(55, 65, 81, 1);
+}
+
+.filter-btn.active {
+    background: #eab308;
+    color: #000;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.transactions-content {
+    background: rgba(30, 41, 59, 0.3);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 256px;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border-bottom: 2px solid #eab308;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-state-tx {
+    padding: 48px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+/* badge helpers match what was in jsx but cleaner if moved here */
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.text-gray-300 {
+    color: #d1d5db;
+}
+
+.text-gray-400 {
+    color: #9ca3af;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .transactions-page {
+        padding: 16px;
+    }
+
+    .transactions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .transactions-filters {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    }
+
+    .filter-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+}

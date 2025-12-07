@@ -276,3 +276,46 @@
 .home-btn:hover {
     background: rgba(255, 255, 255, 0.1);
 }
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .withdraw-page {
+        padding: 16px;
+        padding-bottom: 80px;
+    }
+
+    .withdraw-container {
+        padding: 20px;
+    }
+
+    .withdraw-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    /* Asset list compact items */
+    .asset-item {
+        padding: 12px;
+    }
+
+    .asset-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        margin-right: 12px;
+    }
+
+    .asset-name {
+        font-size: 14px;
+    }
+
+    .asset-symbol {
+        font-size: 11px;
+    }
+
+    /* Summary row padding */
+    .summary-row {
+        font-size: 13px;
+    }
+}

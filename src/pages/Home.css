@@ -381,43 +381,102 @@
 
 @media (max-width: 768px) {
   .fx-balance .glass-card {
-    flex-direction: column;
-    gap: 20px;
-    align-items: flex-start;
-  }
-
-  .balance-right {
-    width: 100%;
-    justify-content: space-between;
+    padding: 24px;
   }
 
   .bal-amount {
-    font-size: 2rem;
+    font-size: 2.25rem;
+    flex-wrap: wrap;
   }
 
+  /* Quick Actions - 2 Columns on Tablet */
   .qa-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Market Insights - Horizontal Scroll */
   .mi-carousel {
-    grid-template-columns: 1fr;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
   }
 
+  .mi-carousel>* {
+    min-width: 280px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Hide Scrollbar */
+  .mi-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Top Cryptos - Standard List */
+  .crypto-row {
+    padding: 12px;
+  }
+
+  /* Trending Coins - Horizontal Scroll */
   .trend-list {
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  }
+
+  .trend-mini {
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  .trend-list::-webkit-scrollbar {
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
+  .fx-balance .glass-card {
+    padding: 20px;
+  }
+
   .bal-amount {
     font-size: 1.75rem;
   }
 
+  /* Quick Actions - Horizontal Scroll on Phone */
   .qa-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
   }
 
-  .trend-list {
-    grid-template-columns: repeat(2, 1fr);
+  .qa-card {
+    min-width: 110px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    padding: 16px 12px;
+  }
+
+  .qa-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Adjust buttons */
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
   }
 }

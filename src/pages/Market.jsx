@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import MiniSpark from "../components/MiniSpark";
+import "./Market.css";
 
 // Primary API (CoinGecko)
 const MAIN_API = (page = 1, per = 12) =>
@@ -84,7 +85,7 @@ export default function Market() {
             return;
           }
         }
-      } catch {}
+      } catch { }
     }
 
     try {
@@ -139,7 +140,7 @@ export default function Market() {
               const obj = JSON.parse(raw);
               if (Array.isArray(obj.data)) setCoins(obj.data);
             }
-          } catch {}
+          } catch { }
         }
         setHasMore(false);
         setLoading(false);
@@ -161,7 +162,7 @@ export default function Market() {
           }
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }
 
   // initial load & when page changes
@@ -230,19 +231,16 @@ export default function Market() {
     if (e && e.target) e.target.src = FALLBACK_IMG;
   }
 
-  // small responsive grid styles inline so this file works standalone
-  const gridStyle = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12, marginTop: 12 };
-
   return (
-    <div className="page-wrap">
+    <div className="page-wrap market-page">
       <div className="container">
-        <div className="header" style={{ alignItems: "flex-start", gap: 12 }}>
+        <div className="header market-header-row">
           <div>
             <h1 className="h1">Market</h1>
             <div className="sub">Live crypto prices — fast, professional</div>
           </div>
 
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          <div className="market-filters">
             {[
               { id: "marketcap", label: "Top" },
               { id: "gainers", label: "Gainers" },
@@ -268,9 +266,9 @@ export default function Market() {
 
         {/* skeleton + shimmer when first loading and no cached data */}
         {loading && coins.length === 0 ? (
-          <div style={gridStyle}>
+          <div className="market-grid">
             {Array.from({ length: PER_PAGE }).map((_, i) => (
-              <div key={i} className="card" style={{ padding: 12 }}>
+              <div key={i} className="card market-card">
                 <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <div style={{ width: 42, height: 42, borderRadius: 10, background: "#0f2030", animation: "shimmer 1.4s infinite" }} />
                   <div style={{ flex: 1 }}>
@@ -284,9 +282,9 @@ export default function Market() {
           </div>
         ) : (
           <>
-            <div style={gridStyle}>
+            <div className="market-grid">
               {filtered.map((c) => (
-                <div key={c.id} className="card" style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <div key={c.id} className="card market-card">
                   {/* header */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", gap: 10, alignItems: "center" }}>

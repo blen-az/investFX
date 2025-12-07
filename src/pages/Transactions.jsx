@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getUserTransactions } from "../services/transactionService";
 import ParticleBackground from "../components/ParticleBackground";
 import DataTable from "../components/DataTable";
+import "./Transactions.css";
 
 export default function Transactions() {
   const { user } = useAuth();
@@ -38,8 +39,8 @@ export default function Transactions() {
       key: "type",
       render: (value) => (
         <span className={`badge ${value === 'Deposit' ? 'badge-success' :
-            value === 'Withdrawal' ? 'badge-danger' :
-              'badge-warning'
+          value === 'Withdrawal' ? 'badge-danger' :
+            'badge-warning'
           }`}>
           {value}
         </span>
@@ -55,9 +56,6 @@ export default function Transactions() {
       key: "amount",
       render: (value, row) => {
         const isPositive = value > 0;
-        const isTrade = row.type === 'Trade';
-        // For trades, 0 PnL (loss) is effectively negative investment, but here we show net result
-        // If trade is active, it's negative (cost). 
 
         return (
           <span style={{
@@ -95,28 +93,23 @@ export default function Transactions() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8 relative overflow-hidden">
+    <div className="transactions-page">
       <ParticleBackground />
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">
-              Transaction History
-            </h1>
-            <p className="text-gray-400 mt-2">View all your deposits, withdrawals, and trades</p>
+      <div className="transactions-container">
+        <div className="transactions-header">
+          <div className="t-title">
+            <h1>Transaction History</h1>
+            <p className="t-desc">View all your deposits, withdrawals, and trades</p>
           </div>
 
           {/* Filters */}
-          <div className="flex gap-2 mt-4 md:mt-0 bg-gray-800/50 p-1 rounded-lg backdrop-blur-sm">
+          <div className="transactions-filters">
             {["All", "Deposit", "Withdrawal", "Trade"].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${filter === f
-                    ? "bg-yellow-500 text-black shadow-lg"
-                    : "text-gray-400 hover:text-white hover:bg-gray-700"
-                  }`}
+                className={`filter-btn ${filter === f ? "active" : ""}`}
               >
                 {f}
               </button>
@@ -125,16 +118,16 @@ export default function Transactions() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+          <div className="loading-state">
+            <div className="spinner"></div>
           </div>
         ) : (
-          <div className="bg-gray-800/30 backdrop-blur-md rounded-xl border border-gray-700/50 overflow-hidden shadow-2xl">
+          <div className="transactions-content">
             {filteredData.length > 0 ? (
               <DataTable columns={columns} data={filteredData} />
             ) : (
-              <div className="p-12 text-center text-gray-400">
-                <div className="text-4xl mb-4">📝</div>
+              <div className="empty-state-tx">
+                <div className="empty-icon">📝</div>
                 <p>No transactions found for this filter.</p>
               </div>
             )}

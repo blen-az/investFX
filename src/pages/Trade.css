@@ -128,6 +128,8 @@
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #f8fafc;
+    width: 100%;
+    /* Ensure inputs take full width */
 }
 
 .trade-order-section input:focus {
@@ -160,6 +162,8 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
+    width: 100%;
+    /* Ensure full width on mobile */
 }
 
 .trade-order-section .trade-btn:hover {
@@ -175,4 +179,66 @@
 .trade-order-section .sell {
     background: #ef4444;
     color: white;
+}
+
+/* ================================================
+   MOBILE RESPONSIVE
+   ================================================ */
+
+@media (max-width: 768px) {
+    .trade-chart-section {
+        height: 500px;
+        /* Reduced height for tablets/mobile */
+        max-height: 60vh;
+    }
+
+    .trade-bottom-section {
+        padding: 16px;
+    }
+
+    .trade-tabs-bar {
+        padding: 12px;
+        gap: 16px;
+    }
+
+    .trade-order-section {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .trade-header {
+        padding: 15px 16px 5px;
+    }
+
+    .trade-chart-section {
+        height: 400px;
+        /* Even smaller for phones */
+        max-height: 50vh;
+    }
+
+    .quick-trade-header h3 {
+        font-size: 16px;
+    }
+
+    .main-tab {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .trade-tabs-bar {
+        gap: 8px;
+        overflow-x: auto;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .trade-order-section {
+        padding: 14px;
+    }
+
+    /* Ensure form elements stack nicely */
+    .trade-order-section .field {
+        width: 100% !important;
+    }
 }

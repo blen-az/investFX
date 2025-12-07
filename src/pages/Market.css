@@ -1,0 +1,100 @@
+/* Market Page Styles */
+.market-page {
+    width: 100%;
+    padding-bottom: 40px;
+}
+
+.market-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.market-filters {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.market-card {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .market-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .market-filters {
+        margin-left: 0;
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    }
+
+    /* Make filter buttons pill-like and non-wrapping */
+    .market-filters .btn {
+        white-space: nowrap;
+        padding: 8px 16px;
+        border-radius: 20px;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .market-grid {
+        grid-template-columns: 1fr;
+        /* Single column on phone */
+    }
+
+    .market-card {
+        padding: 12px;
+    }
+
+    /* Make cards look more like list items on phone */
+    .market-card {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Re-arrange card internals for horizontal list look */
+    .market-card>div {
+        /* Header section */
+        flex: 1 1 auto;
+    }
+
+    .market-card>div:nth-child(2) {
+        /* Price section */
+        flex: 0 0 auto;
+        text-align: right;
+    }
+
+    .market-card>div:last-child {
+        /* Actions - force to bottom or hide/minimize */
+        width: 100%;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        justify-content: space-between;
+    }
+}
