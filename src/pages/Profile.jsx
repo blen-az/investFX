@@ -4,11 +4,12 @@ import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
+import Toast from "../components/Toast";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../firebase";
+import { db } from "../firebase";
 import { getUserTransactions } from "../services/transactionService";
 import "./Profile.css";
+
 
 export default function Profile() {
   const { user } = useAuth();
@@ -21,6 +22,9 @@ export default function Profile() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [idFile, setIdFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  // Toast State
+  const [toast, setToast] = useState(null);
 
   // Transactions State
   const [transactions, setTransactions] = useState([]);
@@ -68,57 +72,99 @@ export default function Profile() {
 
   // Handle ID Upload
   const handleUploadID = async () => {
-    if (!idFile) return;
+    if (!idFile) {
+      setToast({ message: "Please select a file first.", type: "warning" });
+      return;
+    }
 
-    // Validate file
+    // Validate file type
+    if (!idFile.type.startsWith('image/')) {
+      setToast({ message: "Please upload an image file (JPG, PNG, etc.)", type: "warning" });
+      return;
+    }
+
+    // Validate file size
     if (idFile.size > 10 * 1024 * 1024) { // 10MB limit
-      alert("File is too large. Please upload an image smaller than 10MB.");
+      setToast({ message: "File is too large. Please upload an image smaller than 10MB.", type: "warning" });
       return;
     }
 
     try {
       setUploading(true);
-      console.log("Starting ID upload...");
+      console.log("Starting ID upload to Cloudinary...");
+      console.log("File details:", { name: idFile.name, size: idFile.size, type: idFile.type });
 
-      // Upload to Firebase Storage
-      const fileRef = ref(storage, `kyc/${user.uid}/${idFile.name}`);
-      console.log("Uploading to:", `kyc/${user.uid}/${idFile.name}`);
-      await uploadBytes(fileRef, idFile);
-      console.log("Upload complete, getting URL...");
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append("file", idFile);
+      formData.append("upload_preset", "invest"); // Your Unsigned Upload Preset
+      formData.append("cloud_name", "dlzvewiff"); // Your Cloud Name
+      formData.append("folder", "kyc"); // Organize uploads in a folder
 
-      const url = await getDownloadURL(fileRef);
-      console.log("URL obtained:", url);
+      console.log("Uploading to Cloudinary...");
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dlzvewiff/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      // Update Firestore
-      console.log("Updating Firestore...");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Cloudinary error response:", errorData);
+        throw new Error(`Cloudinary upload failed: ${errorData.error?.message || "Unknown error"}`);
+      }
+
+      const data = await response.json();
+      const uploadedUrl = data.secure_url;
+      console.log("Upload complete! URL:", uploadedUrl);
+
+      // Update Firestore with Cloudinary URL
+      console.log("Updating user document in Firestore...");
       await updateDoc(doc(db, "users", user.uid), {
         kycStatus: "pending",
-        idUrl: url,
+        idUrl: uploadedUrl,
         kycSubmittedAt: new Date().toISOString()
       });
 
       setShowUploadModal(false);
       setIdFile(null);
-      alert("ID submitted for review! Verification takes 24-48h.");
+      setUploading(false);
+      setToast({
+        message: "ID submitted successfully! Your documents will be reviewed within 24-48 hours.",
+        type: "success"
+      });
     } catch (error) {
-      console.error("Upload failed:", error);
-      console.error("Error code:", error.code);
+      console.error("=== UPLOAD ERROR ===");
+      console.error("Error:", error);
       console.error("Error message:", error.message);
 
-      // Show specific error
-      let errorMsg = "Failed to upload ID. ";
-      if (error.code === 'storage/unauthorized') {
-        errorMsg += "Permission denied. Please contact support.";
-      } else if (error.code === 'storage/canceled') {
-        errorMsg += "Upload was cancelled.";
-      } else if (error.code === 'storage/unknown') {
-        errorMsg += "Network error. Please check your connection.";
+      // Show specific error with actionable guidance
+      let errorMsg = "❌ Upload Failed\n\n";
+
+      if (error.message.includes("Cloudinary")) {
+        errorMsg += error.message + "\n\n";
+        errorMsg += "This usually means:\n";
+        errorMsg += "• Check your internet connection\n";
+        errorMsg += "• File format may not be supported\n";
+        errorMsg += "• Upload preset might be misconfigured\n\n";
+        errorMsg += "Please try again or contact support.";
+      } else if (error.message.includes("Network")) {
+        errorMsg += "Network error occurred.\n";
+        errorMsg += "Please check your internet connection and try again.";
+      } else if (error.message.includes("timeout")) {
+        errorMsg += "Upload timed out.\n";
+        errorMsg += "Please check your connection and try a smaller file.";
       } else {
-        errorMsg += error.message || "Please try again.";
+        errorMsg += `Error: ${error.message || "Unknown error"}\n\n`;
+        errorMsg += "Please try again or contact support if the issue persists.";
       }
 
-      alert(errorMsg);
-    } finally {
+      setToast({
+        message: errorMsg,
+        type: "error"
+      });
       setUploading(false);
     }
   };
@@ -389,6 +435,15 @@ export default function Profile() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Toast Notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );
