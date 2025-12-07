@@ -564,13 +564,25 @@ canvas {
 /* ================================================
    RESPONSIVE
    ================================================ */
+/* ================================================
+   RESPONSIVE
+   ================================================ */
 @media (max-width: 980px) {
   .grid-2 {
     grid-template-columns: 1fr;
   }
 
   .nav-links {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  }
+
+  .nav-links::-webkit-scrollbar {
+    height: 0px;
+    background: transparent;
   }
 }
 
@@ -581,5 +593,68 @@ canvas {
 
   .card {
     padding: 12px;
+  }
+}
+
+/* Mobile Navbar Optimizations */
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 12px 16px;
+  }
+
+  .brand {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 12px;
+    padding-bottom: 8px;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  }
+
+  .nav-link {
+    white-space: nowrap;
+    padding: 8px 12px;
+    font-size: 13px;
+    background: rgba(26, 31, 46, 0.4);
+    border: 1px solid rgba(100, 116, 139, 0.1);
+  }
+
+  .auth-section {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .auth-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .user-info {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text {
+    font-size: 18px;
+  }
+
+  .brand-icon {
+    font-size: 20px;
+  }
+
+  .nav-link svg {
+    width: 16px;
+    height: 16px;
   }
 }
