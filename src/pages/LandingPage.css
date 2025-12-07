@@ -477,12 +477,14 @@
 
   /* Hero section */
   .hero-modern {
-    padding: 30px 16px;
+    padding: 20px 12px;
     min-height: auto;
   }
 
   .hero-content {
-    gap: 30px;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0;
   }
 
   .hero-text {
@@ -490,10 +492,11 @@
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
     line-height: 1.2;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    max-width: 100%;
   }
 
   .hero-subtitle {
@@ -511,9 +514,11 @@
   .hero-buttons .btn-secondary {
     width: 100%;
     text-align: center;
-    padding: 14px 20px;
-    font-size: 15px;
-    white-space: normal;
+    padding: 12px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+    color: white;
+    justify-content: center;
   }
 
   .hero-features {
