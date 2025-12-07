@@ -674,39 +674,25 @@ canvas {
 
   /* Adjust User Info for Mobile */
   .user-info {
-    padding: 4px 8px;
-    background: transparent;
-    border: none;
-  }
-
-  .user-email {
     display: none;
-    /* Hide email on mobile to save space */
-  }
-
-  .user-avatar {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+    /* Hide user name/email on mobile as per request */
   }
 
   .logout-btn {
-    padding: 6px;
-    width: 32px;
-    height: 32px;
+    display: none;
+    /* Hide logout button on mobile as per request (user can logout from Profile) */
+  }
+
+  /* Ensure Auth Section doesn't take up space if empty */
+  .auth-section {
+    width: auto;
+    order: 2;
+    gap: 8px;
+  }
+
+  /* Only show login/signup if not logged in */
+  .auth-section:not(:has(.user-info)) {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
-  .logout-btn svg {
-    margin: 0;
-  }
-
-  /* Hide text in logout button on mobile */
-  .logout-btn {
-    font-size: 0;
   }
 }
 
