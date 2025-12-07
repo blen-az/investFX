@@ -175,6 +175,7 @@ body,
   gap: 8px;
   border: none;
   outline: none;
+  white-space: nowrap;
 }
 
 .auth-btn svg {

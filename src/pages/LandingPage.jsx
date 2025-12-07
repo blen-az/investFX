@@ -34,17 +34,18 @@ export default function LandingPage() {
         <div className="hero-content">
           <div className="hero-text">
             <h1 className="hero-title gradient-text animate-fade-in">
-              Trade Crypto With Confidence
+              Your Gateway to Crypto Trading
             </h1>
             <p className="hero-subtitle animate-fade-in">
-              Buy, sell & trade digital assets on a fast, secure and modern platform.
-              Experience professional-grade trading with real-time data and advanced analytics.
+              Trade Bitcoin, Ethereum, and 500+ cryptocurrencies with confidence.
+              Join 120,000+ traders using professional-grade tools, real-time data,
+              and bank-level security to maximize their trading potential.
             </p>
 
             {/* BUTTONS */}
             <div className="hero-buttons animate-slide-in">
               <Link to="/signup" className="btn-primary">
-                Get Started
+                Start Trading Now →
               </Link>
               <Link to="/login" className="btn-secondary">
                 Sign In
@@ -163,12 +164,13 @@ export default function LandingPage() {
       {/* ================= CTA SECTION ================= */}
       <section className="cta-section">
         <div className="glass-card cta-card">
-          <h2 className="cta-title gradient-text">Ready to Start Trading?</h2>
+          <h2 className="cta-title gradient-text">Start Your Trading Journey Today</h2>
           <p className="cta-subtitle">
-            Join thousands of traders already using AvaTrade to trade cryptocurrencies
+            Join thousands of successful traders worldwide. Create your free account in seconds
+            and start trading with as little as $10. No hidden fees, no commitments.
           </p>
           <Link to="/signup" className="btn-primary btn-large">
-            Create Free Account
+            Create Free Account →
           </Link>
         </div>
       </section>

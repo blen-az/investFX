@@ -40,16 +40,31 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       console.log('Auth state changed:', currentUser ? currentUser.email : 'No user');
-      setUser(currentUser);
 
       if (currentUser) {
-        // Fetch user role when user logs in
-        const role = await fetchUserRole(currentUser.uid);
-        setUserRole(role);
+        // Fetch user data from Firestore
+        try {
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            // Attach displayName to user object
+            currentUser.displayName = userData.name || currentUser.email.split('@')[0];
+            console.log('User displayName:', currentUser.displayName);
+            setUserRole(userData.role || ROLES.USER);
+          } else {
+            const role = await fetchUserRole(currentUser.uid);
+            setUserRole(role);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          const role = await fetchUserRole(currentUser.uid);
+          setUserRole(role);
+        }
       } else {
         setUserRole(null);
       }
 
+      setUser(currentUser);
       setLoading(false);
     });
 
