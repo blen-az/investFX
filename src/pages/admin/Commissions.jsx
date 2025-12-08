@@ -10,10 +10,10 @@ export default function AdminCommissions() {
     const [commissions, setCommissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
-        totalPlatformProfit: 0,
-        totalAgentCommissions: 0,
-        totalDeposits: 0,
-        totalPlatformFees: 0
+        adminProfit: 0,         // 50%
+        agentCommissions: 0,    // 40%
+        builderFees: 0,         // 10%
+        totalDeposits: 0
     });
 
     useEffect(() => {
@@ -62,12 +62,17 @@ export default function AdminCommissions() {
             setCommissions(history);
 
             // Calculate stats
-            const totalPlatformProfit = history.reduce((sum, c) => sum + (c.platformProfit || 0), 0);
-            const totalAgentCommissions = history.reduce((sum, c) => sum + (c.agentCommission || 0), 0);
+            const adminProfit = history.reduce((sum, c) => sum + (c.platformProfit || 0), 0);      // 50%
+            const agentCommissions = history.reduce((sum, c) => sum + (c.agentCommission || 0), 0); // 40%
+            const builderFees = history.reduce((sum, c) => sum + (c.platformFee || 0), 0);          // 10%
             const totalDeposits = history.reduce((sum, c) => sum + (c.depositAmount || 0), 0);
-            const totalPlatformFees = history.reduce((sum, c) => sum + (c.platformFee || 0), 0);
 
-            setStats({ totalPlatformProfit, totalAgentCommissions, totalDeposits, totalPlatformFees });
+            setStats({
+                adminProfit,      // 50% of deposits
+                agentCommissions, // 40% of deposits
+                builderFees,      // 10% of deposits
+                totalDeposits
+            });
         } catch (error) {
             console.error("Error loading commissions:", error);
         } finally {
@@ -159,32 +164,32 @@ export default function AdminCommissions() {
                 </button>
             </div>
 
-            {/* Admin Stats */}
+            {/* Commission Stats */}
             <div className="commission-stats-grid">
                 <div className="stat-card glass-card">
-                    <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>💰</div>
+                    <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>👑</div>
                     <div className="stat-content">
-                        <div className="stat-label">Total Platform Profit</div>
+                        <div className="stat-label">Admin Profit (50%)</div>
                         <div className="stat-value" style={{ color: '#3b82f6' }}>
-                            ${stats.totalPlatformProfit.toFixed(2)}
+                            ${stats.adminProfit?.toFixed(2) || '0.00'}
                         </div>
                     </div>
                 </div>
                 <div className="stat-card glass-card">
-                    <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>🧾</div>
+                    <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>🔧</div>
                     <div className="stat-content">
-                        <div className="stat-label">Total Platform Fees</div>
+                        <div className="stat-label">Builder Fees (10%)</div>
                         <div className="stat-value" style={{ color: '#f59e0b' }}>
-                            ${stats.totalPlatformFees.toFixed(2)}
+                            ${stats.builderFees?.toFixed(2) || '0.00'}
                         </div>
                     </div>
                 </div>
                 <div className="stat-card glass-card">
                     <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>👥</div>
                     <div className="stat-content">
-                        <div className="stat-label">Total Paid to Agents</div>
+                        <div className="stat-label">Agent Commissions (40%)</div>
                         <div className="stat-value" style={{ color: '#10b981' }}>
-                            ${stats.totalAgentCommissions.toFixed(2)}
+                            ${stats.agentCommissions?.toFixed(2) || '0.00'}
                         </div>
                     </div>
                 </div>
@@ -193,7 +198,7 @@ export default function AdminCommissions() {
                     <div className="stat-content">
                         <div className="stat-label">Total Deposits Processed</div>
                         <div className="stat-value">
-                            ${stats.totalDeposits.toFixed(2)}
+                            ${stats.totalDeposits?.toFixed(2) || '0.00'}
                         </div>
                     </div>
                 </div>
