@@ -125,19 +125,20 @@ body {
    ================================================ */
 
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.9);
+  /* Removed backdrop-filter for 60fps scroll performance */
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-normal);
+  /* Performance optimizations */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .glass-card:hover {
-  background: var(--glass-hover);
-  transform: translateY(-2px);
+  background: rgba(15, 23, 42, 0.95);
   box-shadow: var(--shadow-lg);
+  /* Removed translateY for better performance */
 }
 
 .glass-input {
