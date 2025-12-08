@@ -6,15 +6,17 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.85);
+    /* Removed backdrop-filter for better performance */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     padding: 20px;
     animation: fadeIn 0.2s ease-out;
+    /* Enable hardware acceleration */
+    will-change: opacity;
+    transform: translateZ(0);
 }
 
 @keyframes fadeIn {
@@ -34,6 +36,9 @@
     max-height: 90vh;
     display: flex;
     flex-direction: column;
+    /* Hardware acceleration */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 @keyframes slideUp {
@@ -101,6 +106,12 @@
     padding: 24px;
     overflow-y: auto;
     flex: 1;
+    /* Optimize scroll performance */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    /* Hardware acceleration for smooth scrolling */
+    will-change: scroll-position;
+    transform: translateZ(0);
 }
 
 /* Custom scrollbar for modal body */
