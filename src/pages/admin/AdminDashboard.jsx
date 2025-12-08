@@ -192,6 +192,12 @@ export default function AdminDashboard() {
                         <div className="action-title">ID Verifications</div>
                         <div className="action-desc">Review user documents</div>
                     </a>
+
+                    <a href="/admin/settings" className="action-card glass-card">
+                        <div className="action-icon">⚙️</div>
+                        <div className="action-title">Settings</div>
+                        <div className="action-desc">Manage your account</div>
+                    </a>
                 </div>
             </div>
 
