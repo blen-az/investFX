@@ -393,25 +393,23 @@ export default function Users() {
 
                     <div className="form-group">
                         <label className="form-label">Trade Control</label>
-                        <div className="user-info-display">
-                            <select
-                                className="form-input"
-                                value={selectedUser?.tradeControl || 'auto'}
-                                onChange={async (e) => {
-                                    try {
-                                        await setUserTradeControl(selectedUser.id, e.target.value);
-                                        await loadUsers();
-                                        setSelectedUser({ ...selectedUser, tradeControl: e.target.value });
-                                    } catch (error) {
-                                        console.error("Error setting trade control:", error);
-                                    }
-                                }}
-                            >
-                                <option value="auto">Auto</option>
-                                <option value="force_win">Force Win</option>
-                                <option value="force_loss">Force Loss</option>
-                            </select>
-                        </div>
+                        <select
+                            className="form-input"
+                            value={selectedUser?.tradeControl || 'auto'}
+                            onChange={async (e) => {
+                                try {
+                                    await setUserTradeControl(selectedUser.id, e.target.value);
+                                    await loadUsers();
+                                    setSelectedUser({ ...selectedUser, tradeControl: e.target.value });
+                                } catch (error) {
+                                    console.error("Error setting trade control:", error);
+                                }
+                            }}
+                        >
+                            <option value="auto">Auto</option>
+                            <option value="force_win">Force Win</option>
+                            <option value="force_loss">Force Loss</option>
+                        </select>
                     </div>
 
                     <div className="form-group">
