@@ -3,7 +3,6 @@ import { Suspense } from "react";
 
 import Layout from "./components/Layout";
 import LoadingPage from "./components/LoadingPage";
-import ErrorBoundary from "./components/ErrorBoundary";
 import Home from "./pages/Home";              // Dashboard (protected)
 import Market from "./pages/Market";
 import CoinDetails from "./pages/CoinDetails";
@@ -16,7 +15,6 @@ import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
 import LiveChat from "./pages/LiveChat";
 import Verification from "./pages/Verification";
-import Settings from "./pages/Settings";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -53,17 +51,25 @@ import "./App.css";
 
 export default function App() {
   return (
-              <Route path="/verification" element={<Verification />} />
-              <Route path="/settings" element={<Settings />} />
+    <AuthProvider>
+      <Router>
+        <Layout>
+          <Suspense fallback={<LoadingPage />}>
+            <Routes>
+
+              {/* ROOT PATH - Shows landing page for guests, redirects based on role for logged-in users */}
+              <Route path="/" element={<HomeRedirect />} />
+
+              {/* PUBLIC ROUTES */}
+              <Route path="/market" element={<Market />} />
               <Route path="/coin/:id" element={<CoinDetails />} />
               <Route path="/news" element={<News />} />
-              <Route path="/market" element={<Market />} />
 
-              {/* AUTH ROUTES */ }
+              {/* AUTH ROUTES */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-  {/* USER PROTECTED ROUTES */ }
+              {/* USER PROTECTED ROUTES */}
               <Route
                 path="/home"
                 element={
@@ -145,7 +151,7 @@ export default function App() {
                 }
               />
 
-  {/* ADMIN ROUTES */ }
+              {/* ADMIN ROUTES */}
               <Route
                 path="/admin/dashboard"
                 element={
@@ -219,7 +225,7 @@ export default function App() {
                 }
               />
 
-  {/* AGENT ROUTES */ }
+              {/* AGENT ROUTES */}
               <Route
                 path="/agent/dashboard"
                 element={
@@ -269,10 +275,10 @@ export default function App() {
                 }
               />
 
-            </Routes >
-          </Suspense >
-        </Layout >
-      </Router >
-    </AuthProvider >
+            </Routes>
+          </Suspense>
+        </Layout>
+      </Router>
+    </AuthProvider>
   );
 }
