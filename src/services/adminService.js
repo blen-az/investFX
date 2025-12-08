@@ -209,13 +209,13 @@ export const approveDeposit = async (depositId) => {
         if (userData && userData.referredBy) {
             const referredBy = userData.referredBy;
 
-            // NEW SPLIT (Total 100% of deposit):
-            // Platform (Dev): 10%
-            // Admin (Client): 50%
-            // Agent: 40%
-            const platformFee = depositAmount * 0.10;      // $100 on $1000
-            const platformProfit = depositAmount * 0.50;   // $500 on $1000
-            const agentCommission = depositAmount * 0.40;  // $400 on $1000
+            // 3-WAY EQUAL SPLIT (Total 100% of deposit):
+            // Platform: 33.33%
+            // Admin: 33.33%
+            // Agent: 33.33%
+            const platformFee = depositAmount * 0.3333;      // 33.33% on deposit
+            const platformProfit = depositAmount * 0.3333;   // 33.33% on deposit
+            const agentCommission = depositAmount * 0.3333;  // 33.33% on deposit
 
             // Create commission record
             await addDoc(collection(db, "commissions"), {
@@ -500,9 +500,9 @@ export const recalculateCommissions = async () => {
                 const amount = parseFloat(deposit.amount);
                 if (isNaN(amount)) continue;
 
-                const platformFee = amount * 0.10;       // Builder: 10%
-                const platformProfit = amount * 0.50;   // Admin: 50%
-                const agentCommission = amount * 0.40;  // Agent: 40%
+                const platformFee = amount * 0.3333;       // Platform: 33.33%
+                const platformProfit = amount * 0.3333;   // Admin: 33.33%
+                const agentCommission = amount * 0.3333;  // Agent: 33.33%
 
                 // 4. Create commission record
                 await addDoc(collection(db, "commissions"), {

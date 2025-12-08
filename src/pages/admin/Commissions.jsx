@@ -96,7 +96,7 @@ export default function AdminCommissions() {
             render: (value) => `$${value?.toFixed(2) || '0.00'}`
         },
         {
-            header: "Platform Fee (10%)",
+            header: "Platform Fee (33.33%)",
             key: "platformFee",
             render: (value) => (
                 <span style={{ color: '#f8fafc' }}>
@@ -105,7 +105,7 @@ export default function AdminCommissions() {
             )
         },
         {
-            header: "Agent Cut (40%)",
+            header: "Agent Cut (33.33%)",
             key: "agentCommission",
             render: (value) => (
                 <span style={{ color: '#10b981', fontWeight: 600 }}>
@@ -114,7 +114,7 @@ export default function AdminCommissions() {
             )
         },
         {
-            header: "Admin Profit (50%)",
+            header: "Admin Profit (33.33%)",
             key: "platformProfit",
             render: (value) => (
                 <span style={{ color: '#3b82f6', fontWeight: 600 }}>
