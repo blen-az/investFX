@@ -30,6 +30,7 @@ import Trades from "./pages/admin/Trades";
 import TradeSettings from "./pages/admin/TradeSettings";
 import AdminCommissions from "./pages/admin/Commissions";
 import Verifications from "./pages/admin/Verifications";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 // Agent Pages
 import AgentDashboard from "./pages/agent/AgentDashboard";
@@ -224,6 +225,14 @@ export default function App() {
                 element={
                   <ProtectedRoute requiredRole={ROLES.ADMIN}>
                     <Verifications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AdminSettings />
                   </ProtectedRoute>
                 }
               />
