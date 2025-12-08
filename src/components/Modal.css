@@ -105,6 +105,7 @@
 .modal-body {
     padding: 24px;
     overflow-y: auto;
+    overflow-x: hidden;
     flex: 1;
     /* Optimize scroll performance */
     -webkit-overflow-scrolling: touch;
@@ -112,6 +113,10 @@
     /* Hardware acceleration for smooth scrolling */
     will-change: scroll-position;
     transform: translateZ(0);
+    /* CSS containment for better performance */
+    contain: layout style;
+    /* Prevent layout shifts */
+    scroll-behavior: auto;
 }
 
 /* Custom scrollbar for modal body */
