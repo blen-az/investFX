@@ -1,8 +1,7 @@
-// src/pages/agent/Referrals.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import DataTable from "../../components/DataTable";
-import { getReferredUsers, generateReferralLink } from "../../services/agentService";
+import { getReferredUsers, generateReferralLink, getAgentReferralCode } from "../../services/agentService";
 import "./Referrals.css";
 
 export default function Referrals() {
@@ -14,23 +13,29 @@ export default function Referrals() {
 
     useEffect(() => {
         if (user?.uid) {
-            const link = generateReferralLink(user.uid);
-            setReferralLink(link);
-            loadReferredUsers();
+            loadAgentData();
         }
     }, [user]);
 
-    const loadReferredUsers = async () => {
+    const loadAgentData = async () => {
         try {
             setLoading(true);
+            // Get referral code first
+            const code = await getAgentReferralCode(user.uid);
+            if (code) {
+                const link = generateReferralLink(code);
+                setReferralLink(link);
+            }
+            // Then load referred users
             const referred = await getReferredUsers(user.uid);
             setReferredUsers(referred);
         } catch (error) {
-            console.error("Error loading referred users:", error);
+            console.error("Error loading agent data:", error);
         } finally {
             setLoading(false);
         }
     };
+
 
     const copyReferralLink = () => {
         navigator.clipboard.writeText(referralLink);
