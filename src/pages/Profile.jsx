@@ -291,6 +291,16 @@ export default function Profile() {
               <p>Cash out earnings</p>
             </div>
           </Link>
+
+          {/* Settings Card */}
+          <Link to="/settings" className="action-card">
+            <div className="action-icon">⚙️</div>
+            <div className="action-info">
+              <h3>Settings</h3>
+              <p>Manage your account</p>
+            </div>
+          </Link>
+
           <button
             onClick={async () => {
               try {
