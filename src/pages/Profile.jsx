@@ -12,7 +12,7 @@ import "./Profile.css";
 
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAgent } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("transactions");
   const [balanceHidden, setBalanceHidden] = useState(false);
@@ -291,6 +291,18 @@ export default function Profile() {
               <p>Cash out earnings</p>
             </div>
           </Link>
+
+          {/* Settings Card - Only for Agents */}
+          {isAgent() && (
+            <Link to="/agent/settings" className="action-card">
+              <div className="action-icon">⚙️</div>
+              <div className="action-info">
+                <h3>Settings</h3>
+                <p>Manage your profile</p>
+              </div>
+            </Link>
+          )}
+
           <button
             onClick={async () => {
               try {
