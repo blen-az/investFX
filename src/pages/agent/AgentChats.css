@@ -55,6 +55,59 @@
     font-weight: 600;
 }
 
+/* Chat Search */
+.chat-search {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.chat-search .search-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 16px;
+    padding-right: 36px;
+    color: #f8fafc;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.chat-search .search-input:focus {
+    border-color: #3b82f6;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.chat-search .search-input::placeholder {
+    color: #64748b;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.clear-search-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #f8fafc;
+}
+
 .chat-list {
     flex: 1;
     overflow-y: auto;

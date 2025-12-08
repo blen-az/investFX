@@ -16,9 +16,10 @@ export default function AgentChats() {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState("");
     const [loading, setLoading] = useState(true);
+    const [chatSearch, setChatSearch] = useState(""); // Search for existing chats
     const [showNewChatModal, setShowNewChatModal] = useState(false);
     const [referredUsers, setReferredUsers] = useState([]);
-    const [userSearch, setUserSearch] = useState("");
+    const [userSearch, setUserSearch] = useState(""); // Search for new chat modal
     const [loadingUsers, setLoadingUsers] = useState(false);
     const messagesEndRef = useRef(null);
     const unsubscribeChatsRef = useRef(null);
@@ -130,6 +131,14 @@ export default function AgentChats() {
         return name.includes(searchTerm) || email.includes(searchTerm);
     });
 
+    // Filter chats based on search
+    const filteredChats = chats.filter(chat => {
+        const searchTerm = chatSearch.toLowerCase();
+        const name = (chat.userName || "").toLowerCase();
+        const email = (chat.userEmail || "").toLowerCase();
+        return name.includes(searchTerm) || email.includes(searchTerm);
+    });
+
     if (loading) {
         return (
             <div className="agent-chats-page">
@@ -160,17 +169,48 @@ export default function AgentChats() {
                         </button>
                     </div>
 
+                    {/* Search Input */}
+                    <div className="chat-search">
+                        <input
+                            type="text"
+                            placeholder="Search chats by name or email..."
+                            value={chatSearch}
+                            onChange={(e) => setChatSearch(e.target.value)}
+                            className="search-input"
+                        />
+                        {chatSearch && (
+                            <button
+                                className="clear-search-btn"
+                                onClick={() => setChatSearch("")}
+                                title="Clear search"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
                     <div className="chat-list">
-                        {chats.length === 0 ? (
+                        {filteredChats.length === 0 ? (
                             <div className="empty-list">
                                 <div className="empty-icon">💬</div>
-                                <p>No chats yet</p>
-                                <p style={{ fontSize: '12px', color: '#64748b' }}>
-                                    Users you've referred will appear here
-                                </p>
+                                {chatSearch ? (
+                                    <>
+                                        <p>No chats match your search</p>
+                                        <p style={{ fontSize: '12px', color: '#64748b' }}>
+                                            Try a different search term
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p>No chats yet</p>
+                                        <p style={{ fontSize: '12px', color: '#64748b' }}>
+                                            Users you've referred will appear here
+                                        </p>
+                                    </>
+                                )}
                             </div>
                         ) : (
-                            chats.map((chat) => (
+                            filteredChats.map((chat) => (
                                 <div
                                     key={chat.id}
                                     className={`chat-item ${selectedChat?.id === chat.id ? 'active' : ''}`}
