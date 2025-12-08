@@ -23,6 +23,21 @@ export default function Users() {
         loadUsers();
     }, []);
 
+    // Filter users whenever search query or users list changes
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredUsers(users);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = users.filter(user =>
+                user.name?.toLowerCase().includes(query) ||
+                user.email?.toLowerCase().includes(query) ||
+                user.role?.toLowerCase().includes(query)
+            );
+            setFilteredUsers(filtered);
+        }
+    }, [searchQuery, users]);
+
     const loadUsers = async () => {
         try {
             setLoading(true);
