@@ -207,15 +207,45 @@ export default function AgentDashboard() {
                     </button>
                 </div>
             </div>
-            <div className="action-icon">📋</div>
-            <div className="action-title">Copy Link</div>
-            <div className="action-desc">Quick copy referral link</div>
-        </div>
-                </div >
-            </div >
 
-        {/* Info Card */ }
-        < div className = "info-card glass-card" >
+            {/* Quick Actions */}
+            <div className="agent-quick-actions">
+                <h2 className="section-title">Quick Actions</h2>
+                <div className="action-grid">
+                    <a href="/agent/referrals" className="action-card">
+                        <div className="action-icon">👥</div>
+                        <div className="action-title">View Referrals</div>
+                        <div className="action-desc">See all users you've referred</div>
+                    </a>
+
+                    <a href="/agent/commissions" className="action-card">
+                        <div className="action-icon">💰</div>
+                        <div className="action-title">Commission History</div>
+                        <div className="action-desc">View detailed earnings breakdown</div>
+                    </a>
+
+                    <a href="/agent/chats" className="action-card">
+                        <div className="action-icon">💬</div>
+                        <div className="action-title">Chats</div>
+                        <div className="action-desc">Message your referrals</div>
+                    </a>
+
+                    <a href="/agent/withdraw" className="action-card">
+                        <div className="action-icon">💸</div>
+                        <div className="action-title">Withdraw</div>
+                        <div className="action-desc">Request withdrawals</div>
+                    </a>
+
+                    <a href="/agent/settings" className="action-card">
+                        <div className="action-icon">⚙️</div>
+                        <div className="action-title">Settings</div>
+                        <div className="action-desc">Manage your profile</div>
+                    </a>
+                </div>
+            </div>
+
+            {/* Info Card */}
+            <div className="info-card glass-card">
                 <div className="info-icon">ℹ️</div>
                 <div className="info-content">
                     <h3 className="info-title">How It Works</h3>
@@ -227,7 +257,7 @@ export default function AgentDashboard() {
                         <li>Withdraw your earnings anytime</li>
                     </ul>
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
