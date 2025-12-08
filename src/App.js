@@ -36,6 +36,7 @@ import Referrals from "./pages/agent/Referrals";
 import AgentCommissions from "./pages/agent/Commissions";
 import AgentChats from "./pages/agent/AgentChats";
 import AgentWithdraw from "./pages/agent/AgentWithdraw";
+import AgentSettings from "./pages/agent/AgentSettings";
 
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
@@ -262,6 +263,14 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
                     <AgentWithdraw />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/settings"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentSettings />
                   </ProtectedRoute>
                 }
               />
