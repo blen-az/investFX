@@ -269,72 +269,53 @@ export default function Profile() {
         </div>
 
         {/* Quick Actions */}
-        <div className="quick-actions-grid">
-          <Link to="/deposit" className="action-card">
-            <div className="action-icon">💰</div>
-            <div className="action-info">
-              <h3>Deposit</h3>
-              <p>Add funds instantly</p>
-            </div>
-          </Link>
-          <Link to="/trade" className="action-card">
-            <div className="action-icon">📈</div>
-            <div className="action-info">
-              <h3>Trade</h3>
-              <p>Start trading now</p>
-            </div>
-          </Link>
-          <Link to="/withdraw" className="action-card">
-            <div className="action-icon">🏦</div>
-            console.error('Logout error:', error);
-              }
-            }}
-            className="action-card logout-card"
-          >
-            <div className="action-icon">🚪</div>
-            <div className="action-info">
-              <h3>Logout</h3>
-              <p>Sign out of account</p>
-            </div>
-          </button>
+        <div className="action-icon">🚪</div>
+        <div className="action-info">
+          <h3>Logout</h3>
+          <p>Sign out of account</p>
         </div>
-      </div>
+      </button>
+    </div>
+      </div >
 
-      {/* Main Content Grid */}
-      <div className="profile-content-grid">
-        {/* Left Column - Transactions & History */}
-        <div className="content-card">
-          <div className="card-header">
-            <div className="card-title">Activity History</div>
-            <div className="tabs">
-              <button
-                className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
-                onClick={() => setActiveTab('transactions')}
-              >
-                Transactions
-              </button>
-              <button
-                className={`tab-btn ${activeTab === 'trades' ? 'active' : ''}`}
-                onClick={() => setActiveTab('trades')}
-              >
-                Trade History
-              </button>
-            </div>
+    {/* Main Content Grid */ }
+    < div className = "profile-content-grid" >
+      {/* Left Column - Transactions & History */ }
+      < div className = "content-card" >
+        <div className="card-header">
+          <div className="card-title">Activity History</div>
+          <div className="tabs">
+            <button
+              className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
+              onClick={() => setActiveTab('transactions')}
+            >
+              Transactions
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'trades' ? 'active' : ''}`}
+              onClick={() => setActiveTab('trades')}
+            >
+              Trade History
+            </button>
           </div>
-
-          {activeTab === 'transactions' ? (
-            <DataTable columns={columns} data={transactions} />
-          ) : (
-            <div className="empty-state">
-              <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                No trade history available yet.
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Right Column - Stats & Trust */}
-        <div className="sidebar-column" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+  {
+    activeTab === 'transactions' ? (
+      <DataTable columns={columns} data={transactions} />
+    ) : (
+    <div className="empty-state">
+      <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+        No trade history available yet.
+      </div>
+    </div>
+  )
+  }
+        </div >
+
+    {/* Right Column - Stats & Trust */ }
+    < div className = "sidebar-column" style = {{ display: 'flex', flexDirection: 'column', gap: '24px' }
+}>
           <div className="content-card">
             <div className="card-title" style={{ marginBottom: '20px' }}>Trust Score</div>
             <div className="trust-score-container">
@@ -392,50 +373,54 @@ export default function Profile() {
               </div>
             </div>
           </div>
+        </div >
+      </div >
+
+  {/* Upload ID Modal */ }
+{
+  showUploadModal && (
+    <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
+      <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={() => setShowUploadModal(false)}>✕</button>
+        <h2 style={{ marginTop: 0, color: 'white' }}>Verify Identity</h2>
+        <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Please upload a clear photo of your ID (Passport, Driver's License) to unlock full features.</p>
+
+        <div className="file-upload-box" style={{ marginBottom: '20px' }}>
+          <input
+            type="file"
+            id="id-proof-upload"
+            className="file-input"
+            accept="image/*"
+            onChange={(e) => setIdFile(e.target.files[0])}
+          />
+          <label htmlFor="id-proof-upload" className="file-label">
+            {idFile ? <span style={{ color: '#10b981' }}>{idFile.name}</span> : <span>📁 Click to Select Image</span>}
+          </label>
         </div>
+
+        <button
+          className="submit-deposit-btn"
+          onClick={handleUploadID}
+          disabled={uploading}
+          style={{ opacity: uploading ? 0.7 : 1 }}
+        >
+          {uploading ? "Uploading..." : "Submit for Verification"}
+        </button>
       </div>
-
-      {/* Upload ID Modal */}
-      {showUploadModal && (
-        <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
-          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowUploadModal(false)}>✕</button>
-            <h2 style={{ marginTop: 0, color: 'white' }}>Verify Identity</h2>
-            <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Please upload a clear photo of your ID (Passport, Driver's License) to unlock full features.</p>
-
-            <div className="file-upload-box" style={{ marginBottom: '20px' }}>
-              <input
-                type="file"
-                id="id-proof-upload"
-                className="file-input"
-                accept="image/*"
-                onChange={(e) => setIdFile(e.target.files[0])}
-              />
-              <label htmlFor="id-proof-upload" className="file-label">
-                {idFile ? <span style={{ color: '#10b981' }}>{idFile.name}</span> : <span>📁 Click to Select Image</span>}
-              </label>
-            </div>
-
-            <button
-              className="submit-deposit-btn"
-              onClick={handleUploadID}
-              disabled={uploading}
-              style={{ opacity: uploading ? 0.7 : 1 }}
-            >
-              {uploading ? "Uploading..." : "Submit for Verification"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Toast Notifications */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
+  )
+}
+
+{/* Toast Notifications */ }
+{
+  toast && (
+    <Toast
+      message={toast.message}
+      type={toast.type}
+      onClose={() => setToast(null)}
+    />
+  )
+}
+    </div >
   );
 }
