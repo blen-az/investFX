@@ -15,6 +15,7 @@ import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
 import LiveChat from "./pages/LiveChat";
 import Verification from "./pages/Verification";
+import Settings from "./pages/Settings";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -61,9 +62,11 @@ export default function App() {
               <Route path="/" element={<HomeRedirect />} />
 
               {/* PUBLIC ROUTES */}
-              <Route path="/market" element={<Market />} />
+              <Route path="/verification" element={<Verification />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/coin/:id" element={<CoinDetails />} />
               <Route path="/news" element={<News />} />
+              <Route path="/market" element={<Market />} />
 
               {/* AUTH ROUTES */}
               <Route path="/login" element={<Login />} />
