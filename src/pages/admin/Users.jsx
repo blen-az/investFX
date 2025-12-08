@@ -6,8 +6,11 @@ import { getAllUsers, setUserBalance, freezeUser } from "../../services/adminSer
 import { setUserTradeControl } from "../../services/tradeSettingsService";
 import "./Users.css";
 
+
 export default function Users() {
     const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState(null);
     const [showBalanceModal, setShowBalanceModal] = useState(false);
@@ -43,6 +46,7 @@ export default function Users() {
             setLoading(true);
             const data = await getAllUsers();
             setUsers(data);
+            setFilteredUsers(data);
         } catch (error) {
             console.error("Error loading users:", error);
         } finally {
@@ -196,13 +200,38 @@ export default function Users() {
                         <span className="stat-value">{users.length}</span>
                     </div>
                     <div className="stat-item">
-                        <span className="stat-label">Agents</span>
-                        <span className="stat-value">{users.filter(u => u.role === 'agent').length}</span>
+                        <span className="stat-label">{searchQuery ? 'Filtered' : 'Agents'}</span>
+                        <span className="stat-value" style={{ color: searchQuery ? '#06b6d4' : '#10b981' }}>
+                            {searchQuery ? filteredUsers.length : users.filter(u => u.role === 'agent').length}
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <DataTable columns={columns} data={users} actions={actions} />
+            {/* Search Bar */}
+            <div className="search-bar glass-card" style={{ marginBottom: '24px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                    <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <input
+                    type="text"
+                    placeholder="Search users by name, email, or role..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="search-clear"
+                        title="Clear search"
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
+
+            <DataTable columns={columns} data={filteredUsers} actions={actions} />
 
             {/* Balance Modal */}
             <Modal
