@@ -1,36 +1,133 @@
-/* Market Page Styles */
+/* Market Page Styles - Premium Edition */
 .market-page {
     width: 100%;
     padding-bottom: 40px;
+    min-height: 100vh;
 }
 
 .market-header-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .market-filters {
     margin-left: auto;
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
+}
+
+.market-filters .btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.market-filters .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.market-filters .btn:hover::before {
+    left: 100%;
+}
+
+.market-filters .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(6, 182, 212, 0.2);
+    border-color: rgba(6, 182, 212, 0.5);
 }
 
 .market-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 12px;
-    margin-top: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
 }
 
 .market-card {
-    padding: 16px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    border-radius: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    transition: all 0.2s ease;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.market-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.market-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 12px 24px rgba(6, 182, 212, 0.15),
+        0 0 40px rgba(6, 182, 212, 0.1);
+    border-color: rgba(6, 182, 212, 0.5);
+}
+
+.market-card:hover::before {
+    opacity: 1;
+}
+
+/* Coin icon glow effect */
+.market-card img {
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.3));
+    transition: filter 0.3s;
+}
+
+.market-card:hover img {
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.6));
+}
+
+/* Action buttons styling */
+.market-card .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 16px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.market-card .btn-buy {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.market-card .btn-buy:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
 }
 
 /* Mobile Responsive */
@@ -47,54 +144,58 @@
         overflow-x: auto;
         padding-bottom: 4px;
         -webkit-overflow-scrolling: touch;
-        mask-image: linear-gradient(to right, black 90%, transparent 100%);
+        scrollbar-width: none;
     }
 
-    /* Make filter buttons pill-like and non-wrapping */
+    .market-filters::-webkit-scrollbar {
+        display: none;
+    }
+
     .market-filters .btn {
         white-space: nowrap;
         padding: 8px 16px;
         border-radius: 20px;
         flex-shrink: 0;
     }
+
+    .market-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+    }
 }
 
 @media (max-width: 480px) {
     .market-grid {
         grid-template-columns: 1fr;
-        /* Single column on phone */
+        gap: 12px;
     }
 
     .market-card {
-        padding: 12px;
+        padding: 16px;
     }
 
-    /* Make cards look more like list items on phone */
-    .market-card {
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
+    .market-card .btn {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+/* Shimmer animation for loading cards */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
     }
 
-    /* Re-arrange card internals for horizontal list look */
-    .market-card>div {
-        /* Header section */
-        flex: 1 1 auto;
+    100% {
+        background-position: 1000px 0;
     }
+}
 
-    .market-card>div:nth-child(2) {
-        /* Price section */
-        flex: 0 0 auto;
-        text-align: right;
-    }
-
-    .market-card>div:last-child {
-        /* Actions - force to bottom or hide/minimize */
-        width: 100%;
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        justify-content: space-between;
-    }
+.market-card.loading {
+    background: linear-gradient(90deg,
+            rgba(15, 23, 42, 0.8) 0%,
+            rgba(30, 41, 59, 0.9) 50%,
+            rgba(15, 23, 42, 0.8) 100%);
+    background-size: 2000px 100%;
+    animation: shimmer 2s infinite;
 }
