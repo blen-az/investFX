@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ParticleBackground from "../components/ParticleBackground";
+import { ROLES } from "../constants/roles";
 import "./Login.css"; // Reuse Login.css for consistent styling
 
 export default function Signup() {
@@ -12,9 +13,22 @@ export default function Signup() {
   const [invitationCode, setInvitationCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signup } = useAuth();
+  const { user, userRole, signup } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && userRole) {
+      if (userRole === ROLES.ADMIN) {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (userRole === ROLES.AGENT) {
+        navigate("/agent/dashboard", { replace: true });
+      } else {
+        navigate("/home", { replace: true });
+      }
+    }
+  }, [user, userRole, navigate]);
 
   // Auto-fill invitation code from URL
   useEffect(() => {
@@ -34,8 +48,8 @@ export default function Signup() {
       // Use invitation code if provided, otherwise null
       const referralCode = invitationCode.trim() || null;
       await signup(email, password, referralCode, name);
-      console.log("Signup successful, navigating to home...");
-      navigate("/home");
+      console.log("Signup successful, redirecting...");
+      // user state change will trigger useEffect redirect
     } catch (err) {
       console.error("Signup error:", err);
 

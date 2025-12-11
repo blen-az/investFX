@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ParticleBackground from "../components/ParticleBackground";
+import { ROLES } from "../constants/roles";
 import "./Login.css";
 
 export default function Login() {
@@ -9,8 +10,21 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { user, userRole, login } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && userRole) {
+      if (userRole === ROLES.ADMIN) {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (userRole === ROLES.AGENT) {
+        navigate("/agent/dashboard", { replace: true });
+      } else {
+        navigate("/home", { replace: true });
+      }
+    }
+  }, [user, userRole, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,10 +32,9 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate("/home");
+      // user state change will trigger useEffect redirect
     } catch (err) {
       setError("Failed to login. Please check your credentials.");
-    } finally {
       setLoading(false);
     }
   };
