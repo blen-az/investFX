@@ -55,13 +55,25 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
 
   useEffect(() => {
     loadTVScript().then(() => {
-      if (tvWidgetRef.current) tvWidgetRef.current.remove();
+      if (tvWidgetRef.current) {
+        try {
+          tvWidgetRef.current.remove();
+        } catch (e) {
+          // Widget already removed or DOM not available
+          console.warn("Chart cleanup warning:", e);
+        }
+      }
       createWidget(toTVSymbol(selectedCoin));
     });
 
     return () => {
       if (tvWidgetRef.current) {
-        tvWidgetRef.current.remove();
+        try {
+          tvWidgetRef.current.remove();
+        } catch (e) {
+          // Safely ignore if widget is already cleaned up
+          console.warn("Chart cleanup warning:", e);
+        }
         tvWidgetRef.current = null;
       }
     };
