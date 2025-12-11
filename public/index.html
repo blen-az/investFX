@@ -35,46 +35,178 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* Pre-React Loading Screen */
+    /* Premium Animated Loading Screen */
     #initial-loader {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: linear-gradient(135deg, #0a0f1e 0%, #1a1f35 50%, #0f1729 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 24px;
+      gap: 32px;
       z-index: 9999;
+      overflow: hidden;
     }
 
-    .loader-spinner {
-      width: 56px;
-      height: 56px;
-      border: 5px solid rgba(6, 182, 212, 0.2);
-      border-top-color: #06b6d4;
+    @keyframes gradientShift {
+
+      0%,
+      100% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    /* Animated particles */
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(6, 182, 212, 0.6);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      opacity: 0;
+      animation: float 8s infinite ease-in-out;
     }
 
-    .loader-text {
-      color: #94a3b8;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: 'Inter', sans-serif;
+    @keyframes float {
+
+      0%,
+      100% {
+        opacity: 0;
+        transform: translateY(100vh) translateX(0);
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-100vh) translateX(50px);
+      }
     }
 
+    .particle:nth-child(1) {
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .particle:nth-child(2) {
+      left: 20%;
+      animation-delay: 1s;
+    }
+
+    .particle:nth-child(3) {
+      left: 30%;
+      animation-delay: 2s;
+    }
+
+    .particle:nth-child(4) {
+      left: 40%;
+      animation-delay: 0.5s;
+    }
+
+    .particle:nth-child(5) {
+      left: 50%;
+      animation-delay: 1.5s;
+    }
+
+    .particle:nth-child(6) {
+      left: 60%;
+      animation-delay: 2.5s;
+    }
+
+    .particle:nth-child(7) {
+      left: 70%;
+      animation-delay: 0.8s;
+    }
+
+    .particle:nth-child(8) {
+      left: 80%;
+      animation-delay: 1.8s;
+    }
+
+    .particle:nth-child(9) {
+      left: 90%;
+      animation-delay: 3s;
+    }
+
+    /* Main content container */
+    .loader-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* Logo with glow */
     .loader-logo {
-      font-size: 32px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      font-size: 48px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
+      background-size: 200% 200%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: 8px;
+      animation: gradientShift 3s ease infinite;
+      filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.5));
+      letter-spacing: -1px;
+    }
+
+    /* Spinner container */
+    .spinner-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    /* Outer ring */
+    .loader-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid rgba(6, 182, 212, 0.1);
+      border-top-color: #06b6d4;
+      border-right-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    }
+
+    /* Inner ring */
+    .loader-ring-inner {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: calc(100% - 30px);
+      height: calc(100% - 30px);
+      border: 3px solid rgba(139, 92, 246, 0.1);
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite reverse;
+    }
+
+    /* Center icon */
+    .loader-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      animation: pulse 2s ease-in-out infinite;
     }
 
     @keyframes spin {
@@ -82,18 +214,222 @@
         transform: rotate(360deg);
       }
     }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.8;
+      }
+    }
+
+    /* Loading text */
+    .loader-text {
+      color: #e2e8f0;
+      font-size: 18px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      animation: fadeInOut 3s ease-in-out infinite;
+    }
+
+    @keyframes fadeInOut {
+
+      0%,
+      100% {
+        opacity: 0.6;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      width: 280px;
+      height: 4px;
+      background: rgba(71, 85, 105, 0.3);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+      background-size: 200% 100%;
+      animation: progress 2s ease-in-out infinite, shimmer 1.5s linear infinite;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    }
+
+    @keyframes progress {
+      0% {
+        width: 30%;
+      }
+
+      50% {
+        width: 70%;
+      }
+
+      100% {
+        width: 30%;
+      }
+    }
+
+    @keyframes shimmer {
+      to {
+        background-position: 200% center;
+      }
+    }
+
+    /* Tips text */
+    .loader-tip {
+      color: #94a3b8;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      max-width: 400px;
+      animation: tipFade 6s ease-in-out infinite;
+    }
+
+    @keyframes tipFade {
+
+      0%,
+      20%,
+      80%,
+      100% {
+        opacity: 0.5;
+      }
+
+      40%,
+      60% {
+        opacity: 1;
+      }
+    }
+
+    /* Floating crypto icons */
+    .crypto-float {
+      position: absolute;
+      font-size: 32px;
+      opacity: 0.15;
+      animation: cryptoFloat 15s infinite ease-in-out;
+    }
+
+    @keyframes cryptoFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-30px) rotate(180deg);
+      }
+    }
+
+    .crypto-float:nth-child(1) {
+      top: 15%;
+      left: 15%;
+      animation-duration: 12s;
+    }
+
+    .crypto-float:nth-child(2) {
+      top: 20%;
+      right: 20%;
+      animation-duration: 15s;
+      animation-delay: 1s;
+    }
+
+    .crypto-float:nth-child(3) {
+      bottom: 25%;
+      left: 20%;
+      animation-duration: 18s;
+      animation-delay: 2s;
+    }
+
+    .crypto-float:nth-child(4) {
+      bottom: 20%;
+      right: 15%;
+      animation-duration: 14s;
+      animation-delay: 0.5s;
+    }
   </style>
 </head>
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
 
-  <!-- Pre-React Loading Screen -->
+  <!-- Premium Animated Loading Screen -->
   <div id="initial-loader">
-    <div class="loader-logo">AvaTrade</div>
-    <div class="loader-spinner"></div>
-    <div class="loader-text">Loading your trading platform...</div>
+    <!-- Floating particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <!-- Floating crypto icons -->
+    <div class="crypto-float">₿</div>
+    <div class="crypto-float">Ξ</div>
+    <div class="crypto-float">₿</div>
+    <div class="crypto-float">Ξ</div>
+
+    <!-- Main loader content -->
+    <div class="loader-content">
+      <div class="loader-logo">AvaTrade</div>
+
+      <div class="spinner-container">
+        <div class="loader-ring"></div>
+        <div class="loader-ring-inner"></div>
+        <div class="loader-icon">💎</div>
+      </div>
+
+      <div class="loader-text">Initializing your trading platform</div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar"></div>
+      </div>
+
+      <div class="loader-tip">
+        <span id="loading-tip">Loading real-time market data...</span>
+      </div>
+    </div>
   </div>
+
+  <script>
+    // Rotate loading tips
+    const tips = [
+      'Loading real-time market data...',
+      'Securing your connection...',
+      'Preparing advanced charts...',
+      'Fetching latest crypto prices...',
+      'Almost ready to trade...'
+    ];
+    let tipIndex = 0;
+    setInterval(() => {
+      tipIndex = (tipIndex + 1) % tips.length;
+      const tipElement = document.getElementById('loading-tip');
+      if (tipElement) {
+        tipElement.style.opacity = '0';
+        setTimeout(() => {
+          tipElement.textContent = tips[tipIndex];
+          tipElement.style.opacity = '1';
+        }, 300);
+      }
+    }, 3000);
+  </script>
 
   <div id="root"></div>
   <!--
