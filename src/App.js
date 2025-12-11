@@ -1,44 +1,47 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 
 import Layout from "./components/Layout";
 import LoadingPage from "./components/LoadingPage";
-import Home from "./pages/Home";              // Dashboard (protected)
-import Market from "./pages/Market";
-import CoinDetails from "./pages/CoinDetails";
-import Trade from "./pages/Trade";
-import News from "./pages/News";
-import Profile from "./pages/Profile";
-import Deposit from "./pages/Deposit";
-import Withdraw from "./pages/Withdraw";
-import Transactions from "./pages/Transactions";
-import Support from "./pages/Support";
-import LiveChat from "./pages/LiveChat";
-import Verification from "./pages/Verification";
-import Settings from "./pages/Settings";
 
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+// User Pages (Lazy Loaded)
+const Home = lazy(() => import("./pages/Home"));
+const Market = lazy(() => import("./pages/Market"));
+const CoinDetails = lazy(() => import("./pages/CoinDetails"));
+const Trade = lazy(() => import("./pages/Trade"));
+const News = lazy(() => import("./pages/News"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Deposit = lazy(() => import("./pages/Deposit"));
+const Withdraw = lazy(() => import("./pages/Withdraw"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Support = lazy(() => import("./pages/Support"));
+const LiveChat = lazy(() => import("./pages/LiveChat"));
+const Verification = lazy(() => import("./pages/Verification"));
+const Settings = lazy(() => import("./pages/Settings"));
 
-// Admin Pages
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import Users from "./pages/admin/Users";
-import AgentCreator from "./pages/admin/AgentCreator";
-import Deposits from "./pages/admin/Deposits";
-import Withdrawals from "./pages/admin/Withdrawals";
-import Trades from "./pages/admin/Trades";
-import TradeSettings from "./pages/admin/TradeSettings";
-import AdminCommissions from "./pages/admin/Commissions";
-import Verifications from "./pages/admin/Verifications";
-import AdminSettings from "./pages/admin/AdminSettings";
+// Auth Pages (Lazy Loaded)
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
 
-// Agent Pages
-import AgentDashboard from "./pages/agent/AgentDashboard";
-import Referrals from "./pages/agent/Referrals";
-import AgentCommissions from "./pages/agent/Commissions";
-import AgentChats from "./pages/agent/AgentChats";
-import AgentWithdraw from "./pages/agent/AgentWithdraw";
-import AgentSettings from "./pages/agent/AgentSettings";
+// Admin Pages (Lazy Loaded)
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const Users = lazy(() => import("./pages/admin/Users"));
+const AgentCreator = lazy(() => import("./pages/admin/AgentCreator"));
+const Deposits = lazy(() => import("./pages/admin/Deposits"));
+const Withdrawals = lazy(() => import("./pages/admin/Withdrawals"));
+const Trades = lazy(() => import("./pages/admin/Trades"));
+const TradeSettings = lazy(() => import("./pages/admin/TradeSettings"));
+const AdminCommissions = lazy(() => import("./pages/admin/Commissions"));
+const Verifications = lazy(() => import("./pages/admin/Verifications"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+
+// Agent Pages (Lazy Loaded)
+const AgentDashboard = lazy(() => import("./pages/agent/AgentDashboard"));
+const Referrals = lazy(() => import("./pages/agent/Referrals"));
+const AgentCommissions = lazy(() => import("./pages/agent/Commissions"));
+const AgentChats = lazy(() => import("./pages/agent/AgentChats"));
+const AgentWithdraw = lazy(() => import("./pages/agent/AgentWithdraw"));
+const AgentSettings = lazy(() => import("./pages/agent/AgentSettings"));
 
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
