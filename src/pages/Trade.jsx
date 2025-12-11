@@ -4,6 +4,7 @@ import { openTrade } from "../services/tradeService";
 import TradingChart from "../components/TradingChart";
 import OrderPanel from "../components/OrderPanel";
 import ActiveTradeModal from "../components/ActiveTradeModal";
+import AlertModal from "../components/AlertModal";
 import Positions from "../components/Positions";
 import coinList from "../data/coinList";
 import "./Trade.css";
@@ -19,6 +20,7 @@ export default function Trade() {
   const [livePrice, setLivePrice] = useState(0);
   const [activeTrade, setActiveTrade] = useState(null);
   const [activeMainTab, setActiveMainTab] = useState("trade"); // trade | positions
+  const [alertModal, setAlertModal] = useState({ isOpen: false, message: '' });
 
   const map = coinList;
 
@@ -34,7 +36,10 @@ export default function Trade() {
       });
     } catch (error) {
       console.error("Error opening trade:", error);
-      alert(error.message || "Failed to open trade. Please check your balance.");
+      setAlertModal({
+        isOpen: true,
+        message: error.message || "Failed to open trade. Please check your balance."
+      });
     }
   };
 
@@ -119,6 +124,14 @@ export default function Trade() {
           onClose={handleTradeClose}
         />
       )}
+
+      {/* ALERT MODAL */}
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        message={alertModal.message}
+        type="error"
+        onClose={() => setAlertModal({ isOpen: false, message: '' })}
+      />
     </div>
   );
 }
