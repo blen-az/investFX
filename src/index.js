@@ -18,5 +18,15 @@ root.render(
   </AuthProvider>
 );
 
+// Remove initial HTML loader once React has mounted
+setTimeout(() => {
+  const loader = document.getElementById('initial-loader');
+  if (loader) {
+    loader.style.opacity = '0';
+    loader.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => loader.remove(), 300);
+  }
+}, 100);
+
 // Keep everything the same
 reportWebVitals();
