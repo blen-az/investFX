@@ -70,9 +70,9 @@ export default function OrderPanel({ coin, livePrice, onTrade }) {
         </div>
       </div>
 
-      {/* Profit Percentage */}
+      {/* Entry Quantity */}
       <div className="panel-section">
-        <label className="section-label">Profit Percentage</label>
+        <label className="section-label">Entry Quantity</label>
         <div className="profit-options">
           {profitOptions.map((p) => (
             <button
@@ -129,7 +129,7 @@ export default function OrderPanel({ coin, livePrice, onTrade }) {
           <span className="positive">+${potentialProfit.toFixed(2)}</span>
         </div>
         <div className="summary-row total">
-          <span>Total if Win:</span>
+          <span>Total Profit:</span>
           <span>${(parseFloat(amount || 0) + potentialProfit).toFixed(2)}</span>
         </div>
       </div>

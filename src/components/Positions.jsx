@@ -123,7 +123,7 @@ export default function Positions() {
                                         <span className="coin-icon">Ξ</span>
                                         {trade.symbol}
                                     </div>
-                                    <div className="trade-status-text won">WON</div>
+                                    <div className="trade-status-text won">PROFIT</div>
                                 </div>
                                 <div className="trade-details-grid">
                                     <div className="detail-col">
