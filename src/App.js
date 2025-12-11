@@ -4,6 +4,18 @@ import { Suspense, lazy } from "react";
 import Layout from "./components/Layout";
 import LoadingPage from "./components/LoadingPage";
 
+// ⭐ Smart redirect component
+import HomeRedirect from "./components/HomeRedirect";
+import RoleRedirect from "./components/RoleRedirect";
+
+import { AuthProvider } from "./contexts/AuthContext";
+import RequireAuth from "./components/RequireAuth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ROLES } from "./constants/roles";
+import ErrorBoundary from "./components/ErrorBoundary";
+
+import "./App.css";
+
 // User Pages (Lazy Loaded)
 const Home = lazy(() => import("./pages/Home"));
 const Market = lazy(() => import("./pages/Market"));
@@ -42,19 +54,6 @@ const AgentCommissions = lazy(() => import("./pages/agent/Commissions"));
 const AgentChats = lazy(() => import("./pages/agent/AgentChats"));
 const AgentWithdraw = lazy(() => import("./pages/agent/AgentWithdraw"));
 const AgentSettings = lazy(() => import("./pages/agent/AgentSettings"));
-
-// ⭐ Smart redirect component
-import HomeRedirect from "./components/HomeRedirect";
-import RoleRedirect from "./components/RoleRedirect";
-
-import { AuthProvider } from "./contexts/AuthContext";
-import RequireAuth from "./components/RequireAuth";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { ROLES } from "./constants/roles";
-
-import "./App.css";
-
-import ErrorBoundary from "./components/ErrorBoundary";
 
 export default function App() {
   return (
