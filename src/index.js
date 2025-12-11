@@ -18,15 +18,16 @@ root.render(
   </AuthProvider>
 );
 
-// Remove initial HTML loader once React has mounted
+// Remove initial HTML loader after minimum display time
+// This ensures users see the premium animations
 setTimeout(() => {
   const loader = document.getElementById('initial-loader');
   if (loader) {
     loader.style.opacity = '0';
-    loader.style.transition = 'opacity 0.3s ease';
-    setTimeout(() => loader.remove(), 300);
+    loader.style.transition = 'opacity 0.5s ease';
+    setTimeout(() => loader.remove(), 500);
   }
-}, 100);
+}, 2000); // Minimum 2 seconds to show animations
 
 // Keep everything the same
 reportWebVitals();
