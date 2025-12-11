@@ -217,12 +217,16 @@ export default function Home() {
       <section className="fx-trend container">
         <h3>🔥 Trending Coins</h3>
         <div className="trend-list">
-          {trending.map((t) => (
-            <div key={t.item.coin_id} className="trend-mini">
-              <img src={t.item.small} alt={t.item.name} />
-              <div className="t-name">{t.item.name}</div>
-            </div>
-          ))}
+          {trending.length > 0 ? (
+            trending.map((t) => (
+              <div key={t.item.coin_id} className="trend-mini">
+                <img src={t.item.small} alt={t.item.name} />
+                <div className="t-name">{t.item.name}</div>
+              </div>
+            ))
+          ) : (
+            <div style={{ color: '#94a3b8', fontSize: '14px' }}>Loading trending coins...</div>
+          )}
         </div>
       </section>
     </div>
