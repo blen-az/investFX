@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tailwind utility for hiding scrollbars */
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+
 /* ================================================
    AVATRADE DESIGN SYSTEM - MODERN DARK THEME
    ================================================ */
