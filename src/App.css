@@ -565,28 +565,8 @@ canvas {
 /* ================================================
    RESPONSIVE
    ================================================ */
-/* ================================================
-   RESPONSIVE
-   ================================================ */
-@media (max-width: 980px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
 
-  .nav-links {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-    mask-image: linear-gradient(to right, black 90%, transparent 100%);
-  }
-
-  .nav-links::-webkit-scrollbar {
-    height: 0px;
-    background: transparent;
-  }
-}
-
+/* Tablet Landscape (1024px) */
 @media (max-width: 1100px) {
   .grid-2 {
     grid-template-columns: 1fr;
@@ -597,7 +577,70 @@ canvas {
   }
 }
 
-/* Mobile Navbar Optimizations */
+/* Tablet and Below (1024px) - Additional Navbar Optimizations */
+@media (max-width: 1024px) {
+  .navbar-container {
+    gap: 20px;
+    padding: 12px 20px;
+  }
+
+  .nav-links {
+    gap: 2px;
+  }
+
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .auth-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .user-email {
+    font-size: 12px;
+  }
+}
+
+/* Tablet Portrait and Below (980px) */
+@media (max-width: 980px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-container {
+    gap: 16px;
+  }
+
+  .nav-links {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .nav-links::-webkit-scrollbar {
+    height: 0;
+    display: none;
+  }
+
+  /* Add fade effect at the end */
+  .nav-links::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to left, rgba(26, 31, 46, 0.95), transparent);
+    pointer-events: none;
+  }
+}
+
+/* Mobile Navbar Optimizations (768px) */
 @media (max-width: 768px) {
   .navbar-container {
     flex-direction: column;
@@ -606,47 +649,47 @@ canvas {
     padding: 12px 16px;
   }
 
-  /* 1. Top Row: Logo + Auth */
-  .navbar-container> :nth-child(1),
-  .navbar-container> :nth-child(3) {
-    display: flex;
-    align-items: center;
+  /* Top Row: Logo + Auth Section */
+  .navbar-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 12px;
   }
 
-  /* Logo - Left */
   .brand {
-    margin-right: auto;
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  /* Auth Section - Right */
   .auth-section {
-    margin-left: auto;
+    grid-column: 2;
+    grid-row: 1;
     gap: 8px;
   }
 
-  .auth-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  /* 2. Navigation - Bottom Row (Full Width) */
+  /* Navigation Links - Full Width Bottom Row */
   .nav-links {
-    order: 3;
+    grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
     margin: 0;
     padding: 8px 0 4px;
     border-top: 1px solid rgba(100, 116, 139, 0.1);
-
-    /* Horizontal Scroll */
     justify-content: flex-start;
     gap: 8px;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    position: relative;
   }
 
   /* Hide scrollbar */
   .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-links::after {
     display: none;
   }
 
@@ -660,6 +703,11 @@ canvas {
     flex-shrink: 0;
   }
 
+  .nav-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
   .nav-link.active {
     background: rgba(6, 182, 212, 0.15);
     border-color: rgba(6, 182, 212, 0.4);
@@ -669,7 +717,18 @@ canvas {
     display: none;
   }
 
-  /* Adjust User Info for Mobile */
+  /* Auth Buttons */
+  .auth-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .auth-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* User Info */
   .user-info {
     padding: 6px 10px;
     gap: 8px;
@@ -689,14 +748,39 @@ canvas {
     padding: 8px 12px;
     font-size: 13px;
   }
+
+  /* Role badges */
+  .role-badge {
+    padding: 3px 8px;
+    font-size: 9px;
+  }
 }
 
+/* Small Mobile (480px) */
 @media (max-width: 480px) {
+  .navbar-container {
+    padding: 10px 12px;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+
   .brand-text {
     font-size: 18px;
   }
 
   .brand-icon {
     font-size: 20px;
+  }
+
+  .nav-link {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .auth-btn {
+    padding: 7px 10px;
+    font-size: 12px;
   }
 }

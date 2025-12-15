@@ -559,6 +559,31 @@ a:hover {
    MOBILE RESPONSIVE STYLES
    ================================================ */
 
+/* Tablet Landscape and Below (1024px) */
+@media (max-width: 1024px) {
+
+  /* Slightly reduce base font size */
+  html {
+    font-size: 15px;
+  }
+
+  /* Adjust button sizes */
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger {
+    padding: 11px 22px;
+    font-size: 15px;
+  }
+
+  /* Input sizes */
+  .glass-input,
+  .field input {
+    padding: 11px 15px;
+    font-size: 15px;
+  }
+}
+
 /* Tablets and below (768px) */
 @media (max-width: 768px) {
 
@@ -614,6 +639,12 @@ a:hover {
   /* Further reduce font size */
   html {
     font-size: 13px;
+  }
+
+  /* Prevent horizontal overflow */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   /* Tighter padding */
