@@ -421,29 +421,30 @@ export default function Profile() {
       {/* Upload ID Modal */}
       {showUploadModal && (
         <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
-          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{
+            maxWidth: '500px',
+            width: '90%'
+          }}>
             <button className="modal-close" onClick={() => setShowUploadModal(false)}>✕</button>
-            <h2 style={{ marginTop: 0, color: 'white' }}>Verify Identity</h2>
-            <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Please upload a clear photo of your ID (Passport, Driver's License) to unlock full features.</p>
+            <h2 style={{ marginTop: 0, color: 'white', marginBottom: '12px' }}>Verify Identity</h2>
+            <p style={{ color: '#94a3b8', marginBottom: '24px', fontSize: '14px' }}>
+              Please upload a clear photo of your ID (Passport, Driver's License) to unlock full features.
+            </p>
 
-            <div className="file-upload-box" style={{ marginBottom: '20px' }}>
-              <input
-                type="file"
-                id="id-proof-upload"
-                className="file-input"
-                accept="image/*"
-                onChange={(e) => setIdFile(e.target.files[0])}
-              />
-              <label htmlFor="id-proof-upload" className="file-label">
-                {idFile ? <span style={{ color: '#10b981' }}>{idFile.name}</span> : <span>📁 Click to Select Image</span>}
-              </label>
-            </div>
+            <FileUpload
+              label="ID Document"
+              onFileSelect={(file) => setIdFile(file)}
+            />
 
             <button
               className="submit-deposit-btn"
               onClick={handleUploadID}
-              disabled={uploading}
-              style={{ opacity: uploading ? 0.7 : 1 }}
+              disabled={uploading || !idFile}
+              style={{
+                opacity: (uploading || !idFile) ? 0.7 : 1,
+                marginTop: '16px',
+                width: '100%'
+              }}
             >
               {uploading ? "Uploading..." : "Submit for Verification"}
             </button>
