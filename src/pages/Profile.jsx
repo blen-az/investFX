@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
 import Toast from "../components/Toast";
+import FileUpload from "../components/FileUpload";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { getUserTransactions } from "../services/transactionService";
