@@ -1,25 +1,73 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "AvaTrade",
+  "name": "AvaTrade - Forex & Crypto Trading",
+  "description": "Professional trading platform for forex, cryptocurrencies, and commodities",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "/logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "/logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": [
+    "finance",
+    "business"
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Market",
+      "short_name": "Market",
+      "description": "View market prices",
+      "url": "/market",
+      "icons": [
+        {
+          "src": "/logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Trade",
+      "short_name": "Trade",
+      "description": "Start trading",
+      "url": "/trade",
+      "icons": [
+        {
+          "src": "/logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Deposit",
+      "short_name": "Deposit",
+      "description": "Deposit funds",
+      "url": "/deposit",
+      "icons": [
+        {
+          "src": "/logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }

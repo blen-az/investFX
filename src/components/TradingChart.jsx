@@ -49,7 +49,11 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       timezone: "Etc/UTC",
       hide_side_toolbar: false,
       hide_top_toolbar: false,
+      allow_symbol_change: true,
+      save_image: false,
       container_id: "tv_chart_container",
+      width: "100%",
+      height: "100%",
     });
   }
 
@@ -174,7 +178,6 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
         id="tv_chart_container"
         ref={containerRef}
         className="flex-1 w-full"
-        style={{ minHeight: '650px', height: '650px' }}
       />
     </div>
   );

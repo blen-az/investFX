@@ -1,6 +1,5 @@
 // src/services/adminService.js
-import { httpsCallable } from "firebase/functions";
-import { functions, db } from "../firebase";
+import { db } from "../firebase";
 import {
     collection,
     query,
@@ -55,6 +54,21 @@ export const getAllUsers = async (filters = {}) => {
 export const setUserBalance = async (userId, amount, operation = "set") => {
     try {
         const walletRef = doc(db, "wallets", userId);
+        const walletSnap = await getDoc(walletRef);
+
+        if (!walletSnap.exists()) {
+            // Create wallet if it doesn't exist
+            await setDoc(walletRef, {
+                uid: userId,
+                balance: operation === "set" ? amount : 0,
+                commissionBalance: 0,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            return { success: true };
+        }
+
+        const currentBalance = walletSnap.data().balance || 0;
 
         if (operation === "set") {
             await updateDoc(walletRef, {
@@ -62,15 +76,11 @@ export const setUserBalance = async (userId, amount, operation = "set") => {
                 updatedAt: new Date()
             });
         } else if (operation === "add") {
-            const walletDoc = await getDocs(query(collection(db, "wallets"), where("uid", "==", userId)));
-            const currentBalance = walletDoc.docs[0]?.data()?.balance || 0;
             await updateDoc(walletRef, {
                 balance: currentBalance + amount,
                 updatedAt: new Date()
             });
         } else if (operation === "subtract") {
-            const walletDoc = await getDocs(query(collection(db, "wallets"), where("uid", "==", userId)));
-            const currentBalance = walletDoc.docs[0]?.data()?.balance || 0;
             await updateDoc(walletRef, {
                 balance: Math.max(0, currentBalance - amount),
                 updatedAt: new Date()

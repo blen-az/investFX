@@ -65,12 +65,24 @@ export default function Users() {
 
     const handleSetBalance = async () => {
         try {
-            await setUserBalance(selectedUser.id, parseFloat(balanceAmount), balanceOperation);
+            const amount = parseFloat(balanceAmount);
+            if (isNaN(amount) || amount < 0) {
+                alert("Please enter a valid amount");
+                return;
+            }
+
+            await setUserBalance(selectedUser.id, amount, balanceOperation);
             setShowBalanceModal(false);
             setBalanceAmount("");
             await loadUsers();
+
+            // Show success message
+            const operationText = balanceOperation === "set" ? "set to" :
+                balanceOperation === "add" ? "increased by" : "decreased by";
+            alert(`✅ Balance ${operationText} $${amount.toFixed(2)} successfully!`);
         } catch (error) {
             console.error("Error setting balance:", error);
+            alert(`❌ Failed to update balance: ${error.message}`);
         }
     };
 
@@ -248,6 +260,17 @@ export default function Users() {
                     </div>
 
                     <div className="form-group">
+                        <label className="form-label">Current Balance</label>
+                        <div className="user-info-display" style={{
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            color: '#10b981'
+                        }}>
+                            ${selectedUser?.balance?.toFixed(2) || '0.00'}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
                         <label className="form-label">Operation</label>
                         <select
                             className="form-input"
@@ -272,6 +295,26 @@ export default function Users() {
                             min="0"
                         />
                     </div>
+
+                    {balanceAmount && !isNaN(parseFloat(balanceAmount)) && (
+                        <div className="form-group">
+                            <label className="form-label">New Balance Preview</label>
+                            <div className="user-info-display" style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: '#06b6d4'
+                            }}>
+                                {(() => {
+                                    const current = selectedUser?.balance || 0;
+                                    const amount = parseFloat(balanceAmount);
+                                    if (balanceOperation === "set") return amount.toFixed(2);
+                                    if (balanceOperation === "add") return (current + amount).toFixed(2);
+                                    if (balanceOperation === "subtract") return Math.max(0, current - amount).toFixed(2);
+                                    return current.toFixed(2);
+                                })()}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="modal-actions">
                         <button

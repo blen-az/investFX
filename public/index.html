@@ -4,17 +4,29 @@
 <head>
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
   <title>AvaTrade</title>
   <meta name="description"
     content="Trade crypto with confidence on AvaTrade. Buy, sell & trade digital assets on a fast, secure and modern platform." />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-  <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+
+  <!-- PWA Manifest -->
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <!-- iOS Specific Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AvaTrade" />
+
+  <!-- Android/Chrome Specific -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="AvaTrade" />
+
+  <!-- Windows Specific -->
+  <meta name="msapplication-TileColor" content="#0f172a" />
+  <meta name="msapplication-tap-highlight" content="no" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

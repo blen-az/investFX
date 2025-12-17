@@ -36,8 +36,24 @@ body,
    NAVBAR
    ================================================ */
 /* ================================================
-   NAVBAR - ENHANCED
+   MOBILE NAVBAR OVERRIDE - Must come first!
    ================================================ */
+@media (max-width: 768px) {
+
+  .navbar,
+  header.navbar,
+  .navbar-container {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+/* ================================================
+   NAVBAR STYLES
+   ================================================ */
+
 .navbar {
   background: rgba(26, 31, 46, 0.95);
   backdrop-filter: blur(20px);

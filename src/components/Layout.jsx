@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
+import MobileBottomNav from "./MobileBottomNav";
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -14,6 +15,7 @@ export default function Layout({ children }) {
           {children}
         </div>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

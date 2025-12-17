@@ -9,6 +9,75 @@
 }
 
 /* ================================================
+   MOBILE AVATAR HEADER (Hidden on Desktop)
+   ================================================ */
+
+.mobile-avatar-header {
+  display: none;
+  /* Hidden by default (desktop) */
+}
+
+@media (max-width: 768px) {
+  .mobile-avatar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: rgba(10, 14, 26, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(100, 116, 139, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .mobile-logo {
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text {
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-icon {
+    font-size: 20px;
+    color: #fbbf24;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+  }
+
+  .avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    overflow: hidden;
+    border: 2px solid rgba(6, 182, 212, 0.3);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+  }
+
+  .avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* ================================================
    SEARCH BAR
    ================================================ */
 
@@ -50,28 +119,14 @@
   margin-bottom: 32px;
 }
 
-.fx-balance .glass-card {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 24px;
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1));
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  color: #f8fafc;
-}
-
-.balance-info {
-  width: 100%;
-}
-
-.bal-title {
-  font-size: 14px;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  margin-bottom: 8px;
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #06b6d4, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .bal-amount {
@@ -85,14 +140,25 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
+}
+
+.fx-balance .glass-card {
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: #f8fafc;
+}
+
+.balance-info {
+  width: 100%;
 }
 
 .eye-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(100, 116, 139, 0.2);
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 6px;
+  padding: 6px;
   cursor: pointer;
   color: #94a3b8;
   transition: all 0.3s ease;
@@ -101,16 +167,15 @@
   justify-content: center;
 }
 
+.eye-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .eye-btn:hover {
   background: rgba(6, 182, 212, 0.1);
   border-color: #06b6d4;
   color: #06b6d4;
-}
-
-.bal-sub {
-  font-size: 15px;
-  color: #ef4444;
-  font-weight: 600;
 }
 
 .action-buttons {
@@ -278,7 +343,7 @@
 .crypto-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .crypto-row {
@@ -286,9 +351,12 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(100, 116, 139, 0.2);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 10px 14px;
   transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .crypto-row:hover {
@@ -298,13 +366,62 @@
 }
 
 .crypto-row.placeholder {
-  height: 60px;
+  height: 48px;
   background: linear-gradient(90deg,
       rgba(26, 31, 46, 0.8) 0%,
       rgba(37, 43, 61, 0.8) 50%,
       rgba(26, 31, 46, 0.8) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+.crypto-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crypto-left img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.crypto-left .symbol {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 2px;
+}
+
+.crypto-left .vol {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.crypto-right {
+  text-align: right;
+}
+
+.crypto-right .price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 2px;
+}
+
+.crypto-right .change {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.crypto-right .change.up {
+  color: #10b981;
+}
+
+.crypto-right .change.down {
+  color: #ef4444;
 }
 
 @keyframes shimmer {

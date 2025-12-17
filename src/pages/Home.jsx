@@ -57,11 +57,11 @@ export default function Home() {
 
   useEffect(() => {
     fetch(
-      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=10&page=1&order=market_cap_desc"
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=20&page=1&order=market_cap_desc"
     )
       .then((r) => r.json())
       .then((d) => {
-        if (Array.isArray(d)) setTop(d.slice(0, 6));
+        if (Array.isArray(d)) setTop(d);
       })
       .catch(() => { });
   }, []);
@@ -105,40 +105,44 @@ export default function Home() {
 
   return (
     <div className="fx-home">
-
-      {/* SEARCH BAR */}
-      <section className="fx-search container">
-        <input
-          className="search-input"
-          placeholder="Search crypto, transactions, or users..."
-        />
-      </section>
+      {/* MOBILE AVATAR HEADER - Hidden on Desktop */}
+      <div className="mobile-avatar-header">
+        <div className="mobile-logo">
+          <span className="logo-icon">⚡</span>
+          <span className="logo-text">AvaTrade</span>
+        </div>
+        <div className="avatar-circle">
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="Profile" />
+          ) : (
+            <span>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
+          )}
+        </div>
+      </div>
 
       {/* BALANCE CARD */}
       <section className="fx-balance container">
-        <div className="glass-card">
-          <div className="balance-info">
-            <div className="bal-title">Total Assets</div>
-            <div className="bal-amount">
-              {balanceHidden ? "******* **" : `$${Number(balance).toFixed(2)}`}
-              <button
-                className="eye-btn"
-                title={balanceHidden ? "Show balance" : "Hide balance"}
-                onClick={() => setBalanceHidden(!balanceHidden)}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7z"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                  />
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.2" />
-                </svg>
-              </button>
-            </div>
-            <div className="bal-sub">-1.5% this week</div>
-          </div>
+        <h3 className="section-title">Total Assets</h3>
 
+        <div className="bal-amount">
+          {balanceHidden ? "******* **" : `$${Number(balance).toFixed(2)}`}
+          <button
+            className="eye-btn"
+            title={balanceHidden ? "Show balance" : "Hide balance"}
+            onClick={() => setBalanceHidden(!balanceHidden)}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 5C7 5 2.73 8.11 1 12c1.73 3.89 6 7 11 7s9.27-3.11 11-7c-1.73-3.89-6-7-11-7z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="glass-card">
           <div className="action-buttons">
             <Link to="/deposit" className="btn deposit">
               ➕ Deposit
@@ -206,7 +210,7 @@ export default function Home() {
           {top.length ? (
             top.map((c) => <CryptoRow key={c.id} c={c} />)
           ) : (
-            Array.from({ length: 6 }).map((_, i) => (
+            Array.from({ length: 20 }).map((_, i) => (
               <div key={i} className="crypto-row placeholder" />
             ))
           )}

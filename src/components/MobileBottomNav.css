@@ -1,0 +1,146 @@
+/* Mobile Bottom Navigation Styles */
+
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: none;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Show only on mobile devices */
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: block;
+    }
+}
+
+.mobile-nav-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 8px 4px;
+    text-decoration: none;
+    color: #94a3b8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-width: 60px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav-item::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    border-radius: 0 0 4px 4px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-nav-item.active::before {
+    transform: translateX(-50%) scaleX(1);
+}
+
+.mobile-nav-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+    transform: scale(1.1);
+}
+
+.mobile-nav-label {
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.mobile-nav-item.active {
+    color: #06b6d4;
+}
+
+.mobile-nav-item.active .mobile-nav-label {
+    font-weight: 600;
+}
+
+/* Active state glow effect */
+.mobile-nav-item.active .mobile-nav-icon {
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+}
+
+/* Touch feedback */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-nav-item:active {
+        transform: scale(0.95);
+        background: rgba(148, 163, 184, 0.05);
+        border-radius: 12px;
+    }
+}
+
+/* Hover effect for desktop testing */
+@media (hover: hover) and (pointer: fine) {
+    .mobile-nav-item:hover {
+        color: #06b6d4;
+        background: rgba(148, 163, 184, 0.05);
+        border-radius: 12px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+    .mobile-nav-icon {
+        font-size: 20px;
+    }
+
+    .mobile-nav-label {
+        font-size: 10px;
+    }
+
+    .mobile-nav-item {
+        padding: 6px 2px;
+        min-width: 50px;
+    }
+}
+
+/* Landscape mode adjustment */
+@media (max-height: 500px) and (orientation: landscape) {
+    .mobile-nav-item {
+        flex-direction: row;
+        gap: 6px;
+        padding: 4px 8px;
+    }
+
+    .mobile-nav-icon {
+        margin-bottom: 0;
+        font-size: 20px;
+    }
+
+    .mobile-nav-label {
+        font-size: 10px;
+    }
+}
