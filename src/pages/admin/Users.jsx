@@ -465,6 +465,54 @@ export default function Users() {
                     </div>
 
                     <div className="form-group">
+                        <label className="form-label">KYC Status</label>
+                        <div className="user-info-display">
+                            {selectedUser?.kycStatus ? (
+                                <span className={`badge ${selectedUser.kycStatus === 'verified' ? 'badge-success' :
+                                        selectedUser.kycStatus === 'pending' ? 'badge-warning' :
+                                            'badge-danger'
+                                    }`}>
+                                    {selectedUser.kycStatus.charAt(0).toUpperCase() + selectedUser.kycStatus.slice(1)}
+                                </span>
+                            ) : (
+                                <span style={{ color: '#64748b' }}>Not submitted</span>
+                            )}
+                        </div>
+                    </div>
+
+                    {selectedUser?.idUrl && (
+                        <div className="form-group">
+                            <label className="form-label">ID Document</label>
+                            <div className="user-info-display">
+                                <a
+                                    href={selectedUser.idUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-sm btn-secondary"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        padding: '8px 16px',
+                                        fontSize: '13px'
+                                    }}
+                                >
+                                    📄 View ID Document
+                                </a>
+                                {selectedUser.kycSubmittedAt && (
+                                    <div style={{
+                                        marginTop: '8px',
+                                        fontSize: '12px',
+                                        color: '#64748b'
+                                    }}>
+                                        Submitted: {new Date(selectedUser.kycSubmittedAt).toLocaleString()}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-group">
                         <label className="form-label">Joined</label>
                         <div className="user-info-display">
                             {selectedUser?.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : '-'}
