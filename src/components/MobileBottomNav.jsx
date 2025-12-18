@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
             { path: '/market', icon: '📊', label: 'Market' },
             { path: '/trade', icon: '📈', label: 'Trade' },
             { path: '/transactions', icon: '💳', label: 'History' },
-            { path: '/profile', icon: '👤', label: 'Mine' }
+            { path: '/wallet', icon: '💰', label: 'Wallet' }
         ];
     };
 
