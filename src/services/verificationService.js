@@ -78,6 +78,21 @@ export const getVerificationStatus = async (userId) => {
         }
 
         const userData = userDoc.data();
+
+        // Normalize for single user view
+        if (!userData.verification && userData.kycStatus) {
+            return {
+                status: userData.kycStatus,
+                idFrontUrl: userData.idUrl,
+                idBackUrl: null,
+                submittedAt: userData.kycSubmittedAt ? { toDate: () => new Date(userData.kycSubmittedAt) } : null,
+                isLegacy: true,
+                reviewedAt: null,
+                reviewedBy: null,
+                rejectionReason: null
+            };
+        }
+
         return userData.verification || {
             status: "unverified",
             idFrontUrl: null,
@@ -105,13 +120,26 @@ export const getPendingVerifications = async () => {
 
         snapshot.forEach((doc) => {
             const userData = doc.data();
+
+            // Normalize: If legacy fields exist but new 'verification' object doesn't, create one
+            let verification = userData.verification;
+            if (!verification && userData.kycStatus) {
+                verification = {
+                    status: userData.kycStatus,
+                    idFrontUrl: userData.idUrl, // Legacy was single image
+                    idBackUrl: null,
+                    submittedAt: userData.kycSubmittedAt ? { toDate: () => new Date(userData.kycSubmittedAt) } : null,
+                    isLegacy: true
+                };
+            }
+
             // Filter for pending verifications client-side
-            if (userData.verification && userData.verification.status === "pending") {
+            if (verification && verification.status === "pending") {
                 verifications.push({
                     userId: doc.id,
                     name: userData.name || userData.email,
                     email: userData.email,
-                    verification: userData.verification,
+                    verification: verification,
                     createdAt: userData.createdAt
                 });
             }
@@ -144,16 +172,28 @@ export const getAllVerifications = async (statusFilter = null) => {
         snapshot.forEach((doc) => {
             const userData = doc.data();
 
+            // Normalize: If legacy fields exist but new 'verification' object doesn't, create one
+            let verification = userData.verification;
+            if (!verification && userData.kycStatus) {
+                verification = {
+                    status: userData.kycStatus,
+                    idFrontUrl: userData.idUrl, // Legacy was single image
+                    idBackUrl: null,
+                    submittedAt: userData.kycSubmittedAt ? { toDate: () => new Date(userData.kycSubmittedAt) } : null,
+                    isLegacy: true
+                };
+            }
+
             // Only include users who have verification data
-            if (userData.verification && userData.verification.status !== "unverified") {
+            if (verification && verification.status !== "unverified") {
                 // Apply status filter if provided
-                if (!statusFilter || userData.verification.status === statusFilter) {
+                if (!statusFilter || verification.status === statusFilter) {
                     verifications.push({
                         userId: doc.id,
                         name: userData.name || userData.email,
                         email: userData.email,
                         role: userData.role,
-                        verification: userData.verification,
+                        verification: verification,
                         createdAt: userData.createdAt
                     });
                 }
