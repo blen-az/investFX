@@ -9,6 +9,10 @@ import FileUpload from "../components/FileUpload";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { getUserTransactions } from "../services/transactionService";
+import {
+  uploadVerificationDocuments,
+  submitVerification
+} from "../services/verificationService";
 import "./Profile.css";
 
 
@@ -16,13 +20,12 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("transactions");
-  const [balanceHidden, setBalanceHidden] = useState(false);
   const [balance, setBalance] = useState(0);
 
   // KYC State
   const [kycStatus, setKycStatus] = useState("unverified");
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [idFile, setIdFile] = useState(null);
+  const [idFrontFile, setIdFrontFile] = useState(null);
+  const [idBackFile, setIdBackFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   // Toast State
@@ -42,10 +45,11 @@ export default function Profile() {
       }
     });
 
-    // Listen to user profile for KYC status
+    // Listen to user profile for KYC status (Nested verification object)
     const unsubUser = onSnapshot(doc(db, "users", user.uid), (doc) => {
       if (doc.exists()) {
-        setKycStatus(doc.data().kycStatus || "unverified");
+        const userData = doc.data();
+        setKycStatus(userData.verification?.status || "unverified");
       }
     });
 
@@ -74,117 +78,45 @@ export default function Profile() {
 
   // Handle ID Upload
   const handleUploadID = async () => {
-    if (!idFile) {
-      setToast({ message: "Please select a file first.", type: "warning" });
-      return;
-    }
-
-    // Validate file type
-    if (!idFile.type.startsWith('image/')) {
-      setToast({ message: "Please upload an image file (JPG, PNG, etc.)", type: "warning" });
-      return;
-    }
-
-    // Validate file size
-    if (idFile.size > 10 * 1024 * 1024) { // 10MB limit
-      setToast({ message: "File is too large. Please upload an image smaller than 10MB.", type: "warning" });
+    if (!idFrontFile || !idBackFile) {
+      setToast({ message: "Please select both Front and Back ID files.", type: "warning" });
       return;
     }
 
     try {
       setUploading(true);
       console.log("Starting ID upload to Cloudinary...");
-      console.log("File details:", { name: idFile.name, size: idFile.size, type: idFile.type });
 
-      // Upload to Cloudinary
-      const formData = new FormData();
-      formData.append("file", idFile);
-      formData.append("upload_preset", "invest"); // Your Unsigned Upload Preset
-      formData.append("cloud_name", "dlzvewiff"); // Your Cloud Name
-      formData.append("folder", "kyc"); // Organize uploads in a folder
+      // 1. Upload both images via service
+      const { frontUrl, backUrl } = await uploadVerificationDocuments(idFrontFile, idBackFile);
+      console.log("Upload complete! URLs:", { frontUrl, backUrl });
 
-      console.log("Uploading to Cloudinary...");
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dlzvewiff/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      // 2. Submit verification via service
+      await submitVerification(user.uid, frontUrl, backUrl);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Cloudinary error response:", errorData);
-        throw new Error(`Cloudinary upload failed: ${errorData.error?.message || "Unknown error"}`);
-      }
-
-      const data = await response.json();
-      const uploadedUrl = data.secure_url;
-      console.log("Upload complete! URL:", uploadedUrl);
-
-      // Update Firestore with Cloudinary URL
-      console.log("Updating user document in Firestore...");
-      await updateDoc(doc(db, "users", user.uid), {
-        kycStatus: "pending",
-        idUrl: uploadedUrl,
-        kycSubmittedAt: new Date().toISOString()
-      });
-
-      setShowUploadModal(false);
-      setIdFile(null);
+      setIdFrontFile(null);
+      setIdBackFile(null);
       setUploading(false);
       setToast({
         message: "ID submitted successfully! Your documents will be reviewed within 24-48 hours.",
         type: "success"
       });
     } catch (error) {
-      console.error("=== UPLOAD ERROR ===");
-      console.error("Error:", error);
-      console.error("Error message:", error.message);
-
-      // Show specific error with actionable guidance
-      let errorMsg = "❌ Upload Failed\n\n";
-
-      if (error.message.includes("Cloudinary")) {
-        errorMsg += error.message + "\n\n";
-        errorMsg += "This usually means:\n";
-        errorMsg += "• Check your internet connection\n";
-        errorMsg += "• File format may not be supported\n";
-        errorMsg += "• Upload preset might be misconfigured\n\n";
-        errorMsg += "Please try again or contact support.";
-      } else if (error.message.includes("Network")) {
-        errorMsg += "Network error occurred.\n";
-        errorMsg += "Please check your internet connection and try again.";
-      } else if (error.message.includes("timeout")) {
-        errorMsg += "Upload timed out.\n";
-        errorMsg += "Please check your connection and try a smaller file.";
-      } else {
-        errorMsg += `Error: ${error.message || "Unknown error"}\n\n`;
-        errorMsg += "Please try again or contact support if the issue persists.";
-      }
-
+      console.error("=== UPLOAD ERROR ===", error);
       setToast({
-        message: errorMsg,
+        message: "❌ Upload Failed. Please check your connection and try again.",
         type: "error"
       });
       setUploading(false);
     }
   };
 
-  // Mock Data
-  const portfolioValue = balance;
-  const todayPL = 450.25;
-  const totalTrades = 128;
-  const winRate = 68;
-
   // Dynamic Badge Logic
   const getBadge = () => {
     if (kycStatus === "verified") return <span className="profile-badge status-verified">Verified</span>;
-    if (kycStatus === "pending") return <span className="profile-badge status-pending">Under Review</span>;
+    if (kycStatus === "pending") return <span className="profile-badge status-pending">In Review</span>;
     return <span className="profile-badge status-unverified">Unverified</span>;
   };
-
-  // Transactions are now fetched from Firestore via loadTransactions()
 
   const columns = [
     {
@@ -196,8 +128,8 @@ export default function Profile() {
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            background: value.includes('Deposit') || value.includes('Profit') ? '#10b981' :
-              value.includes('Withdrawal') || value.includes('Loss') ? '#ef4444' : '#3b82f6'
+            background: value?.includes('Deposit') || value?.includes('Profit') ? '#10b981' :
+              value?.includes('Withdrawal') || value?.includes('Loss') ? '#ef4444' : '#3b82f6'
           }} />
           {value}
         </div>
@@ -211,7 +143,7 @@ export default function Profile() {
           color: value > 0 ? '#10b981' : value < 0 ? '#ef4444' : '#f8fafc',
           fontWeight: 600
         }}>
-          {value > 0 ? '+' : ''}{value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+          {value > 0 ? '+' : ''}{value?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
         </span>
       )
     },
@@ -219,7 +151,7 @@ export default function Profile() {
       header: "Status",
       key: "status",
       render: (value) => (
-        <span className={`badge ${value === 'completed' ? 'badge-success' : 'badge-warning'}`}>
+        <span className={`badge ${value === 'completed' || value === 'done' ? 'badge-success' : 'badge-warning'}`}>
           {value}
         </span>
       )
@@ -227,7 +159,7 @@ export default function Profile() {
     {
       header: "Date",
       key: "date",
-      render: (value) => new Date(value).toLocaleDateString()
+      render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A'
     }
   ];
 
@@ -278,31 +210,62 @@ export default function Profile() {
           </div>
         ) : (
           <div className="verification-view">
-            <div className="verification-card">
-              <h3>Verification Status</h3>
-              <p>Please upload a clear photo of your ID (Passport or Driver's License) to verify your identity.</p>
+            <div className="verification-card glass-panel">
+              <div className="verification-header">
+                <span className="verify-icon">🛡️</span>
+                <h3>Identify Verification</h3>
+              </div>
+              <p>To comply with financial regulations and protect your account, please upload clear photos of your Government ID (Passport, Driver's License, or National ID).</p>
 
-              <div className="verification-current">
-                Status: {kycStatus.toUpperCase()}
+              <div className="verification-status-bar">
+                Status: <span className={`status-val ${kycStatus}`}>{kycStatus.toUpperCase()}</span>
               </div>
 
               {kycStatus === 'unverified' && (
-                <div className="upload-section">
-                  <FileUpload
-                    label="Choose ID Document"
-                    onFileSelect={(file) => setIdFile(file)}
-                  />
+                <div className="upload-ui">
+                  <div className="dual-upload">
+                    <FileUpload
+                      label="Front of ID"
+                      onFileSelect={(file) => setIdFrontFile(file)}
+                    />
+                    <FileUpload
+                      label="Back of ID"
+                      onFileSelect={(file) => setIdBackFile(file)}
+                    />
+                  </div>
+
+                  {(idFrontFile || idBackFile) && (
+                    <div className="file-ready-msg">
+                      {idFrontFile && <div>✓ Front: {idFrontFile.name}</div>}
+                      {idBackFile && <div>✓ Back: {idBackFile.name}</div>}
+                    </div>
+                  )}
+
                   <button
-                    className="verify-submit-btn"
+                    className="verify-submit-huge"
                     onClick={handleUploadID}
-                    disabled={uploading || !idFile}
+                    disabled={uploading || !idFrontFile || !idBackFile}
                   >
-                    {uploading ? "Uploading..." : "Submit for Verification"}
+                    {uploading ? "Applying..." : "Submit for Verification"}
                   </button>
                 </div>
               )}
-              {kycStatus === 'pending' && <p className="review-txt">Your ID is currently under review. This usually takes 24-48 hours.</p>}
-              {kycStatus === 'verified' && <p className="success-txt">✓ Your account is fully verified.</p>}
+
+              {kycStatus === 'pending' && (
+                <div className="status-message pending-box">
+                  <div className="spinner-small"></div>
+                  <h4>Review in Progress</h4>
+                  <p>Our team is verifying your documents. This typically takes 24 hours.</p>
+                </div>
+              )}
+
+              {kycStatus === 'verified' && (
+                <div className="status-message verified-box">
+                  <span className="huge-check">✅</span>
+                  <h4>Identity Verified</h4>
+                  <p>You have full access to all withdrawal and trading features.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -322,41 +285,6 @@ export default function Profile() {
       >
         Logout
       </button>
-
-
-      {/* Upload ID Modal */}
-      {showUploadModal && (
-        <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
-          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{
-            maxWidth: '500px',
-            width: '90%'
-          }}>
-            <button className="modal-close" onClick={() => setShowUploadModal(false)}>✕</button>
-            <h2 style={{ marginTop: 0, color: 'white', marginBottom: '12px' }}>Verify Identity</h2>
-            <p style={{ color: '#94a3b8', marginBottom: '24px', fontSize: '14px' }}>
-              Please upload a clear photo of your ID (Passport, Driver's License) to unlock full features.
-            </p>
-
-            <FileUpload
-              label="ID Document"
-              onFileSelect={(file) => setIdFile(file)}
-            />
-
-            <button
-              className="submit-deposit-btn"
-              onClick={handleUploadID}
-              disabled={uploading || !idFile}
-              style={{
-                opacity: (uploading || !idFile) ? 0.7 : 1,
-                marginTop: '16px',
-                width: '100%'
-              }}
-            >
-              {uploading ? "Uploading..." : "Submit for Verification"}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Toast Notifications */}
       {toast && (

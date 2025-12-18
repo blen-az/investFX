@@ -7,8 +7,8 @@ import { doc, getDoc, updateDoc, collection, query, where, getDocs, serverTimest
  */
 export const uploadVerificationDocuments = async (frontImage, backImage) => {
     try {
-        const cloudName = "dqoe6qzt9"; // Your Cloudinary cloud name
-        const uploadPreset = "ml_default"; // Your upload preset
+        const cloudName = "dlzvewiff"; // Updated working cloud name
+        const uploadPreset = "invest"; // Updated working upload preset
 
         const uploadImage = async (file) => {
             const formData = new FormData();

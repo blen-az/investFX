@@ -28,7 +28,8 @@ export default function Wallet() {
 
         const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (doc) => {
             if (doc.exists()) {
-                setKycStatus(doc.data().kycStatus || "unverified");
+                const userData = doc.data();
+                setKycStatus(userData.verification?.status || "unverified");
             }
         });
 
