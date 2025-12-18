@@ -1,12 +1,12 @@
 /* Global Mobile Padding - Minimal but readable */
 @media (max-width: 768px) {
     .container {
-        padding: 0 12px !important;
+        padding: 0 4px !important;
         margin: 0 !important;
         max-width: 100% !important;
     }
 
     .page-wrap {
-        padding: 12px !important;
+        padding: 4px !important;
     }
 }
