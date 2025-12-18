@@ -1,0 +1,12 @@
+/* Global Mobile Full-Width Fix */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .page-wrap {
+        padding: 0 !important;
+    }
+}
