@@ -9,19 +9,40 @@ import './Wallet.css';
 export default function Wallet() {
     const { user } = useAuth();
     const [balance, setBalance] = useState(0);
+    const [kycStatus, setKycStatus] = useState("unverified");
     const [balanceHidden, setBalanceHidden] = useState(false);
+
+    // Mock/placeholder stats for demo
+    const todayPL = 450.25;
+    const totalTrades = 128;
+    const winRate = 68;
 
     useEffect(() => {
         if (!user) return;
 
-        const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+        const unsubscribeWallet = onSnapshot(doc(db, 'wallets', user.uid), (doc) => {
             if (doc.exists()) {
                 setBalance(doc.data().balance || 0);
             }
         });
 
-        return () => unsubscribe();
+        const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+            if (doc.exists()) {
+                setKycStatus(doc.data().kycStatus || "unverified");
+            }
+        });
+
+        return () => {
+            unsubscribeWallet();
+            unsubscribeUser();
+        };
     }, [user]);
+
+    const getBadge = () => {
+        if (kycStatus === "verified") return <span className="status-badge verified">Verified</span>;
+        if (kycStatus === "pending") return <span className="status-badge pending">Under Review</span>;
+        return <span className="status-badge unverified">Unverified</span>;
+    };
 
     const menuSections = [
         {
@@ -55,19 +76,42 @@ export default function Wallet() {
 
     return (
         <div className="wallet-page">
-            {/* Balance Card */}
-            <div className="wallet-balance-card">
-                <div className="balance-amount-large">
-                    {balanceHidden ? '********' : balance.toFixed(2)}
+            {/* User Header */}
+            <div className="mine-user-header">
+                <div className="user-avatar-main">
+                    {(user?.email || "U")[0].toUpperCase()}
                 </div>
-                <div className="balance-available">
-                    <span>Available: {balanceHidden ? '********' : balance.toFixed(2)}</span>
-                    <button
-                        className="balance-visibility-toggle"
-                        onClick={() => setBalanceHidden(!balanceHidden)}
-                    >
-                        →
-                    </button>
+                <div className="user-info-text">
+                    <div className="user-email-row">
+                        <span className="user-name">{user?.email ? user.email.split("@")[0] : "Trader"}</span>
+                        {getBadge()}
+                    </div>
+                    <div className="user-full-email">{user?.email}</div>
+                </div>
+            </div>
+
+            {/* Stats Section */}
+            <div className="mine-stats-grid">
+                <div className="mine-stat-card">
+                    <div className="mine-stat-label">Portfolio</div>
+                    <div className="mine-stat-value">
+                        {balanceHidden ? '****' : `$${balance.toLocaleString()}`}
+                        <button className="small-toggle" onClick={() => setBalanceHidden(!balanceHidden)}>
+                            {balanceHidden ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                    </div>
+                </div>
+                <div className="mine-stat-card">
+                    <div className="mine-stat-label">Today's P&L</div>
+                    <div className="mine-stat-value positive">+${todayPL}</div>
+                </div>
+                <div className="mine-stat-card">
+                    <div className="mine-stat-label">Trades</div>
+                    <div className="mine-stat-value">{totalTrades}</div>
+                </div>
+                <div className="mine-stat-card">
+                    <div className="mine-stat-label">Win Rate</div>
+                    <div className="mine-stat-value accent">{winRate}%</div>
                 </div>
             </div>
 

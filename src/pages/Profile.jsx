@@ -232,192 +232,97 @@ export default function Profile() {
   ];
 
   return (
-    <div className="profile-page">
-      {/* Header Section */}
-      <div className="profile-header-section">
-        <div className="profile-card">
-          <div className="profile-info">
-            <div className="profile-avatar">
-              {(user?.email || "U")[0].toUpperCase()}
-            </div>
-            <div className="profile-details">
-              <h1>
-                {user?.email ? user.email.split("@")[0] : "Trader"}
-                {getBadge()}
-              </h1>
-              <div className="profile-email">{user?.email}</div>
-            </div>
-          </div>
+    <div className="profile-page settings-view">
+      {/* Header */}
+      <div className="settings-header">
+        <Link to="/wallet" className="back-link">← Back</Link>
+        <h1>Settings & Profile</h1>
+      </div>
 
-          <div className="profile-stats-row">
-            <div className="profile-stat">
-              <div className="stat-label">Total Balance</div>
-              <div className="stat-value highlight">
-                {balanceHidden ? "••••••" : `$${portfolioValue.toLocaleString()}`}
-                <button
-                  onClick={() => setBalanceHidden(!balanceHidden)}
-                  style={{ background: 'none', border: 'none', color: '#94a3b8', marginLeft: '8px', cursor: 'pointer' }}
-                >
-                  {balanceHidden ? "👁️" : "👁️‍🗨️"}
-                </button>
-              </div>
-            </div>
-            <div className="profile-stat">
-              <div className="stat-label">Today's P&L</div>
-              <div className="stat-value" style={{ color: '#10b981' }}>+${todayPL}</div>
-            </div>
-          </div>
+      {/* Profile Overview (Simplified) */}
+      <div className="settings-user-box">
+        <div className="settings-avatar">
+          {(user?.email || "U")[0].toUpperCase()}
         </div>
-
-        {/* Quick Actions */}
-        <div className="quick-actions-grid">
-          <Link to="/deposit" className="action-card">
-            <div className="action-icon">💰</div>
-            <div className="action-info">
-              <h3>Deposit</h3>
-              <p>Add funds instantly</p>
-            </div>
-          </Link>
-          <Link to="/trade" className="action-card">
-            <div className="action-icon">📈</div>
-            <div className="action-info">
-              <h3>Trade</h3>
-              <p>Start trading now</p>
-            </div>
-          </Link>
-          <Link to="/withdraw" className="action-card">
-            <div className="action-icon">🏦</div>
-            <div className="action-info">
-              <h3>Withdraw</h3>
-              <p>Cash out earnings</p>
-            </div>
-          </Link>
-
-          {/* Settings Card */}
-          <Link to="/settings" className="action-card">
-            <div className="action-icon">⚙️</div>
-            <div className="action-info">
-              <h3>Settings</h3>
-              <p>Manage your account</p>
-            </div>
-          </Link>
+        <div className="settings-details">
+          <h2>{user?.email}</h2>
+          {getBadge()}
         </div>
+      </div>
 
-        {/* Logout Button - Prominent on Mobile */}
+      {/* Tabs */}
+      <div className="settings-tabs">
         <button
-          onClick={async () => {
-            try {
-              await logout();
-              navigate('/');
-            } catch (error) {
-              console.error('Logout error:', error);
-            }
-          }}
-          className="profile-logout-btn"
+          className={`settings-tab ${activeTab === 'transactions' ? 'active' : ''}`}
+          onClick={() => setActiveTab('transactions')}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginRight: '8px' }}>
-            <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="2" />
-            <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="2" />
-            <path d="M21 12H9" stroke="currentColor" strokeWidth="2" />
-          </svg>
-          Logout
+          Transactions
+        </button>
+        <button
+          className={`settings-tab ${activeTab === 'kyc' ? 'active' : ''}`}
+          onClick={() => setActiveTab('kyc')}
+        >
+          ID Upload
         </button>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="profile-content-grid">
-        {/* Left Column - Transactions & History */}
-        <div className="content-card">
-          <div className="card-header">
-            <div className="card-title">Activity History</div>
-            <div className="tabs">
-              <button
-                className={`tab-btn ${activeTab === 'transactions' ? 'active' : ''}`}
-                onClick={() => setActiveTab('transactions')}
-              >
-                Transactions
-              </button>
-              <button
-                className={`tab-btn ${activeTab === 'trades' ? 'active' : ''}`}
-                onClick={() => setActiveTab('trades')}
-              >
-                Trade History
-              </button>
-            </div>
-          </div>
-
-          {activeTab === 'transactions' ? (
+      {/* Content */}
+      <div className="settings-content">
+        {activeTab === 'transactions' ? (
+          <div className="transactions-view">
             <DataTable columns={columns} data={transactions} />
-          ) : (
-            <div className="empty-state">
-              <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                No trade history available yet.
-              </div>
-            </div>
-          )}
-        </div>
+            {transactions.length === 0 && !loadingTransactions && (
+              <div className="empty-history">No transaction history found.</div>
+            )}
+            {loadingTransactions && <div className="loading-history">Loading history...</div>}
+          </div>
+        ) : (
+          <div className="verification-view">
+            <div className="verification-card">
+              <h3>Verification Status</h3>
+              <p>Please upload a clear photo of your ID (Passport or Driver's License) to verify your identity.</p>
 
-        {/* Right Column - Stats & Trust */}
-        <div className="sidebar-column" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div className="content-card">
-            <div className="card-title" style={{ marginBottom: '20px' }}>Trust Score</div>
-            <div className="trust-score-container">
-              <div className="trust-circle" style={{
-                borderColor: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#f59e0b' : '#ef4444',
-                borderTopColor: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#f59e0b' : '#ef4444'
-              }}>
-                <div className="trust-value" style={{
-                  color: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#f59e0b' : '#ef4444'
-                }}>
-                  {kycStatus === 'verified' ? '100' : kycStatus === 'pending' ? '50' : '20'}
-                </div>
-                <div className="trust-label">Score</div>
+              <div className="verification-current">
+                Status: {kycStatus.toUpperCase()}
               </div>
 
-              {/* Verification Call to Action */}
-              <div className="verification-status" style={{ flexDirection: 'column', gap: 12 }}>
-                {kycStatus === 'verified' ? (
-                  <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    ✓ Fully Verified
-                  </div>
-                ) : kycStatus === 'pending' ? (
-                  <div style={{ color: '#f59e0b' }}>⧗ In Review</div>
-                ) : (
+              {kycStatus === 'unverified' && (
+                <div className="upload-section">
+                  <FileUpload
+                    label="Choose ID Document"
+                    onFileSelect={(file) => setIdFile(file)}
+                  />
                   <button
-                    className="btn-verify"
-                    onClick={() => setShowUploadModal(true)}
-                    style={{
-                      background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
-                      border: 'none',
-                      padding: '10px 20px',
-                      borderRadius: '8px',
-                      color: 'white',
-                      fontWeight: 700,
-                      cursor: 'pointer'
-                    }}
+                    className="verify-submit-btn"
+                    onClick={handleUploadID}
+                    disabled={uploading || !idFile}
                   >
-                    Upload ID to Verify
+                    {uploading ? "Uploading..." : "Submit for Verification"}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
+              {kycStatus === 'pending' && <p className="review-txt">Your ID is currently under review. This usually takes 24-48 hours.</p>}
+              {kycStatus === 'verified' && <p className="success-txt">✓ Your account is fully verified.</p>}
             </div>
           </div>
-
-          <div className="content-card">
-            <div className="card-title">Trading Stats</div>
-            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                <span style={{ color: '#94a3b8' }}>Total Trades</span>
-                <span style={{ fontWeight: '600' }}>{totalTrades}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                <span style={{ color: '#94a3b8' }}>Win Rate</span>
-                <span style={{ fontWeight: '600', color: '#10b981' }}>{winRate}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
+
+      {/* Logout */}
+      <button
+        onClick={async () => {
+          try {
+            await logout();
+            navigate('/');
+          } catch (error) {
+            console.error('Logout error:', error);
+          }
+        }}
+        className="settings-logout-btn"
+      >
+        Logout
+      </button>
+
 
       {/* Upload ID Modal */}
       {showUploadModal && (
