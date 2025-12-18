@@ -1,6 +1,6 @@
 // src/services/walletService.js
 import { db } from '../firebase';
-import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, runTransaction } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, runTransaction, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 
 /**
  * Transfer funds between user's internal accounts
