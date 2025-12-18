@@ -36,6 +36,7 @@ export default function Wallet() {
         {
             title: 'Accounts',
             items: [
+                { label: 'My Profile', path: '/profile', icon: '👤' },
                 { label: 'My promotion', path: '/promotion', icon: '🎁' },
                 { label: 'Security Center', path: '/security', icon: '🔒' },
                 { label: 'Bind the withdrawal address', path: '/withdrawal-address', icon: '🏦' },
