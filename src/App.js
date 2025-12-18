@@ -25,6 +25,15 @@ const News = lazy(() => import("./pages/News"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Deposit = lazy(() => import("./pages/Deposit"));
 const Withdraw = lazy(() => import("./pages/Withdraw"));
+const Wallet = lazy(() => import("./pages/Wallet"));
+const AccountTransfer = lazy(() => import("./pages/AccountTransfer"));
+const Exchange = lazy(() => import("./pages/Exchange"));
+const Promotion = lazy(() => import("./pages/Promotion"));
+const SecurityCenter = lazy(() => import("./pages/SecurityCenter"));
+const WithdrawalAddress = lazy(() => import("./pages/WithdrawalAddress"));
+const PaymentMethods = lazy(() => import("./pages/PaymentMethods"));
+const DownloadApp = lazy(() => import("./pages/DownloadApp"));
+const RegulatoryInfo = lazy(() => import("./pages/RegulatoryInfo"));
 const Transactions = lazy(() => import("./pages/Transactions"));
 const Support = lazy(() => import("./pages/Support"));
 const LiveChat = lazy(() => import("./pages/LiveChat"));
@@ -120,6 +129,78 @@ export default function App() {
                   element={
                     <RequireAuth>
                       <Withdraw />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/wallet"
+                  element={
+                    <RequireAuth>
+                      <Wallet />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/account-transfer"
+                  element={
+                    <RequireAuth>
+                      <AccountTransfer />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/exchange"
+                  element={
+                    <RequireAuth>
+                      <Exchange />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/promotion"
+                  element={
+                    <RequireAuth>
+                      <Promotion />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/security"
+                  element={
+                    <RequireAuth>
+                      <SecurityCenter />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/withdrawal-address"
+                  element={
+                    <RequireAuth>
+                      <WithdrawalAddress />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/payment-methods"
+                  element={
+                    <RequireAuth>
+                      <PaymentMethods />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/download-app"
+                  element={
+                    <RequireAuth>
+                      <DownloadApp />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/regulatory-info"
+                  element={
+                    <RequireAuth>
+                      <RegulatoryInfo />
                     </RequireAuth>
                   }
                 />

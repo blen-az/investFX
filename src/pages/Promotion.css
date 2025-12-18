@@ -1,0 +1,111 @@
+/* Promotion.css */
+
+.promotion-page {
+    min-height: 100vh;
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+.promotion-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.referral-code-card {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+}
+
+.referral-code-card h3 {
+    color: white;
+    font-size: 16px;
+    margin: 0 0 16px 0;
+}
+
+.code-display {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 28px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.share-button {
+    background: white;
+    color: #2563eb;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: rgba(26, 31, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: #06b6d4;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.info-card {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.info-card h3 {
+    color: #06b6d4;
+    font-size: 16px;
+    margin: 0 0 12px 0;
+}
+
+.info-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 2;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

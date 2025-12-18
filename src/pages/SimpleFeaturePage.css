@@ -1,0 +1,166 @@
+/* SimpleFeaturePage.css - Shared styles for simple feature pages */
+
+.simple-feature-page {
+    min-height: 100vh;
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+.feature-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.empty-state {
+    background: rgba(26, 31, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 48px 32px;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    color: #f8fafc;
+    font-size: 20px;
+    margin: 0 0 12px 0;
+}
+
+.empty-state p {
+    color: #94a3b8;
+    font-size: 14px;
+    margin: 0 0 24px 0;
+}
+
+.add-button {
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+}
+
+/* Download App Specific */
+.download-section {
+    background: rgba(26, 31, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+}
+
+.download-section h2 {
+    color: #f8fafc;
+    margin: 0 0 8px 0;
+}
+
+.download-section p {
+    color: #94a3b8;
+    margin: 0 0 24px 0;
+}
+
+.app-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.app-store-btn {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: #06b6d4;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.app-store-btn:hover {
+    background: rgba(6, 182, 212, 0.2);
+}
+
+.qr-placeholder {
+    margin-top: 32px;
+}
+
+.qr-box {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(100, 116, 139, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Regulatory Info Specific */
+.regulatory-content {
+    background: rgba(26, 31, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 32px;
+}
+
+.regulatory-content section {
+    margin-bottom: 32px;
+}
+
+.regulatory-content section:last-child {
+    margin-bottom: 0;
+}
+
+.regulatory-content h2 {
+    color: #06b6d4;
+    font-size: 18px;
+    margin: 0 0 12px 0;
+}
+
+.regulatory-content p {
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 8px 0;
+}
+
+.doc-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.doc-links a {
+    color: #06b6d4;
+    text-decoration: none;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(100, 116, 139, 0.1);
+    transition: all 0.3s ease;
+}
+
+.doc-links a:hover {
+    color: #10b981;
+}
+
+@media (max-width: 768px) {
+    .app-buttons {
+        flex-direction: column;
+    }
+}

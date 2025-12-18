@@ -1,0 +1,114 @@
+/* AccountTransfer.css */
+
+.account-transfer-page {
+    min-height: 100vh;
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.back-button {
+    color: #06b6d4;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    color: #f8fafc;
+    margin: 0;
+}
+
+.transfer-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.transfer-card {
+    background: rgba(26, 31, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    border-radius: 8px;
+    color: #f8fafc;
+    font-size: 15px;
+}
+
+.transfer-arrow {
+    text-align: center;
+    font-size: 32px;
+    color: #06b6d4;
+    margin: 16px 0;
+}
+
+.transfer-button {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.transfer-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+}
+
+.transfer-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.info-card {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.info-card h3 {
+    color: #06b6d4;
+    font-size: 16px;
+    margin: 0 0 12px 0;
+}
+
+.info-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.8;
+}
