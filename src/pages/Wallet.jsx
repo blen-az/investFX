@@ -45,6 +45,7 @@ export default function Wallet() {
         {
             title: 'Universal',
             items: [
+                { label: 'Settings & Profile', path: '/profile', icon: '⚙️' },
                 { label: 'Night Mode', path: null, icon: '🌙', toggle: true },
                 { label: 'Download app', path: '/download-app', icon: '📱' },
                 { label: 'Regulatory Information', path: '/regulatory-info', icon: '📋' },
