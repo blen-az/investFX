@@ -1,16 +1,44 @@
 // src/pages/AccountTransfer.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { transferBetweenAccounts } from '../services/walletService';
 import './AccountTransfer.css';
 
 export default function AccountTransfer() {
+    const { user } = useAuth();
     const [amount, setAmount] = useState('');
     const [fromAccount, setFromAccount] = useState('main');
     const [toAccount, setToAccount] = useState('trading');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
-    const handleTransfer = () => {
-        // TODO: Implement transfer logic
-        alert(`Transfer $${amount} from ${fromAccount} to ${toAccount}`);
+    const handleTransfer = async () => {
+        if (!amount || parseFloat(amount) <= 0) {
+            setError('Please enter a valid amount');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError('');
+            setSuccess('');
+
+            await transferBetweenAccounts(
+                user.uid,
+                fromAccount,
+                toAccount,
+                parseFloat(amount)
+            );
+
+            setSuccess(`Successfully transferred $${amount} from ${fromAccount} to ${toAccount}`);
+            setAmount('');
+        } catch (err) {
+            setError(err.message || 'Transfer failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -22,6 +50,9 @@ export default function AccountTransfer() {
 
             <div className="transfer-container">
                 <div className="transfer-card">
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">{success}</div>}
+
                     <div className="form-group">
                         <label>From Account</label>
                         <select value={fromAccount} onChange={(e) => setFromAccount(e.target.value)}>
@@ -50,8 +81,12 @@ export default function AccountTransfer() {
                         />
                     </div>
 
-                    <button className="transfer-button" onClick={handleTransfer} disabled={!amount}>
-                        Transfer
+                    <button
+                        className="transfer-button"
+                        onClick={handleTransfer}
+                        disabled={!amount || loading}
+                    >
+                        {loading ? 'Processing...' : 'Transfer'}
                     </button>
                 </div>
 
