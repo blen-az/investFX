@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import './FileUpload.css';
 
-export default function FileUpload({ onFileSelect, label = "Upload ID Document" }) {
+export default function FileUpload({ onFileSelect, label = "Upload ID Document", id = "file-upload" }) {
     const [fileName, setFileName] = useState('');
     const [isDragging, setIsDragging] = useState(false);
+
+    // Create a stable unique ID for the input
+    const inputId = `file-input-${id}`;
 
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
@@ -45,7 +48,7 @@ export default function FileUpload({ onFileSelect, label = "Upload ID Document" 
             >
                 <input
                     type="file"
-                    id="fileInput"
+                    id={inputId}
                     className="file-input-hidden"
                     accept="image/*,.pdf"
                     onChange={handleFileChange}
@@ -69,7 +72,7 @@ export default function FileUpload({ onFileSelect, label = "Upload ID Document" 
                     )}
                 </div>
 
-                <label htmlFor="fileInput" className="file-choose-button">
+                <label htmlFor={inputId} className="file-choose-button">
                     {fileName ? 'Change File' : 'Choose File'}
                 </label>
             </div>

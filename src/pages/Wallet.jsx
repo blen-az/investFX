@@ -43,7 +43,7 @@ export default function Wallet() {
         if (kycStatus === "verified") return <span className="status-badge verified">Verified</span>;
         if (kycStatus === "pending") return <span className="status-badge pending">In Review</span>;
         return (
-            <Link to="/profile" className="status-badge unverified-link">
+            <Link to="/profile?tab=kyc" className="status-badge unverified-link">
                 Verify Now
             </Link>
         );

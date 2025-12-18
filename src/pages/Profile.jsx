@@ -1,7 +1,7 @@
 // src/pages/Profile.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
 import Toast from "../components/Toast";
@@ -19,6 +19,7 @@ import "./Profile.css";
 export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("transactions");
   const [balance, setBalance] = useState(0);
 
@@ -34,6 +35,15 @@ export default function Profile() {
   // Transactions State
   const [transactions, setTransactions] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
+
+  // Handle Tab Deep-linking
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab === 'kyc') {
+      setActiveTab('kyc');
+    }
+  }, [location]);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -225,10 +235,12 @@ export default function Profile() {
                 <div className="upload-ui">
                   <div className="dual-upload">
                     <FileUpload
+                      id="front"
                       label="Front of ID"
                       onFileSelect={(file) => setIdFrontFile(file)}
                     />
                     <FileUpload
+                      id="back"
                       label="Back of ID"
                       onFileSelect={(file) => setIdBackFile(file)}
                     />
