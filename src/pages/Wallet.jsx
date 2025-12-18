@@ -40,8 +40,12 @@ export default function Wallet() {
 
     const getBadge = () => {
         if (kycStatus === "verified") return <span className="status-badge verified">Verified</span>;
-        if (kycStatus === "pending") return <span className="status-badge pending">Under Review</span>;
-        return <span className="status-badge unverified">Unverified</span>;
+        if (kycStatus === "pending") return <span className="status-badge pending">In Review</span>;
+        return (
+            <Link to="/profile" className="status-badge unverified-link">
+                Verify Now
+            </Link>
+        );
     };
 
     const menuSections = [
