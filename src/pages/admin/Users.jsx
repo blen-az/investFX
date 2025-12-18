@@ -467,44 +467,51 @@ export default function Users() {
                     <div className="form-group">
                         <label className="form-label">KYC Status</label>
                         <div className="user-info-display">
-                            {selectedUser?.kycStatus ? (
-                                <span className={`badge ${selectedUser.kycStatus === 'verified' ? 'badge-success' :
-                                        selectedUser.kycStatus === 'pending' ? 'badge-warning' :
-                                            'badge-danger'
-                                    }`}>
-                                    {selectedUser.kycStatus.charAt(0).toUpperCase() + selectedUser.kycStatus.slice(1)}
-                                </span>
-                            ) : (
-                                <span style={{ color: '#64748b' }}>Not submitted</span>
-                            )}
+                            {(() => {
+                                const status = selectedUser?.verification?.status || selectedUser?.kycStatus;
+                                if (!status || status === 'unverified') return <span style={{ color: '#64748b' }}>Not submitted</span>;
+
+                                return (
+                                    <span className={`badge ${status === 'verified' ? 'badge-success' :
+                                        status === 'pending' ? 'badge-warning' :
+                                            'badge-danger'}`}>
+                                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                                    </span>
+                                );
+                            })()}
                         </div>
                     </div>
 
-                    {selectedUser?.idUrl && (
+                    {(selectedUser?.verification?.idFrontUrl || selectedUser?.idUrl) && (
                         <div className="form-group">
-                            <label className="form-label">ID Document</label>
-                            <div className="user-info-display">
+                            <label className="form-label">ID Documents</label>
+                            <div className="user-info-display" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                {/* Front/Legacy ID */}
                                 <a
-                                    href={selectedUser.idUrl}
+                                    href={selectedUser.verification?.idFrontUrl || selectedUser.idUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn btn-sm btn-secondary"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        padding: '8px 16px',
-                                        fontSize: '13px'
-                                    }}
+                                    style={{ padding: '6px 12px', fontSize: '12px' }}
                                 >
-                                    📄 View ID Document
+                                    📄 {selectedUser.verification?.idBackUrl ? 'View Front ID' : 'View ID Document'}
                                 </a>
+
+                                {/* Back ID (if exists) */}
+                                {selectedUser.verification?.idBackUrl && (
+                                    <a
+                                        href={selectedUser.verification.idBackUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-sm btn-secondary"
+                                        style={{ padding: '6px 12px', fontSize: '12px' }}
+                                    >
+                                        📄 View Back ID
+                                    </a>
+                                )}
+
                                 {selectedUser.kycSubmittedAt && (
-                                    <div style={{
-                                        marginTop: '8px',
-                                        fontSize: '12px',
-                                        color: '#64748b'
-                                    }}>
+                                    <div style={{ marginTop: '4px', width: '100%', fontSize: '11px', color: '#64748b' }}>
                                         Submitted: {new Date(selectedUser.kycSubmittedAt).toLocaleString()}
                                     </div>
                                 )}

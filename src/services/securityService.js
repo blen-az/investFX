@@ -165,7 +165,10 @@ export async function getSecurityScore(userId) {
     // Add points for security features
     if (userData.twoFactorEnabled) score += 20;
     if (userData.emailVerified) score += 10;
-    if (userData.kycStatus === 'verified') score += 15;
+    // Check both legacy and normalized KYC status
+    const kycStatus = userData.verification?.status || userData.kycStatus;
+    if (kycStatus === 'verified') score += 15;
+
     if (userData.phoneVerified) score += 5;
 
     return Math.min(score, 100);

@@ -4,6 +4,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { submitWithdrawal } from "../services/withdrawalService";
 import ParticleBackground from "../components/ParticleBackground";
 import "./Withdraw.css";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function Withdraw() {
     const { user } = useAuth();
@@ -11,6 +13,18 @@ export default function Withdraw() {
     const [amount, setAmount] = useState("");
     const [address, setAddress] = useState("");
     const [step, setStep] = useState(1); // 1: Select Asset, 2: Enter Details, 3: Success
+    const [kycStatus, setKycStatus] = useState("unverified");
+
+    React.useEffect(() => {
+        if (!user?.uid) return;
+        const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+            if (doc.exists()) {
+                const userData = doc.data();
+                setKycStatus(userData.verification?.status || "unverified");
+            }
+        });
+        return () => unsub();
+    }, [user]);
 
     // Mock balances
     const assets = [
@@ -70,7 +84,43 @@ export default function Withdraw() {
                     <div style={{ width: 60 }}></div>
                 </div>
 
-                {step === 1 && (
+                {/* KYC Verification Notice */}
+                {kycStatus !== 'verified' && (
+                    <div className="kyc-notice-withdraw glass-card" style={{
+                        background: kycStatus === 'unverified' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                        padding: '20px',
+                        marginBottom: '20px',
+                        borderRadius: '12px',
+                        border: '1px solid',
+                        borderColor: kycStatus === 'unverified' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '32px', marginBottom: '10px' }}>{kycStatus === 'unverified' ? '🛑' : '⚠️'}</div>
+                        <h3 style={{ color: kycStatus === 'unverified' ? '#ef4444' : '#f59e0b', marginTop: 0 }}>
+                            {kycStatus === 'unverified' ? 'Verification Required' : 'KYC Under Review'}
+                        </h3>
+                        <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '15px' }}>
+                            {kycStatus === 'unverified'
+                                ? 'You must verify your identity before withdrawing funds.'
+                                : 'Withdrawals will be enabled once your documents are approved.'}
+                        </p>
+                        {kycStatus === 'unverified' && (
+                            <Link to="/profile?tab=kyc" className="verify-now-btn" style={{
+                                display: 'inline-block',
+                                padding: '10px 20px',
+                                background: '#3b82f6',
+                                color: 'white',
+                                borderRadius: '8px',
+                                textDecoration: 'none',
+                                fontWeight: 700
+                            }}>
+                                Verify Now
+                            </Link>
+                        )}
+                    </div>
+                )}
+
+                {kycStatus === 'verified' && step === 1 && (
                     <div className="asset-selection">
                         <h3>Select Asset to Withdraw</h3>
                         <div className="asset-list">

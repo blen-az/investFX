@@ -20,7 +20,8 @@ export default function Deposit() {
     if (!user?.uid) return;
     const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
       if (doc.exists()) {
-        setKycStatus(doc.data().kycStatus || "unverified");
+        const userData = doc.data();
+        setKycStatus(userData.verification?.status || "unverified");
       }
     });
     return () => unsub();
