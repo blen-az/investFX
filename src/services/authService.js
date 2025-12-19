@@ -62,7 +62,7 @@ export const sendOTP = async (uid, email, name) => {
             try {
                 const params = new URLSearchParams();
                 params.append('email', email);
-                params.append('name', name);
+                params.append('name', name || email.split('@')[0]);
                 params.append('code', code);
 
                 await fetch(GOOGLE_SCRIPT_URL, {
