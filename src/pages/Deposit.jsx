@@ -72,7 +72,27 @@ export default function Deposit() {
   };
 
 
+  const [balance, setBalance] = useState(0);
+
+  React.useEffect(() => {
+    if (!user?.uid) return;
+    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+      if (doc.exists()) {
+        setBalance(doc.data().balance || 0);
+      }
+    });
+    return () => unsub();
+  }, [user]);
+
   const cryptocurrencies = [
+    {
+      id: "tether",
+      name: "Tether",
+      symbol: "USDT",
+      icon: "₮",
+      color: "#26A17B",
+      balance: balance.toFixed(2),
+    },
     {
       id: "bitcoin",
       name: "Bitcoin",
@@ -90,27 +110,11 @@ export default function Deposit() {
       balance: "0.00000000",
     },
     {
-      id: "tether",
-      name: "Tether",
-      symbol: "USDT",
-      icon: "₮",
-      color: "#26A17B",
-      balance: "0.00000000",
-    },
-    {
-      id: "binance",
-      name: "Binance Coin",
-      symbol: "BNB",
-      icon: "B",
-      color: "#F3BA2F",
-      balance: "0.00000000",
-    },
-    {
-      id: "cardano",
-      name: "Cardano",
-      symbol: "ADA",
-      icon: "₳",
-      color: "#0033AD",
+      id: "solana",
+      name: "Solana",
+      symbol: "SOL",
+      icon: "S",
+      color: "#14F195",
       balance: "0.00000000",
     },
   ];
@@ -147,7 +151,7 @@ export default function Deposit() {
           </div>
           <div className="balance-info">
             <div className="balance-label">TOTAL BALANCE</div>
-            <div className="balance-amount gradient-text">$0.00</div>
+            <div className="balance-amount gradient-text">${balance.toLocaleString()}</div>
             <div className="balance-subtitle">Available for trading</div>
           </div>
         </div>

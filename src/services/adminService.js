@@ -344,10 +344,54 @@ export const getAllWithdrawals = async (status = null) => {
 export const approveWithdrawal = async (withdrawalId) => {
     try {
         const withdrawalRef = doc(db, "withdrawals", withdrawalId);
+        const withdrawalSnap = await getDoc(withdrawalRef);
+
+        if (!withdrawalSnap.exists()) {
+            throw new Error("Withdrawal not found");
+        }
+
+        const withdrawalData = withdrawalSnap.data();
+        const { uid, amount, agentId } = withdrawalData;
+        const withdrawalAmount = parseFloat(amount);
+
+        if (isNaN(withdrawalAmount)) {
+            throw new Error("Invalid withdrawal amount");
+        }
+
+        // Determine which balance to deduct from (User balance or Agent commission)
+        const targetUid = uid || agentId;
+        const balanceField = uid ? "balance" : "commissionBalance";
+
+        if (!targetUid) {
+            throw new Error("User ID or Agent ID missing from withdrawal record");
+        }
+
+        // Update wallet balance
+        const walletRef = doc(db, "wallets", targetUid);
+        const walletSnap = await getDoc(walletRef);
+
+        if (!walletSnap.exists()) {
+            throw new Error("Wallet not found for the user");
+        }
+
+        const currentBalance = parseFloat(walletSnap.data()[balanceField]) || 0;
+
+        if (currentBalance < withdrawalAmount) {
+            // This shouldn't happen if validation was done at request, but safety first
+            console.warn(`Insufficient ${balanceField} for withdrawal ${withdrawalId}. Current: ${currentBalance}, Request: ${withdrawalAmount}`);
+        }
+
+        await updateDoc(walletRef, {
+            [balanceField]: Math.max(0, currentBalance - withdrawalAmount),
+            updatedAt: new Date()
+        });
+
+        // Update withdrawal status
         await updateDoc(withdrawalRef, {
             status: "approved",
             processedAt: new Date()
         });
+
         return { success: true };
     } catch (error) {
         console.error("Error approving withdrawal:", error);

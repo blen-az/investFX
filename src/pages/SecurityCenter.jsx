@@ -1,16 +1,41 @@
-// src/pages/SecurityCenter.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { db } from '../firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import './SecurityCenter.css';
 
 export default function SecurityCenter() {
+    const { user } = useAuth();
     const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+    const [kycStatus, setKycStatus] = useState("unverified");
+
+    React.useEffect(() => {
+        if (!user?.uid) return;
+        const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+            if (doc.exists()) {
+                const userData = doc.data();
+                const status = userData.verification?.status || userData.kycStatus || "unverified";
+                setKycStatus(status);
+            }
+        });
+        return () => unsub();
+    }, [user]);
+
+    const calculateScore = () => {
+        let score = 40; // Base score
+        if (user?.emailVerified) score += 30;
+        if (kycStatus === "verified") score += 20;
+        if (twoFactorEnabled) score += 10;
+        return score;
+    };
+
+    const securityScore = calculateScore();
 
     const securityItems = [
+        { title: 'Email Verification', subtitle: user?.emailVerified ? 'Verified' : 'Unverified', icon: '📧', link: '/settings?tab=account' },
+        { title: 'Identity Verification (KYC)', subtitle: kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1), icon: '🆔', link: '/profile?tab=kyc' },
         { title: 'Two-Factor Authentication', subtitle: twoFactorEnabled ? 'Enabled' : 'Disabled', icon: '🔐', action: () => setTwoFactorEnabled(!twoFactorEnabled) },
-        { title: 'Change Password', subtitle: 'Last changed 30 days ago', icon: '🔑', link: '/change-password' },
-        { title: 'Login History', subtitle: 'View recent logins', icon: '📝', link: '/login-history' },
-        { title: 'Trusted Devices', subtitle: '3 devices', icon: '📱', link: '/trusted-devices' },
+        { title: 'Change Password', subtitle: 'Secure your account', icon: '🔑', link: '/settings?tab=account' },
     ];
 
     return (
@@ -23,10 +48,10 @@ export default function SecurityCenter() {
             <div className="security-container">
                 <div className="security-score">
                     <div className="score-circle">
-                        <div className="score-value">85</div>
+                        <div className="score-value">{securityScore}</div>
                         <div className="score-label">Security Score</div>
                     </div>
-                    <p>Your account security is strong</p>
+                    <p>{securityScore >= 90 ? 'Your account security is excellent' : securityScore >= 70 ? 'Your account security is strong' : 'Improve your security score'}</p>
                 </div>
 
                 <div className="security-items">

@@ -11,33 +11,68 @@ export default function Wallet() {
     const [balance, setBalance] = useState(0);
     const [kycStatus, setKycStatus] = useState("unverified");
     const [balanceHidden, setBalanceHidden] = useState(false);
-
-    // Mock/placeholder stats for demo
-    const todayPL = 450.25;
-    const totalTrades = 128;
-    const winRate = 68;
+    const [stats, setStats] = useState({
+        todayPL: 0,
+        totalTrades: 0,
+        winRate: 0
+    });
 
     useEffect(() => {
         if (!user) return;
 
+        // Subscribe to Wallet
         const unsubscribeWallet = onSnapshot(doc(db, 'wallets', user.uid), (doc) => {
             if (doc.exists()) {
                 setBalance(doc.data().balance || 0);
             }
         });
 
+        // Subscribe to User Info
         const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (doc) => {
             if (doc.exists()) {
                 const userData = doc.data();
-                // Priority: New verification object -> Legacy kycStatus field -> Default to unverified
                 const status = userData.verification?.status || userData.kycStatus || "unverified";
                 setKycStatus(status);
             }
         });
 
+        // Subscribe to Trades for Stats
+        const tradesQuery = query(
+            collection(db, 'trades'),
+            where('uid', '==', user.uid)
+        );
+
+        const unsubscribeTrades = onSnapshot(tradesQuery, (snapshot) => {
+            const tradesData = snapshot.docs.map(doc => ({
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate()
+            }));
+
+            // Total Trades
+            const total = tradesData.length;
+
+            // Win Rate
+            const closedTrades = tradesData.filter(t => t.status === 'closed');
+            const wins = closedTrades.filter(t => t.result === 'win').length;
+            const rate = closedTrades.length > 0 ? Math.round((wins / closedTrades.length) * 100) : 0;
+
+            // Today's P&L
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            const todayTrades = tradesData.filter(t => t.createdAt >= startOfToday);
+            const pnl = todayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+
+            setStats({
+                todayPL: pnl,
+                totalTrades: total,
+                winRate: rate
+            });
+        });
+
         return () => {
             unsubscribeWallet();
             unsubscribeUser();
+            unsubscribeTrades();
         };
     }, [user]);
 
@@ -110,15 +145,17 @@ export default function Wallet() {
                 </div>
                 <div className="mine-stat-card">
                     <div className="mine-stat-label">Today's P&L</div>
-                    <div className="mine-stat-value positive">+${todayPL}</div>
+                    <div className={`mine-stat-value ${stats.todayPL >= 0 ? 'positive' : 'negative'}`}>
+                        {stats.todayPL >= 0 ? '+' : ''}${stats.todayPL.toFixed(2)}
+                    </div>
                 </div>
                 <div className="mine-stat-card">
                     <div className="mine-stat-label">Trades</div>
-                    <div className="mine-stat-value">{totalTrades}</div>
+                    <div className="mine-stat-value">{stats.totalTrades}</div>
                 </div>
                 <div className="mine-stat-card">
                     <div className="mine-stat-label">Win Rate</div>
-                    <div className="mine-stat-value accent">{winRate}%</div>
+                    <div className="mine-stat-value accent">{stats.winRate}%</div>
                 </div>
             </div>
 

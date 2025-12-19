@@ -14,14 +14,13 @@ export default function Withdraw() {
     const [amount, setAmount] = useState("");
     const [address, setAddress] = useState("");
     const [step, setStep] = useState(1); // 1: Select Asset, 2: Enter Details, 3: Success
-    const [kycStatus, setKycStatus] = useState("unverified");
+    const [balance, setBalance] = useState(0);
 
     React.useEffect(() => {
         if (!user?.uid) return;
         const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
             if (doc.exists()) {
                 const userData = doc.data();
-                // Priority: New verification object -> Legacy kycStatus field -> Default to unverified
                 const status = userData.verification?.status || userData.kycStatus || "unverified";
                 setKycStatus(status);
             }
@@ -29,11 +28,20 @@ export default function Withdraw() {
         return () => unsub();
     }, [user]);
 
-    // Mock balances
+    React.useEffect(() => {
+        if (!user?.uid) return;
+        const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+            if (doc.exists()) {
+                setBalance(doc.data().balance || 0);
+            }
+        });
+        return () => unsub();
+    }, [user]);
+
     const assets = [
-        { id: "bitcoin", name: "Bitcoin", symbol: "BTC", icon: "₿", balance: "0.45", color: "#F7931A" },
-        { id: "ethereum", name: "Ethereum", symbol: "ETH", icon: "Ξ", balance: "12.5", color: "#627EEA" },
-        { id: "tether", name: "Tether", symbol: "USDT", icon: "₮", balance: "5430.00", color: "#26A17B" },
+        { id: "tether", name: "Tether", symbol: "USDT", icon: "₮", balance: balance.toFixed(2), color: "#26A17B" },
+        { id: "bitcoin", name: "Bitcoin", symbol: "BTC", icon: "₿", balance: "0.00000000", color: "#F7931A" },
+        { id: "ethereum", name: "Ethereum", symbol: "ETH", icon: "Ξ", balance: "0.00000000", color: "#627EEA" },
     ];
 
     const handleNext = async () => {
@@ -41,6 +49,10 @@ export default function Withdraw() {
             // Validate inputs
             if (!amount || parseFloat(amount) <= 0) {
                 alert("Please enter a valid amount");
+                return;
+            }
+            if (parseFloat(amount) > parseFloat(selectedCrypto.balance)) {
+                alert(`Insufficient balance. Maximum available: ${selectedCrypto.balance} ${selectedCrypto.symbol}`);
                 return;
             }
             if (!address) {

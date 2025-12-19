@@ -1,6 +1,9 @@
 // src/pages/Support.jsx
 import React, { useState } from "react";
 import ParticleBackground from "../components/ParticleBackground";
+import { useAuth } from "../contexts/AuthContext";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 import "./Support.css";
 
 export default function Support() {
@@ -8,14 +11,35 @@ export default function Support() {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setLoading(true);
+
+      const ticketData = {
+        uid: user?.uid || "anonymous",
+        userEmail: user?.email || "anonymous",
+        subject,
+        message,
+        status: "open",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      await addDoc(collection(db, "tickets"), ticketData);
+
       setSubmitted(true);
       setSubject("");
       setMessage("");
-    }, 1000);
+    } catch (error) {
+      console.error("Error submitting ticket:", error);
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

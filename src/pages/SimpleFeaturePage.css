@@ -164,3 +164,106 @@
         flex-direction: column;
     }
 }
+
+/* Shared Styles for List & Forms */
+.address-header-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.address-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.address-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.address-info {
+    flex: 1;
+}
+
+.address-label {
+    color: #f8fafc;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.address-val {
+    color: #94a3b8;
+    font-size: 12px;
+    word-break: break-all;
+    font-family: monospace;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+}
+
+.address-form-card {
+    padding: 24px;
+    background: rgba(26, 31, 46, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+}
+
+.address-form-card h3 {
+    margin: 0 0 20px 0;
+    color: #f8fafc;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    font-size: 14px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.cancel-btn {
+    background: none;
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    color: #94a3b8;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}

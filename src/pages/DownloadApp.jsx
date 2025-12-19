@@ -17,12 +17,12 @@ export default function DownloadApp() {
                     <p>Trade on the go with our mobile app</p>
 
                     <div className="app-buttons">
-                        <a href="#" className="app-store-btn">
-                            🍎 App Store
-                        </a>
-                        <a href="#" className="app-store-btn">
-                            🤖 Play Store
-                        </a>
+                        <div className="app-store-btn coming-soon">
+                            🍎 App Store (Coming Soon)
+                        </div>
+                        <div className="app-store-btn coming-soon">
+                            🤖 Play Store (Coming Soon)
+                        </div>
                     </div>
 
                     <div className="qr-placeholder">
