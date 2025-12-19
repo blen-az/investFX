@@ -5,6 +5,7 @@ import ParticleBackground from "../components/ParticleBackground";
 import "./Deposit.css";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
+import { getPlatformSettings } from "../services/adminService";
 
 export default function Deposit() {
   const { user } = useAuth();
@@ -15,6 +16,25 @@ export default function Deposit() {
   const [proofFile, setProofFile] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [kycStatus, setKycStatus] = useState("unverified");
+  const [depositAddresses, setDepositAddresses] = useState({
+    BTC: "Loading...",
+    ETH: "Loading...",
+    USDT: "Loading..."
+  });
+
+  React.useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await getPlatformSettings();
+        if (settings && settings.depositAddresses) {
+          setDepositAddresses(settings.depositAddresses);
+        }
+      } catch (error) {
+        console.error("Error fetching deposit addresses:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   React.useEffect(() => {
     if (!user?.uid) return;
@@ -365,18 +385,18 @@ export default function Deposit() {
                   <div className="address-box">
                     <code className="address-code">
                       {selectedCrypto.symbol === "BTC"
-                        ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                        ? depositAddresses.BTC
                         : selectedCrypto.symbol === "ETH"
-                          ? "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
-                          : "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"}
+                          ? depositAddresses.ETH
+                          : depositAddresses.USDT}
                     </code>
                     <button className="copy-btn" onClick={() => {
                       navigator.clipboard.writeText(
                         selectedCrypto.symbol === "BTC"
-                          ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                          ? depositAddresses.BTC
                           : selectedCrypto.symbol === "ETH"
-                            ? "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
-                            : "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+                            ? depositAddresses.ETH
+                            : depositAddresses.USDT
                       );
                       alert("Address copied!");
                     }}>

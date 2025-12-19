@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { updatePassword, updateEmail, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { db, auth } from "../../firebase";
+import { getPlatformSettings, updatePlatformSettings } from "../../services/adminService";
 import "../Settings.css";
 
 // Password Strength Checker
@@ -61,6 +62,15 @@ export default function AdminSettings() {
         dashboardRefreshRate: 30 // seconds
     });
 
+    // Platform Settings (Deposit Addresses)
+    const [platformSettings, setPlatformSettings] = useState({
+        depositAddresses: {
+            BTC: "",
+            ETH: "",
+            USDT: ""
+        }
+    });
+
     useEffect(() => {
         loadAdminData();
     }, [user]);
@@ -87,6 +97,10 @@ export default function AdminSettings() {
                     dashboardRefreshRate: data.dashboardRefreshRate || 30
                 });
             }
+
+            // Load Platform Settings
+            const settings = await getPlatformSettings();
+            setPlatformSettings(settings);
         } catch (error) {
             console.error("Error loading admin data:", error);
             showMessage("error", "Failed to load profile data");
@@ -161,6 +175,20 @@ export default function AdminSettings() {
             } else {
                 showMessage("error", "Failed to change password: " + error.message);
             }
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handlePlatformSettingsUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            setSaving(true);
+            await updatePlatformSettings(platformSettings);
+            showMessage("success", "Platform settings updated successfully!");
+        } catch (error) {
+            console.error("Error updating platform settings:", error);
+            showMessage("error", "Failed to update platform settings");
         } finally {
             setSaving(false);
         }
@@ -420,6 +448,68 @@ export default function AdminSettings() {
                         {saving ? "Saving..." : "Save Preferences"}
                     </button>
                 </div>
+            </div>
+
+            {/* Platform Settings (Deposit Addresses) */}
+            <div className="settings-section glass-card">
+                <div className="section-header">
+                    <div className="section-icon">💰</div>
+                    <div>
+                        <h2>Deposit Addresses</h2>
+                        <p>Configure cryptocurrency wallet addresses for user deposits</p>
+                    </div>
+                </div>
+
+                <form onSubmit={handlePlatformSettingsUpdate} className="settings-form">
+                    <div className="form-group">
+                        <label>Bitcoin (BTC) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.BTC}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, BTC: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="bc1q..."
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Ethereum (ETH) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.ETH}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, ETH: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="0x..."
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Tether (USDT TRC20) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.USDT}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, USDT: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="T..."
+                            required
+                        />
+                    </div>
+
+                    <button type="submit" className="btn btn-primary" disabled={saving}>
+                        {saving ? "Saving..." : "Save Deposit Addresses"}
+                    </button>
+                </form>
             </div>
         </div>
     );

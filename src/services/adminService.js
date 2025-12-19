@@ -557,3 +557,48 @@ export const recalculateCommissions = async () => {
         throw error;
     }
 };
+
+/**
+ * Get platform settings (including deposit addresses)
+ */
+export const getPlatformSettings = async () => {
+    try {
+        const settingsRef = doc(db, "settings", "platform");
+        const settingsSnap = await getDoc(settingsRef);
+
+        if (settingsSnap.exists()) {
+            return settingsSnap.data();
+        } else {
+            // Default mock data if no settings exist yet
+            return {
+                depositAddresses: {
+                    BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+                    ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+                    USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+                },
+                updatedAt: new Date()
+            };
+        }
+    } catch (error) {
+        console.error("Error fetching platform settings:", error);
+        throw error;
+    }
+};
+
+/**
+ * Update platform settings
+ */
+export const updatePlatformSettings = async (settings) => {
+    try {
+        const settingsRef = doc(db, "settings", "platform");
+        await setDoc(settingsRef, {
+            ...settings,
+            updatedAt: new Date()
+        }, { merge: true });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating platform settings:", error);
+        throw error;
+    }
+};
