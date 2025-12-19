@@ -60,20 +60,18 @@ export const sendOTP = async (uid, email, name) => {
 
         if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE") {
             try {
+                const params = new URLSearchParams();
+                params.append('email', email);
+                params.append('name', name);
+                params.append('code', code);
+
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
-                    mode: "no-cors", // Required for Google Apps Script
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        email,
-                        name,
-                        code
-                    }),
+                    mode: "no-cors",
+                    body: params
                 });
             } catch (err) {
-                console.warn("GAS Email trigger failed (this is normal with no-cors):", err);
+                console.warn("GAS Email trigger failed:", err);
             }
         } else {
             console.warn("Google Script URL not set. Email not sent.");
