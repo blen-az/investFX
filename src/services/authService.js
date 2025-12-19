@@ -56,7 +56,7 @@ export const sendOTP = async (uid, email, name) => {
 
         // 2. Trigger the email via Google Apps Script (Free method)
         // Set this URL after deploying your Google Apps Script
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMdKzQM7Pi6SaCuOoccTiNB7m4UUIS2ZLuum8UvjpHIIxGCZncKfCkdu93v3_fdHSgIQ/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsXXFFEOT_HwCkdMMELE7iEJQuqqyhIsTKB66PsDp-VH8yOsqcrfBWjr7FYXnCP9ZcXA/exec";
 
         if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE") {
             try {
