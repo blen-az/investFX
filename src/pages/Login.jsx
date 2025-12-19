@@ -10,12 +10,18 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, userRole, login } = useAuth();
+  const { user, userRole, emailVerified, login } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   useEffect(() => {
     if (user && userRole) {
+      // Allow admins to skip verification check
+      if (userRole !== ROLES.ADMIN && !emailVerified) {
+        navigate("/verify-email", { replace: true });
+        return;
+      }
+
       if (userRole === ROLES.ADMIN) {
         navigate("/admin/dashboard", { replace: true });
       } else if (userRole === ROLES.AGENT) {
@@ -24,7 +30,7 @@ export default function Login() {
         navigate("/home", { replace: true });
       }
     }
-  }, [user, userRole, navigate]);
+  }, [user, userRole, emailVerified, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

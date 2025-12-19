@@ -5,11 +5,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { ROLES } from "../constants/roles";
 
 export default function ProtectedRoute({ children, requiredRole }) {
-    const { user, userRole } = useAuth();
+    const { user, userRole, emailVerified } = useAuth();
 
     // Not authenticated
     if (!user) {
         return <Navigate to="/login" replace />;
+    }
+
+    // Check email verification (Except for Admins)
+    if (!emailVerified && userRole !== ROLES.ADMIN) {
+        return <Navigate to="/verify-email" replace />;
     }
 
     // Check role requirement
