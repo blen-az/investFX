@@ -92,7 +92,6 @@ export const verifyOTP = async (uid, code) => {
             collection(db, "verificationCodes"),
             where("uid", "==", uid),
             where("code", "==", code.trim()),
-            orderBy("createdAt", "desc"),
             limit(1)
         );
 
