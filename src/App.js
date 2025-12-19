@@ -39,6 +39,7 @@ const Support = lazy(() => import("./pages/Support"));
 const LiveChat = lazy(() => import("./pages/LiveChat"));
 const Verification = lazy(() => import("./pages/Verification"));
 const Settings = lazy(() => import("./pages/Settings"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 
 // Auth Pages (Lazy Loaded)
 const Login = lazy(() => import("./pages/Login"));
@@ -237,6 +238,14 @@ export default function App() {
                   element={
                     <RequireAuth>
                       <Verification />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/verify-email"
+                  element={
+                    <RequireAuth>
+                      <VerifyEmail />
                     </RequireAuth>
                   }
                 />

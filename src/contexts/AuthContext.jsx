@@ -7,8 +7,9 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { ROLES } from "../constants/roles";
+import { sendOTP, verifyOTP } from "../services/authService";
 
 const AuthContext = React.createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -16,6 +17,7 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [emailVerified, setEmailVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Fetch user role from Firestore
@@ -51,9 +53,11 @@ export function AuthProvider({ children }) {
             currentUser.displayName = userData.name || currentUser.email.split('@')[0];
             console.log('User displayName:', currentUser.displayName);
             setUserRole(userData.role || ROLES.USER);
+            setEmailVerified(userData.emailVerified || false);
           } else {
             const role = await fetchUserRole(currentUser.uid);
             setUserRole(role);
+            setEmailVerified(false);
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -62,6 +66,7 @@ export function AuthProvider({ children }) {
         }
       } else {
         setUserRole(null);
+        setEmailVerified(false);
       }
 
       setUser(currentUser);
@@ -94,10 +99,15 @@ export function AuthProvider({ children }) {
         },
         referredBy: referralCode || null,
         frozen: false,
+        emailVerified: false, // New users start unverified
         createdAt: new Date(),
         updatedAt: new Date()
       });
       console.log('✅ User document created');
+
+      console.log('Step 2.5: Sending initial OTP...');
+      await sendOTP(user.uid, email, name || email.split('@')[0]);
+      console.log('✅ Initial OTP sent');
 
       console.log('Step 3: Creating wallet document...');
       await setDoc(doc(db, "wallets", user.uid), {
@@ -127,7 +137,25 @@ export function AuthProvider({ children }) {
   // LOGOUT
   function logout() {
     setUserRole(null);
+    setEmailVerified(false);
     return signOut(auth);
+  }
+
+  // VERIFY EMAIL OTP
+  async function verifyEmailOTP(code) {
+    if (!user) throw new Error("No user logged in");
+    const result = await verifyOTP(user.uid, code);
+    if (result.success) {
+      setEmailVerified(true);
+      // Also update local user document in state if needed
+    }
+    return result;
+  }
+
+  // RESEND OTP
+  async function resendOTP() {
+    if (!user) throw new Error("No user logged in");
+    return await sendOTP(user.uid, user.email, user.displayName);
   }
 
   // Role check helpers
@@ -138,10 +166,13 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     userRole,
+    emailVerified,
     loading,
     signup,
     login,
     logout,
+    verifyEmailOTP,
+    resendOTP,
     isAdmin,
     isAgent,
     isUser,

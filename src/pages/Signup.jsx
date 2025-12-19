@@ -13,13 +13,18 @@ export default function Signup() {
   const [invitationCode, setInvitationCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, userRole, signup } = useAuth();
+  const { user, userRole, emailVerified, signup } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Redirect if already logged in
   useEffect(() => {
     if (user && userRole) {
+      if (!emailVerified && userRole === ROLES.USER) {
+        navigate("/verify-email", { replace: true });
+        return;
+      }
+
       if (userRole === ROLES.ADMIN) {
         navigate("/admin/dashboard", { replace: true });
       } else if (userRole === ROLES.AGENT) {
@@ -28,7 +33,7 @@ export default function Signup() {
         navigate("/home", { replace: true });
       }
     }
-  }, [user, userRole, navigate]);
+  }, [user, userRole, emailVerified, navigate]);
 
   // Auto-fill invitation code from URL
   useEffect(() => {
