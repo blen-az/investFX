@@ -15,6 +15,7 @@ export default function Withdraw() {
     const [address, setAddress] = useState("");
     const [step, setStep] = useState(1); // 1: Select Asset, 2: Enter Details, 3: Success
     const [balance, setBalance] = useState(0);
+    const [kycStatus, setKycStatus] = useState("unverified");
 
     React.useEffect(() => {
         if (!user?.uid) return;
