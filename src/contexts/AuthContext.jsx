@@ -123,10 +123,48 @@ export function AuthProvider({ children }) {
       console.log('Step 3: Creating wallet document...');
       await setDoc(doc(db, "wallets", user.uid), {
         uid: user.uid,
-        balance: 0,           // Keeping for backward compatibility if needed temporarily
+        balance: 0,           // Legacy
         mainBalance: 0,      // New schema
         tradingBalance: 0,   // New schema
         commissionBalance: 0,
+        assets: {
+          USDT: {
+            name: "Tether",
+            symbol: "USDT",
+            total: 0,
+            networks: {
+              "TRC20": 0,
+              "ERC20": 0,
+              "BEP20": 0
+            }
+          },
+          BTC: {
+            name: "Bitcoin",
+            symbol: "BTC",
+            total: 0,
+            networks: {
+              "Bitcoin": 0
+            }
+          },
+          ETH: {
+            name: "Ethereum",
+            symbol: "ETH",
+            total: 0,
+            networks: {
+              "Ethereum": 0,
+              "Arbitrum": 0,
+              "Optimism": 0
+            }
+          },
+          SOL: {
+            name: "Solana",
+            symbol: "SOL",
+            total: 0,
+            networks: {
+              "Solana": 0
+            }
+          }
+        },
         updatedAt: new Date()
       });
       console.log('✅ Wallet document created');

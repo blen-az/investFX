@@ -161,7 +161,7 @@ export default function Home() {
       <section className="fx-quick container">
         <h3>Quick Actions</h3>
         <div className="qa-grid">
-          <Link to="/wallet" className="qa-card">
+          <Link to="/assets" className="qa-card">
             <div className="qa-ico">💼</div>
             <div className="qa-title">Assets</div>
           </Link>

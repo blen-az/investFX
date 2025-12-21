@@ -1,0 +1,383 @@
+/* src/pages/Assets.css */
+
+.assets-page {
+    padding: 24px 20px 100px;
+    background: transparent;
+    color: #f8fafc;
+}
+
+.assets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.assets-header .back-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.assets-header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+}
+
+/* Balance Card */
+.total-assets-card {
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.15));
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.total-assets-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+    filter: blur(40px);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.card-top .label {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.eye-toggle {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+}
+
+.total-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.total-amount .currency {
+    font-size: 24px;
+    font-weight: 700;
+    color: #06b6d4;
+}
+
+.total-amount .value {
+    font-size: 42px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.total-amount .unit {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.pnl-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.pnl-indicator.positive {
+    color: #10b981;
+}
+
+.pnl-indicator.negative {
+    color: #ef4444;
+}
+
+.pnl-indicator .time {
+    color: #64748b;
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+/* holdings section */
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #f1f5f9;
+}
+
+.asset-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.asset-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.asset-card:hover {
+    transform: translateX(8px);
+    border-color: rgba(6, 182, 212, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.asset-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.asset-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.asset-icon.usdt {
+    color: #26a17b;
+    background: rgba(38, 161, 123, 0.1);
+}
+
+.asset-icon.btc {
+    color: #f7931a;
+    background: rgba(247, 147, 26, 0.1);
+}
+
+.asset-icon.eth {
+    color: #627eea;
+    background: rgba(98, 126, 234, 0.1);
+}
+
+.asset-names {
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-names .name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.asset-names .symbol {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.asset-balance {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.asset-balance .amount {
+    font-size: 17px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: #f8fafc;
+}
+
+.asset-balance .usd-value {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Modal Styling */
+.asset-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+}
+
+.asset-modal {
+    width: 100%;
+    padding: 32px 24px 48px;
+    border-radius: 32px 32px 0 0;
+    border-bottom: none;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin: -16px auto 24px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.modal-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.network-distribution {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.dist-label {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+.network-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.network-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.network-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.network-name .dot {
+    width: 6px;
+    height: 6px;
+    background: #06b6d4;
+    border-radius: 50%;
+}
+
+.network-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #fff;
+}
+
+.modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.action-btn {
+    padding: 18px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn.deposit {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    border: none;
+    color: #fff;
+    box-shadow: 0 8px 16px rgba(6, 182, 212, 0.2);
+}
+
+.action-btn.withdraw {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+/* Loading state */
+.assets-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    color: #94a3b8;
+    font-size: 18px;
+    font-weight: 600;
+}

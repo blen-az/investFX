@@ -41,10 +41,9 @@ export default function MobileBottomNav() {
             ];
         }
 
-        // Regular user
         return [
             { path: '/home', icon: '🏠', label: 'Home' },
-            { path: '/market', icon: '📊', label: 'Market' },
+            { path: '/assets', icon: '💼', label: 'Assets' },
             { path: '/trade', icon: '📈', label: 'Trade' },
             { path: '/transactions', icon: '💳', label: 'History' },
             { path: '/wallet', icon: '👤', label: 'Mine' }
