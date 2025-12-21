@@ -186,10 +186,11 @@ export default function Profile() {
       {/* Profile Overview (Simplified) */}
       <div className="settings-user-box">
         <div className="settings-avatar">
-          {(user?.email || "U")[0].toUpperCase()}
+          {(user?.displayName || user?.email || "U")[0].toUpperCase()}
         </div>
         <div className="settings-details">
-          <h2>{user?.email}</h2>
+          <h2>{user?.displayName || "Trader"}</h2>
+          <p className="settings-email-sub">{user?.email}</p>
           {getBadge()}
         </div>
       </div>

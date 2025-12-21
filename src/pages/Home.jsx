@@ -118,7 +118,7 @@ export default function Home() {
           {user?.photoURL ? (
             <img src={user.photoURL} alt="Profile" />
           ) : (
-            <span>{user?.email?.[0]?.toUpperCase() || 'U'}</span>
+            <span>{(user?.displayName || user?.email || 'U')[0].toUpperCase()}</span>
           )}
         </div>
       </div>

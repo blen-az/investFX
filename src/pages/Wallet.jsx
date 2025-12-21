@@ -133,10 +133,10 @@ export default function Wallet() {
                 </div>
                 <div className="user-info-text">
                     <div className="user-email-row">
-                        <span className="user-name">{user?.email ? user.email.split("@")[0] : "Trader"}</span>
+                        <span className="user-name">{user?.displayName || "Trader"}</span>
                         {getBadge()}
                     </div>
-                    <div className="user-full-email">{user?.email}</div>
+                    <div className="user-full-email">{user?.displayName && user?.displayName !== user?.email.split('@')[0] ? user?.email : ''}</div>
                 </div>
             </div>
 

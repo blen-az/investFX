@@ -196,7 +196,7 @@ export default function Navbar() {
                 <div className="user-avatar">
                   {(user.displayName || user.email).charAt(0).toUpperCase()}
                 </div>
-                <span className="user-email">
+                <span className="user-name-nav">
                   {user.displayName || user.email.split("@")[0]}
                 </span>
               </div>

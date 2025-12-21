@@ -40,40 +40,51 @@ export function AuthProvider({ children }) {
 
   // Listen for login/logout changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    let unsubscribeUserDoc = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       console.log('Auth state changed:', currentUser ? currentUser.email : 'No user');
 
       if (currentUser) {
-        // Fetch user data from Firestore
-        try {
-          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        // Subscribe to real-time user document updates
+        unsubscribeUserDoc = onSnapshot(doc(db, "users", currentUser.uid), (userDoc) => {
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            // Attach displayName to user object
-            currentUser.displayName = userData.name || currentUser.email.split('@')[0];
-            console.log('User displayName:', currentUser.displayName);
+            // Important: We update the state with a new object to trigger re-renders
+            setUser({
+              ...currentUser,
+              displayName: userData.name || currentUser.email.split('@')[0],
+              // Add other useful fields from DB to the user state if needed
+              phoneNumber: userData.phone || null
+            });
             setUserRole(userData.role || ROLES.USER);
             setEmailVerified(userData.emailVerified || false);
+            console.log('User data updated from Firestore:', userData.name);
           } else {
-            const role = await fetchUserRole(currentUser.uid);
-            setUserRole(role);
+            console.log('User document does not exist, using auth defaults');
+            setUser(currentUser);
+            setUserRole(ROLES.USER);
             setEmailVerified(false);
           }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          const role = await fetchUserRole(currentUser.uid);
-          setUserRole(role);
-        }
+        }, (error) => {
+          console.error("Error listening to user doc:", error);
+          setUser(currentUser);
+          setLoading(false);
+        });
       } else {
+        setUser(null);
         setUserRole(null);
         setEmailVerified(false);
+        if (unsubscribeUserDoc) unsubscribeUserDoc();
       }
 
-      setUser(currentUser);
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUserDoc) unsubscribeUserDoc();
+    };
   }, []);
 
   // SIGN UP
