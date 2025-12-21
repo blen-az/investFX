@@ -136,6 +136,7 @@ export default function Wallet() {
                         <span className="user-name">{user?.displayName || "Trader"}</span>
                         {getBadge()}
                     </div>
+                    <div className="user-profile-id">ID: {user?.uid}</div>
                     <div className="user-full-email">{user?.displayName && user?.displayName !== user?.email.split('@')[0] ? user?.email : ''}</div>
                 </div>
             </div>

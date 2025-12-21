@@ -190,6 +190,7 @@ export default function Profile() {
         </div>
         <div className="settings-details">
           <h2>{user?.displayName || "Trader"}</h2>
+          <div className="settings-id">ID: {user?.uid}</div>
           <p className="settings-email-sub">{user?.email}</p>
           {getBadge()}
         </div>

@@ -77,6 +77,13 @@
     font-family: 'JetBrains Mono', monospace;
 }
 
+.user-profile-id {
+    font-size: 11px;
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 2px;
+}
+
 /* Stats Grid */
 .mine-stats-grid {
     display: grid;

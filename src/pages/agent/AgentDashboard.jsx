@@ -71,7 +71,10 @@ export default function AgentDashboard() {
             <div className="agent-header">
                 <div>
                     <h1 className="agent-title gradient-text">Agent Dashboard</h1>
-                    <p className="agent-subtitle">Welcome back, {user?.displayName || user?.email}</p>
+                    <div className="agent-welcome-box">
+                        <p className="agent-subtitle">Welcome back, {user?.displayName || user?.email}</p>
+                        <span className="agent-id">ID: {user?.uid}</span>
+                    </div>
                 </div>
             </div>
 
