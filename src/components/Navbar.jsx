@@ -38,40 +38,65 @@ export default function Navbar() {
                 Dashboard
               </Link>
 
-              <Link to="/admin/users" className={`nav-link ${isActive("/admin/users") ? "active" : ""}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" strokeWidth="2" />
-                  <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                Users
-              </Link>
+              <div className={`nav-dropdown ${isActive("/admin/users") || isActive("/admin/verifications") || isActive("/admin/create-agent") ? "active-parent" : ""}`}>
+                <div className="dropdown-trigger">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" />
+                    <path d="M6 21V19C6 17.9391 6.42143 16.9217 7.17157 16.1716C7.92172 15.4214 8.93913 15 10 15H14C15.0609 15 16.0783 15.4214 16.8284 16.1716C17.5786 16.9217 18 17.9391 18 19V21" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  Management <span className="dropdown-icon">▼</span>
+                </div>
+                <div className="dropdown-menu">
+                  <Link to="/admin/users" className={`dropdown-item ${isActive("/admin/users") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">👥</span> Users
+                  </Link>
+                  <Link to="/admin/verifications" className={`dropdown-item ${isActive("/admin/verifications") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">🆔</span> Verifications
+                  </Link>
+                  <Link to="/admin/create-agent" className={`dropdown-item ${isActive("/admin/create-agent") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">⭐</span> Create Agent
+                  </Link>
+                </div>
+              </div>
 
-              <Link to="/admin/deposits" className={`nav-link ${isActive("/admin/deposits") ? "active" : ""}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" />
-                  <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="2" />
-                  <path d="M12 15V3" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                Deposits
-              </Link>
+              <div className={`nav-dropdown ${isActive("/admin/deposits") || isActive("/admin/withdrawals") || isActive("/admin/commissions") ? "active-parent" : ""}`}>
+                <div className="dropdown-trigger">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  Finance <span className="dropdown-icon">▼</span>
+                </div>
+                <div className="dropdown-menu">
+                  <Link to="/admin/deposits" className={`dropdown-item ${isActive("/admin/deposits") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">📥</span> Deposits
+                  </Link>
+                  <Link to="/admin/withdrawals" className={`dropdown-item ${isActive("/admin/withdrawals") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">📤</span> Withdrawals
+                  </Link>
+                  <Link to="/admin/commissions" className={`dropdown-item ${isActive("/admin/commissions") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">💰</span> Commissions
+                  </Link>
+                </div>
+              </div>
 
-              <Link to="/admin/withdrawals" className={`nav-link ${isActive("/admin/withdrawals") ? "active" : ""}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2" />
-                  <path d="M17 8L12 3L7 8" stroke="currentColor" strokeWidth="2" />
-                  <path d="M12 3V15" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                Withdrawals
-              </Link>
-
-              <Link to="/admin/trades" className={`nav-link ${isActive("/admin/trades") ? "active" : ""}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 20V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M18 20V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M6 20V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Trades
-              </Link>
+              <div className={`nav-dropdown ${isActive("/admin/trades") || isActive("/admin/trade-settings") ? "active-parent" : ""}`}>
+                <div className="dropdown-trigger">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 20V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M18 20V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M6 20V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Operations <span className="dropdown-icon">▼</span>
+                </div>
+                <div className="dropdown-menu">
+                  <Link to="/admin/trades" className={`dropdown-item ${isActive("/admin/trades") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">📊</span> Trades
+                  </Link>
+                  <Link to="/admin/trade-settings" className={`dropdown-item ${isActive("/admin/trade-settings") ? "active" : ""}`}>
+                    <span className="dropdown-item-icon">🎮</span> Trade Settings
+                  </Link>
+                </div>
+              </div>
 
               <Link to="/admin/settings" className={`nav-link ${isActive("/admin/settings") ? "active" : ""}`}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
