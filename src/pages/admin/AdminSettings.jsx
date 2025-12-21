@@ -100,7 +100,16 @@ export default function AdminSettings() {
 
             // Load Platform Settings
             const settings = await getPlatformSettings();
-            setPlatformSettings(settings);
+            if (settings) {
+                setPlatformSettings(prev => ({
+                    ...prev,
+                    ...settings,
+                    depositAddresses: {
+                        ...prev.depositAddresses,
+                        ...(settings.depositAddresses || {})
+                    }
+                }));
+            }
         } catch (error) {
             console.error("Error loading admin data:", error);
             showMessage("error", "Failed to load profile data");

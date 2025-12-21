@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import './MobileBottomNav.css';
 
 export default function MobileBottomNav() {
-    const { user } = useAuth();
+    const { user, userRole, isAdmin, isAgent } = useAuth();
     const location = useLocation();
 
     // Don't show on login/signup pages
@@ -21,7 +21,7 @@ export default function MobileBottomNav() {
             ];
         }
 
-        if (user.role === 'admin') {
+        if (isAdmin()) {
             return [
                 { path: '/admin/dashboard', icon: '📈', label: 'Dashboard' },
                 { path: '/admin/users', icon: '👥', label: 'Users' },
@@ -31,7 +31,7 @@ export default function MobileBottomNav() {
             ];
         }
 
-        if (user.role === 'agent') {
+        if (isAgent()) {
             return [
                 { path: '/agent/dashboard', icon: '📈', label: 'Dashboard' },
                 { path: '/agent/referrals', icon: '👥', label: 'Referrals' },

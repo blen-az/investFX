@@ -1,5 +1,5 @@
-// src/pages/admin/AdminDashboard.jsx
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import StatsCard from "../../components/StatsCard";
 import { getAllUsers, getAllDeposits, getAllWithdrawals, getAllTrades } from "../../services/adminService";
@@ -139,65 +139,59 @@ export default function AdminDashboard() {
             <div className="admin-quick-actions">
                 <h2 className="section-title">Quick Actions</h2>
                 <div className="action-grid">
-                    <a href="/admin/users" className="action-card glass-card">
+                    <Link to="/admin/users" className="action-card glass-card">
                         <div className="action-icon">👥</div>
                         <div className="action-title">Manage Users</div>
                         <div className="action-desc">View and edit user accounts</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/deposits" className="action-card glass-card">
+                    <Link to="/admin/deposits" className="action-card glass-card">
                         <div className="action-icon">📥</div>
                         <div className="action-title">Approve Deposits</div>
                         <div className="action-desc">Review pending deposits</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/withdrawals" className="action-card glass-card">
+                    <Link to="/admin/withdrawals" className="action-card glass-card">
                         <div className="action-icon">📤</div>
                         <div className="action-title">Approve Withdrawals</div>
                         <div className="action-desc">Review pending withdrawals</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/trades" className="action-card glass-card">
+                    <Link to="/admin/trades" className="action-card glass-card">
                         <div className="action-icon">📊</div>
                         <div className="action-title">Manage Trades</div>
                         <div className="action-desc">View and force trade results</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/users" className="action-card glass-card">
-                        <div className="action-icon">💵</div>
-                        <div className="action-title">Set Balance</div>
-                        <div className="action-desc">Edit user balances</div>
-                    </a>
-
-                    <a href="/admin/create-agent" className="action-card glass-card">
+                    <Link to="/admin/create-agent" className="action-card glass-card">
                         <div className="action-icon">⭐</div>
                         <div className="action-title">Create Agent</div>
                         <div className="action-desc">Upgrade users to agents</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/trade-settings" className="action-card glass-card">
+                    <Link to="/admin/trade-settings" className="action-card glass-card">
                         <div className="action-icon">🎮</div>
                         <div className="action-title">Trade Settings</div>
                         <div className="action-desc">Control trade outcomes</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/commissions" className="action-card glass-card">
+                    <Link to="/admin/commissions" className="action-card glass-card">
                         <div className="action-icon">💰</div>
                         <div className="action-title">Commissions</div>
                         <div className="action-desc">Track platform revenue</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/verifications" className="action-card glass-card">
+                    <Link to="/admin/verifications" className="action-card glass-card">
                         <div className="action-icon">🆔</div>
                         <div className="action-title">ID Verifications</div>
                         <div className="action-desc">Review user documents</div>
-                    </a>
+                    </Link>
 
-                    <a href="/admin/settings" className="action-card glass-card">
+                    <Link to="/admin/settings" className="action-card glass-card">
                         <div className="action-icon">⚙️</div>
                         <div className="action-title">Settings</div>
                         <div className="action-desc">Manage your account</div>
-                    </a>
+                    </Link>
                 </div>
             </div>
 

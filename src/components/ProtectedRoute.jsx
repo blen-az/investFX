@@ -5,7 +5,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { ROLES } from "../constants/roles";
 
 export default function ProtectedRoute({ children, requiredRole }) {
-    const { user, userRole, emailVerified } = useAuth();
+    const { user, userRole, emailVerified, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="loading-screen">
+                <div className="spinner"></div>
+                <p>Verifying authentication...</p>
+            </div>
+        );
+    }
 
     // Not authenticated
     if (!user) {
