@@ -161,6 +161,11 @@ export default function Home() {
       <section className="fx-quick container">
         <h3>Quick Actions</h3>
         <div className="qa-grid">
+          <Link to="/wallet" className="qa-card">
+            <div className="qa-ico">💼</div>
+            <div className="qa-title">Assets</div>
+          </Link>
+
           <Link to="/profile" className="qa-card">
             <div className="qa-ico">⏱</div>
             <div className="qa-title">Transactions</div>
@@ -169,11 +174,6 @@ export default function Home() {
           <Link to="/trade" className="qa-card">
             <div className="qa-ico">📈</div>
             <div className="qa-title">Trades</div>
-          </Link>
-
-          <Link to="/support" className="qa-card">
-            <div className="qa-ico">🎧</div>
-            <div className="qa-title">Support</div>
           </Link>
 
           <Link to="/chat" className="qa-card">

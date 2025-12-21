@@ -35,7 +35,6 @@ const PaymentMethods = lazy(() => import("./pages/PaymentMethods"));
 const DownloadApp = lazy(() => import("./pages/DownloadApp"));
 const RegulatoryInfo = lazy(() => import("./pages/RegulatoryInfo"));
 const Transactions = lazy(() => import("./pages/Transactions"));
-const Support = lazy(() => import("./pages/Support"));
 const LiveChat = lazy(() => import("./pages/LiveChat"));
 const Verification = lazy(() => import("./pages/Verification"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -215,14 +214,6 @@ export default function App() {
                   }
                 />
 
-                <Route
-                  path="/support"
-                  element={
-                    <RequireAuth>
-                      <Support />
-                    </RequireAuth>
-                  }
-                />
 
                 <Route
                   path="/chat"
