@@ -20,7 +20,7 @@ export default function Trade() {
     name: "Bitcoin",
   });
 
-  const [contractType, setContractType] = useState("delivery"); // delivery | perpetual
+  const [contractType, setContractType] = useState("delivery"); // delivery (binary) | perpetual
   const [livePrice, setLivePrice] = useState(0);
   const [highPrice, setHighPrice] = useState(0);
   const [lowPrice, setLowPrice] = useState(0);
@@ -31,6 +31,8 @@ export default function Trade() {
   const [activeMainTab, setActiveMainTab] = useState("trade"); // trade | positions
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '' });
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
+  const [leverage, setLeverage] = useState(1);
+  const [tradeAmount, setTradeAmount] = useState(10);
 
   const map = coinList;
 
@@ -68,25 +70,43 @@ export default function Trade() {
 
   const handleTradeStart = async (direction) => {
     try {
-      const duration = selectedDuration;
-      const durationOption = tradeDurations.find(d => d.seconds === duration);
+      let tradeDetails;
 
-      const tradeDetails = {
-        coin: coinMeta,
-        entryPrice: livePrice,
-        amount: 10, // Default amount for now
-        side: direction === 'up' ? 'buy' : 'sell',
-        duration: duration + 's',
-        profitPercent: durationOption.profitRate,
-      };
+      if (contractType === 'delivery') {
+        const duration = selectedDuration;
+        const durationOption = tradeDurations.find(d => d.seconds === duration);
+        tradeDetails = {
+          type: 'delivery',
+          coin: coinMeta,
+          entryPrice: livePrice,
+          amount: tradeAmount,
+          side: direction === 'up' ? 'buy' : 'sell',
+          duration: duration + 's',
+          profitPercent: durationOption.profitRate,
+        };
+      } else {
+        tradeDetails = {
+          type: 'perpetual',
+          coin: coinMeta,
+          entryPrice: livePrice,
+          amount: tradeAmount,
+          side: direction === 'up' ? 'buy' : 'sell',
+          leverage: leverage,
+        };
+      }
 
       const result = await openTrade(user.uid, tradeDetails);
 
-      setActiveTrade({
-        ...tradeDetails,
-        tradeId: result.tradeId,
-        startTime: new Date(),
-      });
+      if (contractType === 'delivery') {
+        setActiveTrade({
+          ...tradeDetails,
+          tradeId: result.tradeId,
+          startTime: new Date(),
+        });
+      } else {
+        // For perpetual, maybe show a small toast or just switch to positions tab
+        setActiveMainTab('positions');
+      }
     } catch (error) {
       console.error("Error opening trade:", error);
       setAlertModal({
@@ -132,6 +152,23 @@ export default function Trade() {
           Positions
         </button>
       </div>
+
+      {activeMainTab === "trade" && (
+        <div className="contract-type-tabs">
+          <button
+            className={`contract-tab ${contractType === 'delivery' ? 'active' : ''}`}
+            onClick={() => setContractType('delivery')}
+          >
+            Delivery
+          </button>
+          <button
+            className={`contract-tab ${contractType === 'perpetual' ? 'active' : ''}`}
+            onClick={() => setContractType('perpetual')}
+          >
+            Perpetual
+          </button>
+        </div>
+      )}
 
       {activeMainTab === "trade" ? (
         <div className="trade-tab-content">
@@ -209,18 +246,58 @@ export default function Trade() {
             </span>
           </div>
 
-          {/* Trade Durations Grid */}
-          <div className="trade-durations-grid">
-            {tradeDurations.map((option) => (
-              <button
-                key={option.seconds}
-                className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
-                onClick={() => setSelectedDuration(option.seconds)}
-              >
-                <div className="duration-time">{option.seconds} second</div>
-                <div className="duration-profit">profit rate{option.profitRate}%</div>
-              </button>
-            ))}
+          {/* Trade Inputs Section */}
+          <div className="trade-inputs-section">
+            <div className="input-group">
+              <label>Amount (USDT)</label>
+              <input
+                type="number"
+                value={tradeAmount}
+                onChange={(e) => setTradeAmount(Number(e.target.value))}
+                className="trade-input-field"
+                min="1"
+              />
+            </div>
+
+            {contractType === 'delivery' ? (
+              <div className="trade-durations-grid">
+                {tradeDurations.map((option) => (
+                  <button
+                    key={option.seconds}
+                    className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
+                    onClick={() => setSelectedDuration(option.seconds)}
+                  >
+                    <div className="duration-time">{option.seconds}s</div>
+                    <div className="duration-profit">{option.profitRate}%</div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="leverage-selector-container">
+                <label>Leverage: {leverage}x</label>
+                <div className="leverage-grid">
+                  {[1, 10, 20, 50, 100].map((val) => (
+                    <button
+                      key={val}
+                      className={`lev-btn ${leverage === val ? 'active' : ''}`}
+                      onClick={() => setLeverage(val)}
+                    >
+                      {val}x
+                    </button>
+                  ))}
+                </div>
+                {contractType === 'perpetual' && (
+                  <div className="trade-stats-mini">
+                    <div className="mini-stat">
+                      <span>Liquidation Price:</span>
+                      <span className="liq-value">
+                        ${(livePrice * (1 - (1 / leverage) * 0.9)).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Transaction Mode Label */}
@@ -238,7 +315,7 @@ export default function Trade() {
         </div>
       ) : (
         <div className="positions-tab-content">
-          <Positions />
+          <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} />
         </div>
       )}
 

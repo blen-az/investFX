@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { closeTrade } from "../services/tradeService";
 import "./Positions.css";
 
-export default function Positions() {
+export default function Positions({ currentPrice, currentCoin }) {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState("active"); // active | completed
     const [activeTrades, setActiveTrades] = useState([]);
     const [completedTrades, setCompletedTrades] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [closingId, setClosingId] = useState(null);
     const [now, setNow] = useState(Date.now());
 
     // Update 'now' every second for the countdown
@@ -69,6 +71,33 @@ export default function Positions() {
         };
     }, [user]);
 
+    const handleClosePosition = async (trade) => {
+        if (!user || closingId) return;
+
+        try {
+            setClosingId(trade.id);
+            // If the coin matches, use livePrice, otherwise use current entryPrice as fallback
+            const exitPrice = trade.asset === currentCoin ? currentPrice : trade.entryPrice;
+
+            await closeTrade(
+                trade.id,
+                user.uid,
+                trade.side,
+                trade.entryPrice,
+                exitPrice,
+                trade.amount,
+                trade.profitPercent,
+                trade.type,
+                trade.leverage
+            );
+        } catch (error) {
+            console.error("Error closing position:", error);
+            alert("Failed to close position: " + error.message);
+        } finally {
+            setClosingId(null);
+        }
+    };
+
     const getSymbolIcon = (asset) => {
         if (asset?.includes("BTC")) return "₿";
         if (asset?.includes("ETH")) return "Ξ";
@@ -113,18 +142,28 @@ export default function Positions() {
                                 const timeLeft = trade.expiresAt ? Math.max(0, Math.floor((trade.expiresAt.getTime() - now) / 1000)) : 0;
                                 const progress = (timeLeft / (totalTime || 1)) * 100;
 
+                                // PnL Calculation for Perpetual
+                                let pnl = 0;
+                                if (trade.type === 'perpetual' && trade.asset === currentCoin) {
+                                    const priceDeltaPercent = (currentPrice - trade.entryPrice) / trade.entryPrice;
+                                    pnl = priceDeltaPercent * trade.amount * trade.leverage * (trade.side === "buy" ? 1 : -1);
+                                }
+
                                 return (
-                                    <div key={trade.id} className="trade-row">
+                                    <div key={trade.id} className={`trade-row ${trade.type}`}>
                                         <div className="trade-row-header">
                                             <div className="trade-symbol">
                                                 <span className="coin-icon">{getSymbolIcon(trade.asset)}</span>
                                                 {trade.assetName} ({trade.asset})
+                                                {trade.type === 'perpetual' && (
+                                                    <span className="leverage-tag">{trade.leverage}x</span>
+                                                )}
                                             </div>
                                             <div className={`trade-type ${trade.side}`}>
                                                 {trade.side?.toUpperCase()}
                                             </div>
                                             <div className="trade-status-text active">
-                                                ACTIVE
+                                                {trade.type === 'perpetual' ? 'PERPETUAL' : 'ACTIVE'}
                                             </div>
                                         </div>
 
@@ -138,23 +177,42 @@ export default function Positions() {
                                                 <span className="value">${(trade.entryPrice || 0).toLocaleString()}</span>
                                             </div>
                                             <div className="detail-col">
-                                                <span className="label">Take Profit:</span>
-                                                <span className="value">+{trade.profitPercent}%</span>
+                                                <span className="label">
+                                                    {trade.type === 'perpetual' ? 'Live P&L:' : 'Take Profit:'}
+                                                </span>
+                                                <span className={`value ${trade.type === 'perpetual' ? (pnl >= 0 ? 'positive' : 'negative') : ''}`}>
+                                                    {trade.type === 'perpetual' ? `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}` : `+${trade.profitPercent}%`}
+                                                </span>
                                             </div>
                                         </div>
 
-                                        {/* Progress Bar */}
-                                        <div className="trade-progress-container">
-                                            <div className="progress-info">
-                                                <span>{timeLeft}s remaining</span>
+                                        {/* Progress Bar / Perpetual Info */}
+                                        {trade.type === 'delivery' ? (
+                                            <div className="trade-progress-container">
+                                                <div className="progress-info">
+                                                    <span>{timeLeft}s remaining</span>
+                                                </div>
+                                                <div className="progress-bar-bg">
+                                                    <div
+                                                        className="progress-bar-fill"
+                                                        style={{ width: `${progress}%` }}
+                                                    ></div>
+                                                </div>
                                             </div>
-                                            <div className="progress-bar-bg">
-                                                <div
-                                                    className="progress-bar-fill"
-                                                    style={{ width: `${progress}%` }}
-                                                ></div>
+                                        ) : (
+                                            <div className="perpetual-actions">
+                                                <div className="liq-price-mini">
+                                                    Liq. Price: ${(trade.entryPrice * (1 - (1 / trade.leverage) * 0.9)).toFixed(2)}
+                                                </div>
+                                                <button
+                                                    className="close-pos-btn"
+                                                    onClick={() => handleClosePosition(trade)}
+                                                    disabled={closingId === trade.id}
+                                                >
+                                                    {closingId === trade.id ? 'Closing...' : 'Close Position'}
+                                                </button>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 );
                             })

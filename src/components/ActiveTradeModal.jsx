@@ -64,7 +64,9 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                 trade.entryPrice,
                 currentPrice,
                 trade.amount,
-                trade.profitPercent
+                trade.profitPercent,
+                'delivery',
+                1
             ).then(result => {
                 setForcedOutcome(result.outcome);
                 console.log("Trade settled:", result);

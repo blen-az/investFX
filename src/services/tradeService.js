@@ -28,17 +28,23 @@ export const openTrade = async (uid, tradeData) => {
             // Create trade record
             const tradeRecord = {
                 uid,
+                type: tradeData.type || 'delivery',
                 asset: tradeData.coin.symbol,
                 assetName: tradeData.coin.name,
                 side: tradeData.side,
                 amount: tradeData.amount,
                 entryPrice: tradeData.entryPrice,
-                profitPercent: tradeData.profitPercent,
-                duration: tradeData.duration,
+                leverage: tradeData.leverage || 1,
+                profitPercent: tradeData.profitPercent || 0,
+                duration: tradeData.duration || null,
                 status: "active",
                 createdAt: serverTimestamp(),
-                expiresAt: new Date(Date.now() + parseDuration(tradeData.duration) * 1000)
             };
+
+            // Only Delivery trades have an expiration
+            if (tradeData.type === 'delivery') {
+                tradeRecord.expiresAt = new Date(Date.now() + parseDuration(tradeData.duration) * 1000);
+            }
 
             const tradeRef = doc(collection(db, "trades"));
             transaction.set(tradeRef, tradeRecord);
@@ -64,15 +70,26 @@ export const openTrade = async (uid, tradeData) => {
 /**
  * Close a trade - adds profit/loss to user trading balance
  */
-export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, amount, profitPercent) => {
+export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, amount, profitPercent, type = 'delivery', leverage = 1) => {
     try {
         // Determine outcome based on admin settings
-        const outcome = await determineTradeOutcome(uid, side, entryPrice, currentPrice);
+        const outcome = await determineTradeOutcome(uid, side, entryPrice, currentPrice, type);
 
-        // Calculate P&L (Profit on top of investment)
-        const pnl = outcome === "win"
-            ? amount * (profitPercent / 100)
-            : -amount;
+        let pnl;
+        if (type === 'perpetual') {
+            // Leverage based P&L: ((Current - Entry) / Entry) * Amount * Leverage
+            const priceDeltaPercent = (currentPrice - entryPrice) / entryPrice;
+            pnl = priceDeltaPercent * amount * leverage * (side === "buy" ? 1 : -1);
+
+            // Admin Override Handling
+            if (outcome === "win" && pnl < 0) pnl = Math.abs(pnl) || (amount * 0.1); // Force positive if admin says win
+            if (outcome === "loss" && pnl > 0) pnl = -Math.abs(pnl) || -(amount * 0.1); // Force negative if admin says loss
+        } else {
+            // Binary (Delivery) logic
+            pnl = outcome === "win"
+                ? amount * (profitPercent / 100)
+                : -amount;
+        }
 
         return await runTransaction(db, async (transaction) => {
             const walletRef = doc(db, "wallets", uid);
@@ -85,12 +102,20 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
             const walletData = walletSnap.data();
             const tradingBalance = walletData.tradingBalance !== undefined ? walletData.tradingBalance : 0;
 
-            // If win: return investment + profit
-            // If loss: investment already deducted, so nothing to return
-            const returnAmount = outcome === "win" ? (amount + pnl) : 0;
+            let returnAmount;
+            if (type === 'perpetual') {
+                // Return original Margin + P&L
+                returnAmount = amount + pnl;
+            } else {
+                // If win: return investment + profit. If loss: 0
+                returnAmount = outcome === "win" ? (amount + pnl) : 0;
+            }
+
+            // Prevent balance from going negative below zero
+            const finalReturn = Math.max(0, returnAmount);
 
             transaction.update(walletRef, {
-                tradingBalance: tradingBalance + returnAmount,
+                tradingBalance: tradingBalance + finalReturn,
                 updatedAt: serverTimestamp()
             });
 
@@ -98,7 +123,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
             const tradeRef = doc(db, "trades", tradeId);
             transaction.update(tradeRef, {
                 status: "closed",
-                result: outcome,
+                result: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
                 pnl,
                 exitPrice: currentPrice,
                 closedAt: serverTimestamp()
@@ -106,9 +131,9 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
 
             return {
                 success: true,
-                outcome,
+                outcome: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
                 pnl,
-                newTradingBalance: tradingBalance + returnAmount
+                newTradingBalance: tradingBalance + finalReturn
             };
         });
     } catch (error) {

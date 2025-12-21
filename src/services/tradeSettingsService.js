@@ -88,7 +88,7 @@ export const setUserTradeControl = async (uid, mode) => {
  * Determine trade outcome based on settings
  * Priority: User override > Global setting > Actual price
  */
-export const determineTradeOutcome = async (uid, side, entryPrice, currentPrice) => {
+export const determineTradeOutcome = async (uid, side, entryPrice, currentPrice, type = 'delivery') => {
     try {
         // Check user-specific override first
         const userControl = await getUserTradeControl(uid);
