@@ -128,6 +128,13 @@ export default function Navbar() {
                 </svg>
                 History
               </Link>
+
+              <Link to="/wallet" className={`nav-link ${isActive("/wallet") ? "active" : ""}`}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 12V8C20 6.89543 19.1046 6 18 6H4C2.89543 6 2 6.89543 2 8V16C2 17.1046 2.89543 18 4 18H18C19.1046 18 20 17.1046 20 16V14M20 12H14C12.8954 12 12 12.8954 12 14V14C12 15.1046 12.8954 16 14 16H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Mine
+              </Link>
             </>
           )}
 
