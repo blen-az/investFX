@@ -26,7 +26,10 @@ export default function Home() {
     // User exists, fetch wallet data
     const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
-        setBalance(doc.data().balance || 0);
+        const data = doc.data();
+        const main = data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0);
+        const trading = data.tradingBalance !== undefined ? data.tradingBalance : 0;
+        setBalance(main + trading);
       }
       setLoading(false);
     }, (error) => {

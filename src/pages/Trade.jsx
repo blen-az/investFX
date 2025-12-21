@@ -8,8 +8,12 @@ import Positions from "../components/Positions";
 import coinList from "../data/coinList";
 import "./TradeBinary.css";
 
+import { onSnapshot, doc } from "firebase/firestore";
+import { db } from "../firebase";
+
 export default function Trade() {
   const { user } = useAuth();
+  const [tradingBalance, setTradingBalance] = useState(0);
   const [coinMeta, setCoinMeta] = useState({
     id: "bitcoin",
     symbol: "BTC",
@@ -29,6 +33,18 @@ export default function Trade() {
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
 
   const map = coinList;
+
+  // Subscribe to trading balance
+  useEffect(() => {
+    if (!user) return;
+    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setTradingBalance(data.tradingBalance !== undefined ? data.tradingBalance : 0);
+      }
+    });
+    return () => unsub();
+  }, [user]);
 
   // Update time every second
   useEffect(() => {
@@ -56,13 +72,12 @@ export default function Trade() {
       const durationOption = tradeDurations.find(d => d.seconds === duration);
 
       const tradeDetails = {
-        coin: coinMeta.symbol,
+        coin: coinMeta,
         entryPrice: livePrice,
-        amount: 100, // You can make this customizable
-        direction: direction, // 'up' or 'down'
-        duration: duration,
-        profitRate: durationOption.profitRate,
-        contractType: contractType,
+        amount: 10, // Default amount for now
+        side: direction === 'up' ? 'buy' : 'sell',
+        duration: duration + 's',
+        profitPercent: durationOption.profitRate,
       };
 
       const result = await openTrade(user.uid, tradeDetails);
@@ -102,104 +117,130 @@ export default function Trade() {
 
   return (
     <div className="trade-page binary-options-style">
-      {/* Pair Display */}
-      <div className="pair-display">
-        <div className="pair-info">
-          <span className="pair-name">{coinMeta.symbol} / USDT</span>
-          <span className={`pair-change ${priceChange >= 0 ? 'positive' : 'negative'}`}>
-            {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
-          </span>
-        </div>
-      </div>
-
-      {/* Price Display */}
-      <div className="price-display-section">
-        <div className="main-price">
-          <div className={`price-value ${priceChange >= 0 ? 'green' : 'red'}`}>
-            {livePrice.toFixed(2)}
-          </div>
-        </div>
-        <div className="price-stats">
-          <div className="stat-item">
-            <span className="stat-label">high</span>
-            <span className="stat-value">{highPrice.toFixed(2)}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">low</span>
-            <span className="stat-value">{lowPrice.toFixed(2)}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">24H</span>
-            <span className="stat-value">{volume24h.toFixed(0)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Timeframe Selector */}
-      <div className="timeframe-selector">
-        <button className="timeframe-btn">Time</button>
-        <button className="timeframe-btn active">1min</button>
-        <button className="timeframe-btn">5min</button>
-        <button className="timeframe-btn">30min</button>
-        <button className="timeframe-btn">1hour</button>
-        <button className="timeframe-btn">1day</button>
-        <button className="timeframe-btn">1week</button>
-        <button className="timeframe-btn">1mon</button>
-      </div>
-
-      {/* Chart Section (existing chart component) */}
-      <div className="trade-chart-section">
-        <TradingChart
-          coinId={coinMeta.id}
-          onPrice={(price) => {
-            setLivePrice(price);
-            // You can add logic to update high/low/volume
-          }}
-          onChangeCoin={(id) => {
-            setCoinMeta({
-              id,
-              symbol: map[id].symbol,
-              name: map[id].name,
-            });
-          }}
-        />
-      </div>
-
-      {/* Timestamp with OHLC */}
-      <div className="ohlc-display">
-        <span className="timeframe">(1Min)</span>
-        <span className="timestamp">{formatDateTime(currentTime)}</span>
-        <span className="ohlc-data">
-          O:{livePrice.toFixed(4)} H:{livePrice.toFixed(4)}
-        </span>
-      </div>
-
-      {/* Trade Durations Grid */}
-      <div className="trade-durations-grid">
-        {tradeDurations.map((option) => (
-          <button
-            key={option.seconds}
-            className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
-            onClick={() => setSelectedDuration(option.seconds)}
-          >
-            <div className="duration-time">{option.seconds} second</div>
-            <div className="duration-profit">profit rate{option.profitRate}%</div>
-          </button>
-        ))}
-      </div>
-
-      {/* Transaction Mode Label */}
-      <div className="transaction-mode-label">Transaction mode</div>
-
-      {/* Buy/Sell Buttons */}
-      <div className="trade-action-buttons">
-        <button className="trade-action-btn buy-btn" onClick={() => handleTradeStart('up')}>
-          BUY / UP
+      {/* Top Main Tabs */}
+      <div className="trade-main-tabs">
+        <button
+          className={`main-tab-btn ${activeMainTab === 'trade' ? 'active' : ''}`}
+          onClick={() => setActiveMainTab('trade')}
+        >
+          Trade
         </button>
-        <button className="trade-action-btn sell-btn" onClick={() => handleTradeStart('down')}>
-          SELL / DOWN
+        <button
+          className={`main-tab-btn ${activeMainTab === 'positions' ? 'active' : ''}`}
+          onClick={() => setActiveMainTab('positions')}
+        >
+          Positions
         </button>
       </div>
+
+      {activeMainTab === "trade" ? (
+        <div className="trade-tab-content">
+          {/* Pair Display */}
+          <div className="pair-display">
+            <div className="pair-info">
+              <span className="pair-name">{coinMeta.symbol} / USDT</span>
+              <span className={`pair-change ${priceChange >= 0 ? 'positive' : 'negative'}`}>
+                {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
+              </span>
+            </div>
+            <div className="trading-balance-chip">
+              Balance: ${tradingBalance.toLocaleString()}
+            </div>
+          </div>
+
+          {/* Price Display */}
+          <div className="price-display-section">
+            <div className="main-price">
+              <div className={`price-value ${priceChange >= 0 ? 'green' : 'red'}`}>
+                {livePrice.toFixed(2)}
+              </div>
+            </div>
+            <div className="price-stats">
+              <div className="stat-item">
+                <span className="stat-label">high</span>
+                <span className="stat-value">{highPrice.toFixed(2)}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">low</span>
+                <span className="stat-value">{lowPrice.toFixed(2)}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">24H</span>
+                <span className="stat-value">{volume24h.toFixed(0)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeframe Selector */}
+          <div className="timeframe-selector">
+            <button className="timeframe-btn">Time</button>
+            <button className="timeframe-btn active">1min</button>
+            <button className="timeframe-btn">5min</button>
+            <button className="timeframe-btn">30min</button>
+            <button className="timeframe-btn">1hour</button>
+            <button className="timeframe-btn">1day</button>
+            <button className="timeframe-btn">1week</button>
+            <button className="timeframe-btn">1mon</button>
+          </div>
+
+          {/* Chart Section */}
+          <div className="trade-chart-section">
+            <TradingChart
+              coinId={coinMeta.id}
+              onPrice={(price) => {
+                setLivePrice(price);
+              }}
+              onChangeCoin={(id) => {
+                setCoinMeta({
+                  id,
+                  symbol: map[id].symbol,
+                  name: map[id].name,
+                });
+              }}
+            />
+          </div>
+
+          {/* Timestamp with OHLC */}
+          <div className="ohlc-display">
+            <span className="timeframe">(1Min)</span>
+            <span className="timestamp">{formatDateTime(currentTime)}</span>
+            <span className="ohlc-data">
+              O:{livePrice.toFixed(4)} H:{livePrice.toFixed(4)}
+            </span>
+          </div>
+
+          {/* Trade Durations Grid */}
+          <div className="trade-durations-grid">
+            {tradeDurations.map((option) => (
+              <button
+                key={option.seconds}
+                className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
+                onClick={() => setSelectedDuration(option.seconds)}
+              >
+                <div className="duration-time">{option.seconds} second</div>
+                <div className="duration-profit">profit rate{option.profitRate}%</div>
+              </button>
+            ))}
+          </div>
+
+          {/* Transaction Mode Label */}
+          <div className="transaction-mode-label">Transaction mode</div>
+
+          {/* Buy/Sell Buttons */}
+          <div className="trade-action-buttons">
+            <button className="trade-action-btn buy-btn" onClick={() => handleTradeStart('up')}>
+              BUY / UP
+            </button>
+            <button className="trade-action-btn sell-btn" onClick={() => handleTradeStart('down')}>
+              SELL / DOWN
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="positions-tab-content">
+          <Positions />
+        </div>
+      )}
 
       {/* ACTIVE TRADE MODAL */}
       {activeTrade && (

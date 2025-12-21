@@ -37,7 +37,9 @@ export const getAllUsers = async (filters = {}) => {
             users.push({
                 id: userDoc.id,
                 ...userData,
-                balance: walletData?.balance || 0,
+                balance: (walletData?.mainBalance || 0) + (walletData?.tradingBalance || 0),
+                mainBalance: walletData?.mainBalance || 0,
+                tradingBalance: walletData?.tradingBalance || 0,
                 commissionBalance: walletData?.commissionBalance || 0,
                 createdAt: userData.createdAt?.toDate()
             });
@@ -51,16 +53,18 @@ export const getAllUsers = async (filters = {}) => {
 };
 
 // Set user balance
-export const setUserBalance = async (userId, amount, operation = "set") => {
+export const setUserBalance = async (userId, amount, operation = "set", target = "main") => {
     try {
         const walletRef = doc(db, "wallets", userId);
         const walletSnap = await getDoc(walletRef);
+        const balanceField = target === "trading" ? "tradingBalance" : "mainBalance";
 
         if (!walletSnap.exists()) {
             // Create wallet if it doesn't exist
             await setDoc(walletRef, {
                 uid: userId,
-                balance: operation === "set" ? amount : 0,
+                mainBalance: target === "main" && operation === "set" ? amount : 0,
+                tradingBalance: target === "trading" && operation === "set" ? amount : 0,
                 commissionBalance: 0,
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -68,24 +72,24 @@ export const setUserBalance = async (userId, amount, operation = "set") => {
             return { success: true };
         }
 
-        const currentBalance = walletSnap.data().balance || 0;
+        const walletData = walletSnap.data();
+        const currentBalance = walletData[balanceField] !== undefined
+            ? walletData[balanceField]
+            : (balanceField === "mainBalance" ? (walletData.balance || 0) : 0);
 
+        let newBalance = currentBalance;
         if (operation === "set") {
-            await updateDoc(walletRef, {
-                balance: amount,
-                updatedAt: new Date()
-            });
+            newBalance = amount;
         } else if (operation === "add") {
-            await updateDoc(walletRef, {
-                balance: currentBalance + amount,
-                updatedAt: new Date()
-            });
+            newBalance = currentBalance + amount;
         } else if (operation === "subtract") {
-            await updateDoc(walletRef, {
-                balance: Math.max(0, currentBalance - amount),
-                updatedAt: new Date()
-            });
+            newBalance = Math.max(0, currentBalance - amount);
         }
+
+        await updateDoc(walletRef, {
+            [balanceField]: newBalance,
+            updatedAt: new Date()
+        });
 
         return { success: true };
     } catch (error) {
@@ -192,21 +196,28 @@ export const approveDeposit = async (depositId) => {
             throw new Error("Invalid deposit amount");
         }
 
-        // Update user's wallet balance
+        // Update user's wallet balance (Approved deposits go to mainBalance)
         const walletRef = doc(db, "wallets", uid);
         const walletSnap = await getDoc(walletRef);
 
         if (!walletSnap.exists()) {
             // Create wallet if it doesn't exist
             await setDoc(walletRef, {
-                balance: depositAmount,
+                uid: uid,
+                mainBalance: depositAmount,
+                tradingBalance: 0,
+                commissionBalance: 0,
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
         } else {
-            const currentBalance = parseFloat(walletSnap.data().balance) || 0;
+            const walletData = walletSnap.data();
+            const currentMainBalance = walletData.mainBalance !== undefined
+                ? walletData.mainBalance
+                : (walletData.balance || 0);
+
             await updateDoc(walletRef, {
-                balance: currentBalance + depositAmount,
+                mainBalance: currentMainBalance + depositAmount,
                 updatedAt: new Date()
             });
         }
@@ -253,7 +264,9 @@ export const approveDeposit = async (depositId) => {
             } else {
                 // Create wallet for agent if doesn't exist
                 await setDoc(agentWalletRef, {
-                    balance: 0,
+                    uid: referredBy,
+                    mainBalance: 0,
+                    tradingBalance: 0,
                     commissionBalance: agentCommission,
                     createdAt: new Date(),
                     updatedAt: new Date()
@@ -374,15 +387,24 @@ export const approveWithdrawal = async (withdrawalId) => {
             throw new Error("Wallet not found for the user");
         }
 
-        const currentBalance = parseFloat(walletSnap.data()[balanceField]) || 0;
+        const walletData = walletSnap.data();
+        let currentBalance = 0;
+        let finalField = balanceField;
+
+        if (balanceField === "balance") {
+            // Mapping withdrawal from generic "balance" to "mainBalance"
+            finalField = "mainBalance";
+            currentBalance = walletData.mainBalance !== undefined ? walletData.mainBalance : (walletData.balance || 0);
+        } else {
+            currentBalance = parseFloat(walletData[balanceField]) || 0;
+        }
 
         if (currentBalance < withdrawalAmount) {
-            // This shouldn't happen if validation was done at request, but safety first
             console.warn(`Insufficient ${balanceField} for withdrawal ${withdrawalId}. Current: ${currentBalance}, Request: ${withdrawalAmount}`);
         }
 
         await updateDoc(walletRef, {
-            [balanceField]: Math.max(0, currentBalance - withdrawalAmount),
+            [finalField]: Math.max(0, currentBalance - withdrawalAmount),
             updatedAt: new Date()
         });
 
@@ -584,7 +606,9 @@ export const recalculateCommissions = async () => {
                     });
                 } else {
                     await setDoc(agentWalletRef, {
-                        balance: 0,
+                        uid: userData.referredBy,
+                        mainBalance: 0,
+                        tradingBalance: 0,
                         commissionBalance: agentCommission,
                         createdAt: new Date(),
                         updatedAt: new Date()

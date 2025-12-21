@@ -112,7 +112,9 @@ export function AuthProvider({ children }) {
       console.log('Step 3: Creating wallet document...');
       await setDoc(doc(db, "wallets", user.uid), {
         uid: user.uid,
-        balance: 0,
+        balance: 0,           // Keeping for backward compatibility if needed temporarily
+        mainBalance: 0,      // New schema
+        tradingBalance: 0,   // New schema
         commissionBalance: 0,
         updatedAt: new Date()
       });

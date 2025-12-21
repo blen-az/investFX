@@ -95,7 +95,7 @@ export default function AccountTransfer() {
                     <ul>
                         <li>Transfers between accounts are instant</li>
                         <li>No fees for internal transfers</li>
-                        <li>Minimum transfer: $10</li>
+                        <li>Minimum transfer: $1</li>
                     </ul>
                 </div>
             </div>

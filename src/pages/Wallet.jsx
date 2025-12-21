@@ -8,7 +8,10 @@ import './Wallet.css';
 
 export default function Wallet() {
     const { user } = useAuth();
-    const [balance, setBalance] = useState(0);
+    const [balances, setBalances] = useState({
+        main: 0,
+        trading: 0
+    });
     const [kycStatus, setKycStatus] = useState("unverified");
     const [balanceHidden, setBalanceHidden] = useState(false);
     const [stats, setStats] = useState({
@@ -23,7 +26,12 @@ export default function Wallet() {
         // Subscribe to Wallet
         const unsubscribeWallet = onSnapshot(doc(db, 'wallets', user.uid), (doc) => {
             if (doc.exists()) {
-                setBalance(doc.data().balance || 0);
+                const data = doc.data();
+                // Migration logic: if new fields don't exist, use the old 'balance' as main
+                setBalances({
+                    main: data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0),
+                    trading: data.tradingBalance !== undefined ? data.tradingBalance : 0
+                });
             }
         });
 
@@ -110,7 +118,7 @@ export default function Wallet() {
             items: [
                 { label: 'Settings & Profile', path: '/profile', icon: '⚙️' },
                 { label: 'Night Mode', path: null, icon: '🌙', toggle: true },
-                { label: 'Download app', path: '/download-app', icon: '📱' },
+                { label: 'Download app', path: '/download-app', icon: '📱', comingSoon: true },
                 { label: 'Regulatory Information', path: '/regulatory-info', icon: '📋' },
             ]
         }
@@ -132,17 +140,36 @@ export default function Wallet() {
                 </div>
             </div>
 
-            {/* Stats Section */}
-            <div className="mine-stats-grid">
-                <div className="mine-stat-card">
-                    <div className="mine-stat-label">Portfolio</div>
-                    <div className="mine-stat-value">
-                        {balanceHidden ? '****' : `$${balance.toLocaleString()}`}
+            {/* Balances Section */}
+            <div className="mine-stats-grid balance-section">
+                <div className="mine-stat-card full-width">
+                    <div className="balance-header">
+                        <div className="mine-stat-label">TOTAL ASSETS</div>
                         <button className="small-toggle" onClick={() => setBalanceHidden(!balanceHidden)}>
                             {balanceHidden ? '👁️' : '👁️‍🗨️'}
                         </button>
                     </div>
+                    <div className="mine-stat-value total">
+                        {balanceHidden ? '****' : `$${(balances.main + balances.trading).toLocaleString()}`}
+                    </div>
                 </div>
+                <div className="mine-stat-card">
+                    <div className="mine-stat-label">Main Balance</div>
+                    <div className="mine-stat-value secondary">
+                        {balanceHidden ? '****' : `$${balances.main.toLocaleString()}`}
+                    </div>
+                </div>
+                <div className="mine-stat-card">
+                    <div className="mine-stat-label">Trading Balance</div>
+                    <div className="mine-stat-value secondary">
+                        {balanceHidden ? '****' : `$${balances.trading.toLocaleString()}`}
+                    </div>
+                </div>
+            </div>
+
+            {/* Trading Performance Section */}
+            <div className="section-title-small">TRADING PERFORMANCE</div>
+            <div className="mine-stats-grid">
                 <div className="mine-stat-card">
                     <div className="mine-stat-label">Today's P&L</div>
                     <div className={`mine-stat-value ${stats.todayPL >= 0 ? 'positive' : 'negative'}`}>

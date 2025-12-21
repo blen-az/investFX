@@ -1,38 +1,80 @@
-// src/components/Positions.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { db } from "../firebase";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import "./Positions.css";
 
 export default function Positions() {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState("active"); // active | completed
+    const [activeTrades, setActiveTrades] = useState([]);
+    const [completedTrades, setCompletedTrades] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [now, setNow] = useState(Date.now());
 
-    // Mock data to match the image
-    const activeTrades = [
-        {
-            id: 1,
-            symbol: "BTC/USDT",
-            amount: 1.00,
-            entryPrice: 50000.00,
-            currentPrice: 50000.00,
-            pnl: 0.05,
-            status: "losing", // winning | losing
-            timeLeft: 31,
-            totalTime: 60,
-            type: "buy"
-        }
-    ];
+    // Update 'now' every second for the countdown
+    useEffect(() => {
+        const timer = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
-    const completedTrades = [
-        {
-            id: 2,
-            symbol: "ETH/USDT",
-            amount: 10.00,
-            entryPrice: 3000.00,
-            exitPrice: 3050.00,
-            pnl: 5.00,
-            status: "won",
-            date: "2025-11-28 14:30"
-        }
-    ];
+    useEffect(() => {
+        if (!user) return;
+
+        const tradesRef = collection(db, "trades");
+
+        // Listener for Active Trades
+        const activeQuery = query(
+            tradesRef,
+            where("uid", "==", user.uid),
+            where("status", "==", "active"),
+            orderBy("createdAt", "desc")
+        );
+
+        const unsubscribeActive = onSnapshot(activeQuery, (snapshot) => {
+            const trades = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate(),
+                expiresAt: doc.data().expiresAt?.toDate()
+            }));
+            setActiveTrades(trades);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching active trades:", error);
+            setLoading(false);
+        });
+
+        // Listener for Completed Trades
+        const completedQuery = query(
+            tradesRef,
+            where("uid", "==", user.uid),
+            where("status", "==", "closed"),
+            orderBy("closedAt", "desc")
+        );
+
+        const unsubscribeCompleted = onSnapshot(completedQuery, (snapshot) => {
+            const trades = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate(),
+                closedAt: doc.data().closedAt?.toDate()
+            }));
+            setCompletedTrades(trades);
+        });
+
+        return () => {
+            if (unsubscribeActive) unsubscribeActive();
+            if (unsubscribeCompleted) unsubscribeCompleted();
+        };
+    }, [user]);
+
+    const getSymbolIcon = (asset) => {
+        if (asset?.includes("BTC")) return "₿";
+        if (asset?.includes("ETH")) return "Ξ";
+        if (asset?.includes("SOL")) return "S";
+        return "₿";
+    };
 
     return (
         <div className="positions-container">
@@ -42,101 +84,119 @@ export default function Positions() {
                     className={`pos-tab ${activeTab === "active" ? "active" : ""}`}
                     onClick={() => setActiveTab("active")}
                 >
-                    Active <span className="badge-count">1</span>
+                    Active <span className="badge-count">{activeTrades.length}</span>
                 </button>
                 <button
                     className={`pos-tab ${activeTab === "completed" ? "completed" : ""}`}
                     onClick={() => setActiveTab("completed")}
                 >
-                    Completed <span className="badge-count success">1</span>
+                    Completed <span className="badge-count success">{completedTrades.length}</span>
                 </button>
             </div>
 
             {/* Toolbar */}
             <div className="positions-toolbar">
-                <button className="force-refresh-btn">
-                    ↻ Force Refresh
-                </button>
-                <span className="last-updated">Last updated: 0s ago</span>
+                <span className="last-updated">Real-time updates enabled</span>
             </div>
 
             {/* Content */}
             <div className="positions-content">
-                {activeTab === "active" ? (
+                {loading ? (
+                    <div className="loading-state">Loading trades...</div>
+                ) : activeTab === "active" ? (
                     <div className="trades-list">
-                        {activeTrades.map((trade) => (
-                            <div key={trade.id} className={`trade-row ${trade.status}`}>
-                                <div className="trade-row-header">
-                                    <div className="trade-symbol">
-                                        <span className="coin-icon">₿</span>
-                                        {trade.symbol}
-                                    </div>
-                                    <div className={`trade-type ${trade.type}`}>{trade.type.toUpperCase()}</div>
-                                    <div className={`trade-status-text ${trade.status}`}>
-                                        {trade.status}
-                                    </div>
-                                </div>
+                        {activeTrades.length === 0 ? (
+                            <div className="empty-state-pos">No active trades</div>
+                        ) : (
+                            activeTrades.map((trade) => {
+                                const totalTime = trade.expiresAt ? (trade.expiresAt.getTime() - trade.createdAt.getTime()) / 1000 : 60;
+                                const timeLeft = trade.expiresAt ? Math.max(0, Math.floor((trade.expiresAt.getTime() - now) / 1000)) : 0;
+                                const progress = (timeLeft / (totalTime || 1)) * 100;
 
-                                <div className="trade-details-grid">
-                                    <div className="detail-col">
-                                        <span className="label">Amount:</span>
-                                        <span className="value">${trade.amount.toFixed(2)}</span>
-                                    </div>
-                                    <div className="detail-col">
-                                        <span className="label">Entry:</span>
-                                        <span className="value">${trade.entryPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="detail-col">
-                                        <span className="label">Current:</span>
-                                        <span className="value highlight">${trade.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="detail-col">
-                                        <span className="label">P&L:</span>
-                                        <span className={`value ${trade.pnl >= 0 ? "positive" : "negative"}`}>
-                                            ${trade.pnl.toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
+                                return (
+                                    <div key={trade.id} className="trade-row">
+                                        <div className="trade-row-header">
+                                            <div className="trade-symbol">
+                                                <span className="coin-icon">{getSymbolIcon(trade.asset)}</span>
+                                                {trade.assetName} ({trade.asset})
+                                            </div>
+                                            <div className={`trade-type ${trade.side}`}>
+                                                {trade.side?.toUpperCase()}
+                                            </div>
+                                            <div className="trade-status-text active">
+                                                ACTIVE
+                                            </div>
+                                        </div>
 
-                                {/* Progress Bar */}
-                                <div className="trade-progress-container">
-                                    <div className="progress-info">
-                                        <span>{trade.timeLeft}s</span>
+                                        <div className="trade-details-grid">
+                                            <div className="detail-col">
+                                                <span className="label">Amount:</span>
+                                                <span className="value">${(trade.amount || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className="detail-col">
+                                                <span className="label">Entry:</span>
+                                                <span className="value">${(trade.entryPrice || 0).toLocaleString()}</span>
+                                            </div>
+                                            <div className="detail-col">
+                                                <span className="label">Take Profit:</span>
+                                                <span className="value">+{trade.profitPercent}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Progress Bar */}
+                                        <div className="trade-progress-container">
+                                            <div className="progress-info">
+                                                <span>{timeLeft}s remaining</span>
+                                            </div>
+                                            <div className="progress-bar-bg">
+                                                <div
+                                                    className="progress-bar-fill"
+                                                    style={{ width: `${progress}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="progress-bar-bg">
-                                        <div
-                                            className="progress-bar-fill"
-                                            style={{ width: `${(trade.timeLeft / trade.totalTime) * 100}%` }}
-                                        ></div>
-                                    </div>
-                                    <div className="view-details-btn">View Details</div>
-                                </div>
-                            </div>
-                        ))}
+                                );
+                            })
+                        )}
                     </div>
                 ) : (
                     <div className="trades-list">
-                        {completedTrades.map((trade) => (
-                            <div key={trade.id} className="trade-row won">
-                                <div className="trade-row-header">
-                                    <div className="trade-symbol">
-                                        <span className="coin-icon">Ξ</span>
-                                        {trade.symbol}
+                        {completedTrades.length === 0 ? (
+                            <div className="empty-state-pos">No completed trades</div>
+                        ) : (
+                            completedTrades.map((trade) => (
+                                <div key={trade.id} className={`trade-row ${trade.result}`}>
+                                    <div className="trade-row-header">
+                                        <div className="trade-symbol">
+                                            <span className="coin-icon">{getSymbolIcon(trade.asset)}</span>
+                                            {trade.assetName}
+                                        </div>
+                                        <div className={`trade-status-text ${trade.result}`}>
+                                            {trade.result?.toUpperCase()}
+                                        </div>
                                     </div>
-                                    <div className="trade-status-text won">PROFIT</div>
+                                    <div className="trade-details-grid">
+                                        <div className="detail-col">
+                                            <span className="label">Amount:</span>
+                                            <span className="value">${(trade.amount || 0).toFixed(2)}</span>
+                                        </div>
+                                        <div className="detail-col">
+                                            <span className="label">Result:</span>
+                                            <span className={`value ${trade.result === 'win' ? 'positive' : 'negative'}`}>
+                                                {trade.result === 'win' ? '+' : ''}${Math.abs(trade.pnl || 0).toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div className="detail-col">
+                                            <span className="label">Closed:</span>
+                                            <span className="value" style={{ fontSize: '10px' }}>
+                                                {trade.closedAt?.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="trade-details-grid">
-                                    <div className="detail-col">
-                                        <span className="label">Amount:</span>
-                                        <span className="value">${trade.amount.toFixed(2)}</span>
-                                    </div>
-                                    <div className="detail-col">
-                                        <span className="label">Profit:</span>
-                                        <span className="value positive">+${trade.pnl.toFixed(2)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 )}
             </div>

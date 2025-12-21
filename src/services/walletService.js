@@ -14,8 +14,8 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
         throw new Error('Amount must be greater than 0');
     }
 
-    if (amount < 10) {
-        throw new Error('Minimum transfer amount is $10');
+    if (amount < 1) { // Reduced for testing/flexibility, usually 10
+        throw new Error('Minimum transfer amount is $1');
     }
 
     if (fromAccount === toAccount) {
@@ -24,20 +24,25 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
 
     // Use transaction to ensure atomicity
     return await runTransaction(db, async (transaction) => {
-        const userRef = doc(db, 'users', userId);
-        const userDoc = await transaction.get(userRef);
+        const walletRef = doc(db, 'wallets', userId);
+        const walletDoc = await transaction.get(walletRef);
 
-        if (!userDoc.exists()) {
-            throw new Error('User not found');
+        if (!walletDoc.exists()) {
+            throw new Error('Wallet not found');
         }
 
-        const userData = userDoc.data();
-        const currentBalance = userData.balance || 0;
+        const walletData = walletDoc.data();
 
-        // For now, we only have one main balance
-        // In a real app, you'd have separate balances for main/trading accounts
-        if (currentBalance < amount) {
-            throw new Error('Insufficient balance');
+        // Map account names to field names
+        const fromField = fromAccount.toLowerCase().includes('main') ? 'mainBalance' : 'tradingBalance';
+        const toField = toAccount.toLowerCase().includes('main') ? 'mainBalance' : 'tradingBalance';
+
+        // Check if both fields exist (migration)
+        const fromBalance = walletData[fromField] !== undefined ? walletData[fromField] : (fromField === 'mainBalance' ? (walletData.balance || 0) : 0);
+        const toBalance = walletData[toField] !== undefined ? walletData[toField] : (toField === 'mainBalance' ? (walletData.balance || 0) : 0);
+
+        if (fromBalance < amount) {
+            throw new Error('Insufficient balance in source account');
         }
 
         // Create transfer record
@@ -51,8 +56,12 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
             createdAt: serverTimestamp()
         });
 
-        // Note: In a real implementation, you'd update separate account balances
-        // For now, this creates a record but doesn't actually split balances
+        // Update balances
+        transaction.update(walletRef, {
+            [fromField]: fromBalance - amount,
+            [toField]: toBalance + amount,
+            updatedAt: serverTimestamp()
+        });
 
         return { success: true, transferId: transferRef.id };
     });
@@ -61,13 +70,13 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
 /**
  * Get user's transfer history
  */
-export async function getUserTransfers(userId, limit = 20) {
+export async function getUserTransfers(userId, limitNum = 20) {
     const transfersSnapshot = await getDocs(
         query(
             collection(db, 'transfers'),
             where('userId', '==', userId),
             orderBy('createdAt', 'desc'),
-            limit(limit)
+            limit(limitNum)
         )
     );
 
@@ -78,7 +87,7 @@ export async function getUserTransfers(userId, limit = 20) {
 }
 
 /**
- * Exchange/Convert currency (demo implementation)
+ * Exchange/Convert currency
  */
 export async function exchangeCurrency(userId, fromCurrency, toCurrency, amount, rate) {
     if (!userId || !fromCurrency || !toCurrency || !amount || !rate) {
@@ -90,6 +99,22 @@ export async function exchangeCurrency(userId, fromCurrency, toCurrency, amount,
     }
 
     return await runTransaction(db, async (transaction) => {
+        const walletRef = doc(db, 'wallets', userId);
+        const walletDoc = await transaction.get(walletRef);
+
+        if (!walletDoc.exists()) {
+            throw new Error('Wallet not found');
+        }
+
+        const walletData = walletDoc.data();
+        const mainBalance = walletData.mainBalance !== undefined ? walletData.mainBalance : (walletData.balance || 0);
+
+        if (mainBalance < amount) {
+            throw new Error('Insufficient balance for exchange');
+        }
+
+        const convertedAmount = amount * rate;
+
         // Create exchange record
         const exchangeRef = doc(collection(db, 'exchanges'));
         transaction.set(exchangeRef, {
@@ -97,16 +122,23 @@ export async function exchangeCurrency(userId, fromCurrency, toCurrency, amount,
             fromCurrency,
             toCurrency,
             fromAmount: amount,
-            toAmount: amount * rate,
+            toAmount: convertedAmount,
             rate,
             status: 'completed',
             createdAt: serverTimestamp()
         });
 
+        // Update main balance (assuming exchange happens within main account)
+        // In a more complex app, we might have currency-specific accounts
+        transaction.update(walletRef, {
+            mainBalance: mainBalance - amount + convertedAmount,
+            updatedAt: serverTimestamp()
+        });
+
         return {
             success: true,
             exchangeId: exchangeRef.id,
-            convertedAmount: amount * rate
+            convertedAmount
         };
     });
 }
