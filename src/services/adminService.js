@@ -60,12 +60,20 @@ export const setUserBalance = async (userId, amount, operation = "set", target =
         const balanceField = target === "trading" ? "tradingBalance" : "mainBalance";
 
         if (!walletSnap.exists()) {
+            const initialBalance = target === "main" && operation === "set" ? amount : 0;
+            const initialTrading = target === "trading" && operation === "set" ? amount : 0;
+
             // Create wallet if it doesn't exist
             await setDoc(walletRef, {
                 uid: userId,
-                mainBalance: target === "main" && operation === "set" ? amount : 0,
-                tradingBalance: target === "trading" && operation === "set" ? amount : 0,
+                mainBalance: initialBalance,
+                tradingBalance: initialTrading,
                 commissionBalance: 0,
+                assets: {
+                    USDT: { name: 'Tether', symbol: 'USDT', total: initialBalance, networks: { "TRC20": initialBalance } },
+                    BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
+                    ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+                },
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
@@ -86,10 +94,32 @@ export const setUserBalance = async (userId, amount, operation = "set", target =
             newBalance = Math.max(0, currentBalance - amount);
         }
 
-        await updateDoc(walletRef, {
+        const updates = {
             [balanceField]: newBalance,
             updatedAt: new Date()
-        });
+        };
+
+        // Synchronize with assets map for the Assets page
+        if (target === "main") {
+            const assets = walletData.assets || {
+                USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } },
+                BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
+                ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+            };
+
+            if (!assets.USDT) assets.USDT = { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } };
+
+            // For general mainBalance updates, we treat it as USDT
+            assets.USDT.total = newBalance;
+            // Update the first available network or default to TRC20
+            const firstNetwork = Object.keys(assets.USDT.networks || {})[0] || "TRC20";
+            if (!assets.USDT.networks) assets.USDT.networks = {};
+            assets.USDT.networks[firstNetwork] = newBalance;
+
+            updates.assets = assets;
+        }
+
+        await updateDoc(walletRef, updates);
 
         return { success: true };
     } catch (error) {
@@ -201,12 +231,34 @@ export const approveDeposit = async (depositId) => {
         const walletSnap = await getDoc(walletRef);
 
         if (!walletSnap.exists()) {
+            const assetSymbol = depositData.asset || "USDT";
+            const initialAssets = {
+                USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } },
+                BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
+                ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+            };
+
+            if (initialAssets[assetSymbol]) {
+                initialAssets[assetSymbol].total = depositAmount;
+                const network = assetSymbol === "USDT" ? "TRC20" : assetSymbol;
+                initialAssets[assetSymbol].networks[network] = depositAmount;
+            } else {
+                const names = { USDT: 'Tether', BTC: 'Bitcoin', ETH: 'Ethereum', SOL: 'Solana' };
+                initialAssets[assetSymbol] = {
+                    name: names[assetSymbol] || assetSymbol,
+                    symbol: assetSymbol,
+                    total: depositAmount,
+                    networks: { [assetSymbol === "USDT" ? "TRC20" : assetSymbol]: depositAmount }
+                };
+            }
+
             // Create wallet if it doesn't exist
             await setDoc(walletRef, {
                 uid: uid,
                 mainBalance: depositAmount,
                 tradingBalance: 0,
                 commissionBalance: 0,
+                assets: initialAssets,
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
@@ -216,10 +268,40 @@ export const approveDeposit = async (depositId) => {
                 ? walletData.mainBalance
                 : (walletData.balance || 0);
 
-            await updateDoc(walletRef, {
-                mainBalance: currentMainBalance + depositAmount,
+            const newMainBalance = currentMainBalance + depositAmount;
+            const updates = {
+                mainBalance: newMainBalance,
                 updatedAt: new Date()
-            });
+            };
+
+            // Update assets map for synchronized display
+            const assetSymbol = depositData.asset || "USDT";
+            const assets = walletData.assets || {
+                USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } },
+                BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
+                ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+            };
+
+            if (!assets[assetSymbol]) {
+                const names = { USDT: 'Tether', BTC: 'Bitcoin', ETH: 'Ethereum', SOL: 'Solana' };
+                assets[assetSymbol] = {
+                    name: names[assetSymbol] || assetSymbol,
+                    symbol: assetSymbol,
+                    total: 0,
+                    networks: {}
+                };
+            }
+
+            assets[assetSymbol].total = (assets[assetSymbol].total || 0) + depositAmount;
+
+            // Determine network (default to TRC20 for USDT, or direct network)
+            const network = assetSymbol === "USDT" ? "TRC20" : assetSymbol;
+            if (!assets[assetSymbol].networks) assets[assetSymbol].networks = {};
+            assets[assetSymbol].networks[network] = (assets[assetSymbol].networks[network] || 0) + depositAmount;
+
+            updates.assets = assets;
+
+            await updateDoc(walletRef, updates);
         }
 
         // Check for referrer and handle commission
