@@ -13,7 +13,7 @@ export default function VerifyEmail() {
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
     const [timer, setTimer] = useState(60);
-    const { user, userRole, emailVerified, verifyEmailOTP, resendOTP } = useAuth();
+    const { user, userRole, emailVerified, verifyEmailOTP, resendOTP, logout } = useAuth();
     const navigate = useNavigate();
     const inputRefs = useRef([]);
 
