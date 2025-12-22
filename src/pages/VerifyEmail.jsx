@@ -166,22 +166,44 @@ export default function VerifyEmail() {
                         </button>
                     </form>
 
-                    <div className="login-footer" style={{ marginTop: '30px' }}>
-                        Didn't receive the code?{" "}
-                        <button
-                            onClick={handleResend}
-                            className="login-link"
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: timer > 0 ? 'not-allowed' : 'pointer',
-                                opacity: timer > 0 ? 0.5 : 1,
-                                padding: '0'
-                            }}
-                            disabled={timer > 0 || resending}
-                        >
-                            {resending ? "Resending..." : timer > 0 ? `Resend in ${timer}s` : "Resend Now"}
-                        </button>
+                    <div className="login-footer" style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div>
+                            Didn't receive the code?{" "}
+                            <button
+                                onClick={handleResend}
+                                className="login-link"
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: timer > 0 ? 'not-allowed' : 'pointer',
+                                    opacity: timer > 0 ? 0.5 : 1,
+                                    padding: '0'
+                                }}
+                                disabled={timer > 0 || resending}
+                            >
+                                {resending ? "Resending..." : timer > 0 ? `Resend in ${timer}s` : "Resend Now"}
+                            </button>
+                        </div>
+
+                        <div style={{ borderTop: '1px solid rgba(100, 116, 139, 0.1)', paddingTop: '15px' }}>
+                            <button
+                                onClick={async () => {
+                                    await logout();
+                                    navigate("/", { replace: true });
+                                }}
+                                className="login-link"
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '0',
+                                    fontSize: '13px',
+                                    opacity: 0.8
+                                }}
+                            >
+                                Back to Login / Use different account
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
