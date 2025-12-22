@@ -1,16 +1,36 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { getCryptoPrices } from '../services/priceService';
 import './Assets.css';
 
 export default function Assets() {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [assets, setAssets] = useState({});
     const [loading, setLoading] = useState(true);
+    const [livePrices, setLivePrices] = useState({});
     const [totalEstimated, setTotalEstimated] = useState(0);
     const [balanceHidden, setBalanceHidden] = useState(false);
     const [selectedAsset, setSelectedAsset] = useState(null);
+
+    // Fetch live prices
+    useEffect(() => {
+        const fetchPrices = async () => {
+            try {
+                const prices = await getCryptoPrices();
+                setLivePrices(prices);
+            } catch (error) {
+                console.error("Failed to fetch live prices:", error);
+            }
+        };
+
+        fetchPrices();
+        const interval = setInterval(fetchPrices, 30000); // Update every 30s
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         if (!user) return;
@@ -24,21 +44,24 @@ export default function Assets() {
                     ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
                 };
                 setAssets(userAssets);
-
-                // Calculate total estimated value (simple USD 1:1 for USDT for now)
-                // In production, you'd fetch prices for BTC/ETH
-                let total = 0;
-                Object.values(userAssets).forEach(asset => {
-                    const price = asset.symbol === 'USDT' ? 1 : (asset.symbol === 'BTC' ? 42000 : (asset.symbol === 'ETH' ? 2200 : 0));
-                    total += (asset.total || 0) * price;
-                });
-                setTotalEstimated(total);
             }
             setLoading(false);
         });
 
         return () => unsubscribe();
     }, [user]);
+
+    // Calculate total estimated value whenever assets or livePrices change
+    useEffect(() => {
+        if (Object.keys(assets).length > 0 && Object.keys(livePrices).length > 0) {
+            let total = 0;
+            Object.entries(assets).forEach(([symbol, asset]) => {
+                const price = livePrices[symbol] || (symbol === 'USDT' ? 1 : 0);
+                total += (asset.total || 0) * price;
+            });
+            setTotalEstimated(total);
+        }
+    }, [assets, livePrices]);
 
     if (loading) {
         return <div className="assets-loading">Loading assets...</div>;
@@ -47,7 +70,7 @@ export default function Assets() {
     return (
         <div className="assets-page">
             <div className="assets-header">
-                <button className="back-btn" onClick={() => window.history.back()}>←</button>
+                <button className="back-btn" onClick={() => navigate(-1)}>←</button>
                 <h1 className="gradient-text">My Assets</h1>
                 <div className="header-spacer"></div>
             </div>
@@ -78,27 +101,30 @@ export default function Assets() {
             <div className="asset-list-section">
                 <h3 className="section-title">Holdings</h3>
                 <div className="asset-grid">
-                    {Object.entries(assets).map(([symbol, data]) => (
-                        <div key={symbol} className="asset-card glass-card" onClick={() => setSelectedAsset(data)}>
-                            <div className="asset-info">
-                                <div className={`asset-icon ${symbol.toLowerCase()}`}>
-                                    {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : 'S'}
+                    {Object.entries(assets).map(([symbol, data]) => {
+                        const price = livePrices[symbol] || (symbol === 'USDT' ? 1 : 0);
+                        return (
+                            <div key={symbol} className="asset-card glass-card" onClick={() => setSelectedAsset(data)}>
+                                <div className="asset-info">
+                                    <div className={`asset-icon ${symbol.toLowerCase()}`}>
+                                        {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : 'S'}
+                                    </div>
+                                    <div className="asset-names">
+                                        <span className="name">{data.name}</span>
+                                        <span className="symbol">{symbol}</span>
+                                    </div>
                                 </div>
-                                <div className="asset-names">
-                                    <span className="name">{data.name}</span>
-                                    <span className="symbol">{symbol}</span>
+                                <div className="asset-balance">
+                                    <span className="amount">
+                                        {balanceHidden ? '****' : (data.total || 0).toLocaleString(undefined, { maximumFractionDigits: 8 })}
+                                    </span>
+                                    <span className="usd-value">
+                                        ≈ ${((data.total || 0) * price).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                    </span>
                                 </div>
                             </div>
-                            <div className="asset-balance">
-                                <span className="amount">
-                                    {balanceHidden ? '****' : (data.total || 0).toLocaleString(undefined, { maximumFractionDigits: 8 })}
-                                </span>
-                                <span className="usd-value">
-                                    ≈ ${((data.total || 0) * (symbol === 'USDT' ? 1 : symbol === 'BTC' ? 42000 : 2200)).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
@@ -130,8 +156,8 @@ export default function Assets() {
                         </div>
 
                         <div className="modal-actions">
-                            <button className="action-btn deposit">Deposit</button>
-                            <button className="action-btn withdraw">Withdraw</button>
+                            <button className="action-btn deposit" onClick={() => navigate('/deposit')}>Deposit</button>
+                            <button className="action-btn withdraw" onClick={() => navigate('/withdraw')}>Withdraw</button>
                         </div>
                     </div>
                 </div>
@@ -139,3 +165,4 @@ export default function Assets() {
         </div>
     );
 }
+
