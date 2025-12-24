@@ -26,9 +26,10 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
     max-width: 600px;
     margin: 0 auto;
+    gap: 2px;
 }
 
 .mobile-nav-item {
@@ -37,12 +38,12 @@
     align-items: center;
     justify-content: center;
     flex: 1;
-    padding: 8px 4px;
+    padding: 6px 2px;
     text-decoration: none;
     color: #94a3b8;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    min-width: 60px;
+    min-width: 50px;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -127,8 +128,8 @@
     }
 
     .mobile-nav-item {
-        padding: 6px 2px;
-        min-width: 50px;
+        padding: 4px 1px;
+        min-width: 45px;
     }
 }
 

@@ -12,7 +12,8 @@ import {
     History,
     User,
     Lock,
-    Wallet
+    Wallet,
+    Coins
 } from 'lucide-react';
 import './MobileBottomNav.css';
 
@@ -58,6 +59,7 @@ export default function MobileBottomNav() {
             { path: '/home', icon: <Home size={24} />, label: 'Home' },
             { path: '/market', icon: <BarChart2 size={24} />, label: 'Market' },
             { path: '/trade', icon: <TrendingUp size={24} />, label: 'Trade' },
+            { path: '/assets', icon: <Coins size={24} />, label: 'Assets' },
             { path: '/transactions', icon: <History size={24} />, label: 'History' },
             { path: '/wallet', icon: <User size={24} />, label: 'Mine' }
         ];
