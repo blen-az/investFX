@@ -10,7 +10,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .assets-header .back-btn {
@@ -33,96 +33,86 @@
     margin: 0;
 }
 
-/* Balance Card */
-.total-assets-card {
-    padding: 32px;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.15));
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    margin-bottom: 32px;
-    position: relative;
-    overflow: hidden;
+/* Account Tabs */
+.account-tabs-container {
+    margin-bottom: 24px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
 }
 
-.total-assets-card::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
-    filter: blur(40px);
+.account-tabs-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
 }
 
-.card-top {
+.account-tabs {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+    gap: 12px;
+    padding-bottom: 4px;
+    min-width: max-content;
 }
 
-.card-top .label {
-    color: #94a3b8;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.eye-toggle {
+.account-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
     background: transparent;
     border: none;
     color: #94a3b8;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 4px;
-}
-
-.total-amount {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.total-amount .currency {
-    font-size: 24px;
-    font-weight: 700;
-    color: #06b6d4;
-}
-
-.total-amount .value {
-    font-size: 42px;
-    font-weight: 900;
-    font-family: 'JetBrains Mono', monospace;
-}
-
-.total-amount .unit {
     font-size: 14px;
     font-weight: 600;
-    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.pnl-indicator {
+.account-tab.active {
+    background: #3b82f6;
+    color: #fff;
+}
+
+/* Redesigned Balance Card */
+.account-balance-card {
+    padding: 24px;
+    background: #1e293b;
+    /* Dark slate as in image */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 32px;
+}
+
+.account-balance-card .card-header {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.account-type-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.converted-label {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.balance-display {
+    margin-top: 8px;
+}
+
+.balance-value {
+    font-size: 32px;
     font-weight: 700;
-}
-
-.pnl-indicator.positive {
-    color: #10b981;
-}
-
-.pnl-indicator.negative {
-    color: #ef4444;
-}
-
-.pnl-indicator .time {
-    color: #64748b;
-    font-weight: 500;
-    margin-left: 4px;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 /* holdings section */
