@@ -1,6 +1,19 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import {
+    LayoutDashboard,
+    Users,
+    ArrowDownCircle,
+    BarChart2,
+    Settings,
+    Home,
+    TrendingUp,
+    History,
+    User,
+    Lock,
+    Wallet
+} from 'lucide-react';
 import './MobileBottomNav.css';
 
 export default function MobileBottomNav() {
@@ -16,37 +29,37 @@ export default function MobileBottomNav() {
     const getNavItems = () => {
         if (!user) {
             return [
-                { path: '/market', icon: '📊', label: 'Market' },
-                { path: '/login', icon: '🔐', label: 'Login' }
+                { path: '/market', icon: <BarChart2 size={24} />, label: 'Market' },
+                { path: '/login', icon: <Lock size={24} />, label: 'Login' }
             ];
         }
 
         if (isAdmin()) {
             return [
-                { path: '/admin/dashboard', icon: '📈', label: 'Dashboard' },
-                { path: '/admin/users', icon: '👥', label: 'Users' },
-                { path: '/admin/deposits', icon: '💰', label: 'Deposits' },
-                { path: '/admin/trades', icon: '📊', label: 'Trades' },
-                { path: '/admin/settings', icon: '⚙️', label: 'Settings' }
+                { path: '/admin/dashboard', icon: <LayoutDashboard size={24} />, label: 'Dashboard' },
+                { path: '/admin/users', icon: <Users size={24} />, label: 'Users' },
+                { path: '/admin/deposits', icon: <ArrowDownCircle size={24} />, label: 'Deposits' },
+                { path: '/admin/trades', icon: <BarChart2 size={24} />, label: 'Trades' },
+                { path: '/admin/settings', icon: <Settings size={24} />, label: 'Settings' }
             ];
         }
 
         if (isAgent()) {
             return [
-                { path: '/agent/dashboard', icon: '📈', label: 'Dashboard' },
-                { path: '/agent/referrals', icon: '👥', label: 'Referrals' },
-                { path: '/market', icon: '📊', label: 'Market' },
-                { path: '/agent/commissions', icon: '💰', label: 'Commissions' },
-                { path: '/agent/settings', icon: '⚙️', label: 'Settings' }
+                { path: '/agent/dashboard', icon: <LayoutDashboard size={24} />, label: 'Dashboard' },
+                { path: '/agent/referrals', icon: <Users size={24} />, label: 'Referrals' },
+                { path: '/market', icon: <BarChart2 size={24} />, label: 'Market' },
+                { path: '/agent/commissions', icon: <Wallet size={24} />, label: 'Commissions' },
+                { path: '/agent/settings', icon: <Settings size={24} />, label: 'Settings' }
             ];
         }
 
         return [
-            { path: '/home', icon: '🏠', label: 'Home' },
-            { path: '/market', icon: '📊', label: 'Market' },
-            { path: '/trade', icon: '📈', label: 'Trade' },
-            { path: '/transactions', icon: '💳', label: 'History' },
-            { path: '/wallet', icon: '👤', label: 'Mine' }
+            { path: '/home', icon: <Home size={24} />, label: 'Home' },
+            { path: '/market', icon: <BarChart2 size={24} />, label: 'Market' },
+            { path: '/trade', icon: <TrendingUp size={24} />, label: 'Trade' },
+            { path: '/transactions', icon: <History size={24} />, label: 'History' },
+            { path: '/wallet', icon: <User size={24} />, label: 'Mine' }
         ];
     };
 
