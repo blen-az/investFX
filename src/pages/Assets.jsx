@@ -89,7 +89,7 @@ export default function Assets() {
         <div className="assets-page">
             <div className="assets-header">
                 <button className="back-btn" onClick={() => navigate(-1)}>←</button>
-                <h1 className="gradient-text">My Assets</h1>
+                <h1 className="page-title">My Assets</h1>
                 <div className="header-spacer"></div>
             </div>
 
@@ -109,7 +109,7 @@ export default function Assets() {
             </div>
 
             {/* Total Balance Card Redesigned */}
-            <div className="account-balance-card glass-card">
+            <div className="account-balance-card">
                 <div className="card-header">
                     <span className="account-type-title">
                         {accounts.find(a => a.id === activeAccount)?.label}
@@ -153,7 +153,7 @@ export default function Assets() {
                             const topNetwork = Object.keys(data.networks || {})[0] || 'Unknown';
 
                             return (
-                                <div key={symbol} className="asset-card glass-card" onClick={() => setSelectedAsset(data)}>
+                                <div key={symbol} className="asset-card" onClick={() => setSelectedAsset(data)}>
                                     <div className="asset-info">
                                         <div className={`asset-icon ${symbol.toLowerCase()}`}>
                                             {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : 'S'}
@@ -184,7 +184,7 @@ export default function Assets() {
             {/* Asset Detail Slider/Modal */}
             {selectedAsset && (
                 <div className="asset-modal-overlay" onClick={() => setSelectedAsset(null)}>
-                    <div className="asset-modal glass-card" onClick={e => e.stopPropagation()}>
+                    <div className="asset-modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-handle"></div>
                         <div className="modal-header">
                             <h2>{selectedAsset.name} Details</h2>

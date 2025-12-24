@@ -28,9 +28,10 @@
 }
 
 .assets-header h1 {
-    font-size: 24px;
-    font-weight: 800;
+    font-size: 20px;
+    font-weight: 700;
     margin: 0;
+    color: #fff;
 }
 
 /* Account Tabs */
@@ -73,12 +74,13 @@
     color: #fff;
 }
 
-/* Redesigned Balance Card */
+/* Redesigned Balance Card - Minimalist */
 .account-balance-card {
     padding: 24px;
-    background: #1e293b;
-    /* Dark slate as in image */
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: #111827;
+    /* Near black matte */
+    border: 1px solid #1f2937;
+    border-radius: 12px;
     margin-bottom: 32px;
 }
 
@@ -133,15 +135,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    transition: all 0.3s ease;
+    padding: 16px 20px;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    transition: background 0.2s ease;
     cursor: pointer;
 }
 
 .asset-card:hover {
-    transform: translateX(8px);
-    border-color: rgba(6, 182, 212, 0.4);
-    background: rgba(255, 255, 255, 0.05);
+    background: #1f2937;
 }
 
 .asset-info {
@@ -247,9 +250,10 @@
 .asset-modal {
     width: 100%;
     padding: 32px 24px 48px;
-    border-radius: 32px 32px 0 0;
-    border-bottom: none;
-    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #111827;
+    border-top: 1px solid #374151;
+    border-radius: 24px 24px 0 0;
+    animation: slideUp 0.3s ease-out;
 }
 
 @keyframes slideUp {
