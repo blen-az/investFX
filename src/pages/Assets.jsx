@@ -130,30 +130,54 @@ export default function Assets() {
             <div className="asset-list-section">
                 <h3 className="section-title">Holdings</h3>
                 <div className="asset-grid">
-                    {Object.entries(assets).map(([symbol, data]) => {
-                        const price = livePrices[symbol] || (symbol === 'USDT' ? 1 : 0);
-                        return (
-                            <div key={symbol} className="asset-card glass-card" onClick={() => setSelectedAsset(data)}>
-                                <div className="asset-info">
-                                    <div className={`asset-icon ${symbol.toLowerCase()}`}>
-                                        {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : 'S'}
+                    {(() => {
+                        // Determine which assets to show based on activeAccount
+                        let displayAssets = [];
+
+                        if (activeAccount === 'funding') {
+                            displayAssets = Object.entries(assets).map(([symbol, data]) => ({ symbol, ...data }));
+                        } else {
+                            // For other accounts, show the balance as a USDT asset (or similar)
+                            const balance = balances[activeAccount] || 0;
+                            displayAssets = [{
+                                symbol: 'USDT',
+                                name: 'Tether',
+                                total: balance,
+                                networks: { "Internal": balance } // Simplified for non-funding
+                            }];
+                        }
+
+                        return displayAssets.map((data) => {
+                            const symbol = data.symbol;
+                            const price = livePrices[symbol] || (symbol === 'USDT' ? 1 : 0);
+                            const topNetwork = Object.keys(data.networks || {})[0] || 'Unknown';
+
+                            return (
+                                <div key={symbol} className="asset-card glass-card" onClick={() => setSelectedAsset(data)}>
+                                    <div className="asset-info">
+                                        <div className={`asset-icon ${symbol.toLowerCase()}`}>
+                                            {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : 'S'}
+                                        </div>
+                                        <div className="asset-names">
+                                            <div className="name-row">
+                                                <span className="name">{data.name}</span>
+                                                <span className="network-badge">{topNetwork}</span>
+                                            </div>
+                                            <span className="symbol">{symbol}</span>
+                                        </div>
                                     </div>
-                                    <div className="asset-names">
-                                        <span className="name">{data.name}</span>
-                                        <span className="symbol">{symbol}</span>
+                                    <div className="asset-balance">
+                                        <span className="amount">
+                                            {balanceHidden ? '****' : (data.total || 0).toLocaleString(undefined, { maximumFractionDigits: 8 })}
+                                        </span>
+                                        <span className="usd-value">
+                                            ≈ ${((data.total || 0) * price).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="asset-balance">
-                                    <span className="amount">
-                                        {balanceHidden ? '****' : (data.total || 0).toLocaleString(undefined, { maximumFractionDigits: 8 })}
-                                    </span>
-                                    <span className="usd-value">
-                                        ≈ ${((data.total || 0) * price).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        });
+                    })()}
                 </div>
             </div>
 
