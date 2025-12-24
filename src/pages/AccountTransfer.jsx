@@ -8,8 +8,8 @@ import './AccountTransfer.css';
 export default function AccountTransfer() {
     const { user } = useAuth();
     const [amount, setAmount] = useState('');
-    const [fromAccount, setFromAccount] = useState('main');
-    const [toAccount, setToAccount] = useState('trading');
+    const [fromAccount, setFromAccount] = useState('funding');
+    const [toAccount, setToAccount] = useState('spot');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -56,8 +56,13 @@ export default function AccountTransfer() {
                     <div className="form-group">
                         <label>From Account</label>
                         <select value={fromAccount} onChange={(e) => setFromAccount(e.target.value)}>
-                            <option value="main">Main Account</option>
-                            <option value="trading">Trading Account</option>
+                            <option value="funding">Funding Account</option>
+                            <option value="spot">Spot Account</option>
+                            <option value="futures">Futures Account</option>
+                            <option value="earn">Earn Account</option>
+                            <option value="contract">Contract Account</option>
+                            <option value="fiat">Fiat Account</option>
+                            <option value="commission">Commission Account</option>
                         </select>
                     </div>
 
@@ -66,8 +71,12 @@ export default function AccountTransfer() {
                     <div className="form-group">
                         <label>To Account</label>
                         <select value={toAccount} onChange={(e) => setToAccount(e.target.value)}>
-                            <option value="trading">Trading Account</option>
-                            <option value="main">Main Account</option>
+                            <option value="spot">Spot Account</option>
+                            <option value="funding">Funding Account</option>
+                            <option value="futures">Futures Account</option>
+                            <option value="earn">Earn Account</option>
+                            <option value="contract">Contract Account</option>
+                            <option value="fiat">Fiat Account</option>
                         </select>
                     </div>
 

@@ -14,8 +14,7 @@ export default function Withdraw() {
     const [amount, setAmount] = useState("");
     const [address, setAddress] = useState("");
     const [step, setStep] = useState(1); // 1: Select Asset, 2: Enter Details, 3: Success
-    const [balance, setBalance] = useState(0);
-    const [kycStatus, setKycStatus] = useState("unverified");
+    const [balances, setBalances] = useState({ total: 0, funding: 0 });
 
     React.useEffect(() => {
         if (!user?.uid) return;
@@ -33,11 +32,16 @@ export default function Withdraw() {
         if (!user?.uid) return;
         const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
             if (doc.exists()) {
-                setBalance(doc.data().balance || 0);
+                const data = doc.data();
+                const funding = data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0);
+                const total = funding + (data.spotBalance || 0) + (data.tradingBalance || 0) + (data.earnBalance || 0) + (data.contractBalance || 0) + (data.fiatBalance || 0) + (data.commissionBalance || 0);
+                setBalances({ total, funding });
             }
         });
         return () => unsub();
     }, [user]);
+
+    const balance = balances.funding; // Withdrawals traditionally happen from Funding
 
     const assets = [
         { id: "tether", name: "Tether", symbol: "USDT", icon: "₮", balance: balance.toFixed(2), color: "#26A17B" },

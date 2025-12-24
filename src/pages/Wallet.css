@@ -126,6 +126,24 @@
     color: #06b6d4;
 }
 
+.wallet-types-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    grid-column: span 2;
+}
+
+.commission-card {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1)) !important;
+    border: 1px solid rgba(6, 182, 212, 0.2) !important;
+}
+
+.mine-stat-value.secondary {
+    font-size: 16px;
+    color: #cbd5e1;
+}
+
 .small-toggle {
     background: transparent;
     border: none;

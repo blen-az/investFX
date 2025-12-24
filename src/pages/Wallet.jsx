@@ -9,8 +9,13 @@ import './Wallet.css';
 export default function Wallet() {
     const { user } = useAuth();
     const [balances, setBalances] = useState({
-        main: 0,
-        trading: 0
+        funding: 0,
+        spot: 0,
+        futures: 0,
+        earn: 0,
+        contract: 0,
+        fiat: 0,
+        commission: 0
     });
     const [kycStatus, setKycStatus] = useState("unverified");
     const [balanceHidden, setBalanceHidden] = useState(false);
@@ -27,10 +32,15 @@ export default function Wallet() {
         const unsubscribeWallet = onSnapshot(doc(db, 'wallets', user.uid), (doc) => {
             if (doc.exists()) {
                 const data = doc.data();
-                // Migration logic: if new fields don't exist, use the old 'balance' as main
+                // Migration logic: if new fields don't exist, use the old names or defaults
                 setBalances({
-                    main: data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0),
-                    trading: data.tradingBalance !== undefined ? data.tradingBalance : 0
+                    funding: data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0),
+                    spot: data.spotBalance || 0,
+                    futures: data.tradingBalance !== undefined ? data.tradingBalance : 0,
+                    earn: data.earnBalance || 0,
+                    contract: data.contractBalance || 0,
+                    fiat: data.fiatBalance || 0,
+                    commission: data.commissionBalance || 0
                 });
             }
         });
@@ -151,21 +161,57 @@ export default function Wallet() {
                         </button>
                     </div>
                     <div className="mine-stat-value total">
-                        {balanceHidden ? '****' : `$${(balances.main + balances.trading).toLocaleString()}`}
+                        {balanceHidden ? '****' : `$${(balances.funding + balances.spot + balances.futures + balances.earn + balances.contract + balances.fiat + balances.commission).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     </div>
                 </div>
-                <div className="mine-stat-card">
-                    <div className="mine-stat-label">Main Balance</div>
-                    <div className="mine-stat-value secondary">
-                        {balanceHidden ? '****' : `$${balances.main.toLocaleString()}`}
+
+                <div className="wallet-types-grid">
+                    <div className="mine-stat-card">
+                        <div className="mine-stat-label">Funding</div>
+                        <div className="mine-stat-value secondary">
+                            {balanceHidden ? '****' : `$${balances.funding.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
+                    </div>
+                    <div className="mine-stat-card">
+                        <div className="mine-stat-label">Spot</div>
+                        <div className="mine-stat-value secondary">
+                            {balanceHidden ? '****' : `$${balances.spot.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
+                    </div>
+                    <div className="mine-stat-card">
+                        <div className="mine-stat-label">Futures</div>
+                        <div className="mine-stat-value secondary">
+                            {balanceHidden ? '****' : `$${balances.futures.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
+                    </div>
+                    <div className="mine-stat-card">
+                        <div className="mine-stat-label">Earn</div>
+                        <div className="mine-stat-value secondary">
+                            {balanceHidden ? '****' : `$${balances.earn.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
+                    </div>
+                    <div className="mine-stat-card">
+                        <div className="mine-stat-label">Contract</div>
+                        <div className="mine-stat-value secondary">
+                            {balanceHidden ? '****' : `$${balances.contract.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
+                    </div>
+                    <div className="mine-stat-card">
+                        <div className="mine-stat-label">Fiat</div>
+                        <div className="mine-stat-value secondary">
+                            {balanceHidden ? '****' : `$${balances.fiat.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
                     </div>
                 </div>
-                <div className="mine-stat-card">
-                    <div className="mine-stat-label">Trading Balance</div>
-                    <div className="mine-stat-value secondary">
-                        {balanceHidden ? '****' : `$${balances.trading.toLocaleString()}`}
+
+                {balances.commission > 0 && (
+                    <div className="mine-stat-card full-width commission-card">
+                        <div className="mine-stat-label">Agent Commission</div>
+                        <div className="mine-stat-value accent">
+                            {balanceHidden ? '****' : `$${balances.commission.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Trading Performance Section */}

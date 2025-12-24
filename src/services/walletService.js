@@ -3,6 +3,21 @@ import { db } from '../firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, serverTimestamp, runTransaction, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 
 /**
+ * Map account names to field names
+ */
+const ACCOUNT_FIELDS = {
+    'funding': 'mainBalance',
+    'main': 'mainBalance', // Alias
+    'spot': 'spotBalance',
+    'futures': 'tradingBalance', // Alias for compatibility
+    'trading': 'tradingBalance',
+    'earn': 'earnBalance',
+    'contract': 'contractBalance',
+    'fiat': 'fiatBalance',
+    'commission': 'commissionBalance'
+};
+
+/**
  * Transfer funds between user's internal accounts
  */
 export async function transferBetweenAccounts(userId, fromAccount, toAccount, amount) {
@@ -14,12 +29,22 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
         throw new Error('Amount must be greater than 0');
     }
 
-    if (amount < 1) { // Reduced for testing/flexibility, usually 10
+    if (amount < 1) {
         throw new Error('Minimum transfer amount is $1');
     }
 
-    if (fromAccount === toAccount) {
+    const fromKey = fromAccount.toLowerCase();
+    const toKey = toAccount.toLowerCase();
+
+    if (fromKey === toKey) {
         throw new Error('Cannot transfer to the same account');
+    }
+
+    const fromField = ACCOUNT_FIELDS[fromKey];
+    const toField = ACCOUNT_FIELDS[toKey];
+
+    if (!fromField || !toField) {
+        throw new Error(`Invalid account type: ${!fromField ? fromAccount : toAccount}`);
     }
 
     // Use transaction to ensure atomicity
@@ -33,16 +58,18 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
 
         const walletData = walletDoc.data();
 
-        // Map account names to field names
-        const fromField = fromAccount.toLowerCase().includes('main') ? 'mainBalance' : 'tradingBalance';
-        const toField = toAccount.toLowerCase().includes('main') ? 'mainBalance' : 'tradingBalance';
+        // Check balances with migration fallbacks
+        const getBalance = (field) => {
+            if (walletData[field] !== undefined) return walletData[field];
+            if (field === 'mainBalance') return walletData.balance || 0;
+            return 0;
+        };
 
-        // Check if both fields exist (migration)
-        const fromBalance = walletData[fromField] !== undefined ? walletData[fromField] : (fromField === 'mainBalance' ? (walletData.balance || 0) : 0);
-        const toBalance = walletData[toField] !== undefined ? walletData[toField] : (toField === 'mainBalance' ? (walletData.balance || 0) : 0);
+        const fromBalance = getBalance(fromField);
+        const toBalance = getBalance(toField);
 
         if (fromBalance < amount) {
-            throw new Error('Insufficient balance in source account');
+            throw new Error(`Insufficient balance in ${fromAccount} account`);
         }
 
         // Create transfer record

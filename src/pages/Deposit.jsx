@@ -72,17 +72,22 @@ export default function Deposit() {
   };
 
 
-  const [balance, setBalance] = useState(0);
+  const [balances, setBalances] = useState({ total: 0, funding: 0 });
 
   React.useEffect(() => {
     if (!user?.uid) return;
     const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
-        setBalance(doc.data().balance || 0);
+        const data = doc.data();
+        const funding = data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0);
+        const total = funding + (data.spotBalance || 0) + (data.tradingBalance || 0) + (data.earnBalance || 0) + (data.contractBalance || 0) + (data.fiatBalance || 0) + (data.commissionBalance || 0);
+        setBalances({ total, funding });
       }
     });
     return () => unsub();
   }, [user]);
+
+  const balance = balances.funding; // Use funding balance for display or total depending on context
 
   const cryptocurrencies = [
     {
@@ -151,8 +156,8 @@ export default function Deposit() {
           </div>
           <div className="balance-info">
             <div className="balance-label">TOTAL BALANCE</div>
-            <div className="balance-amount gradient-text">${balance.toLocaleString()}</div>
-            <div className="balance-subtitle">Available for trading</div>
+            <div className="balance-amount gradient-text">${balances.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className="balance-subtitle">Total assets across all wallets</div>
           </div>
         </div>
 
