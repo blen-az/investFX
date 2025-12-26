@@ -213,6 +213,7 @@ export const createUserDocument = async (uid, email, name, role = "user", referr
  * Set or update a user's role (admin use only)
  */
 export const setUserRole = async (uid, role) => {
+    // ...existing code...
     try {
         // Validate role
         const validRoles = ["user", "admin", "agent"];
@@ -234,8 +235,33 @@ export const setUserRole = async (uid, role) => {
         };
 
         // Generate referral code if upgrading to agent and doesn't have one
-        if (role === "agent" && !userSnap.data().referralCode) {
-            updateData.referralCode = await generateUniqueReferralCode();
+        if (role === "agent") {
+            if (!userSnap.data().referralCode) {
+                try {
+                    updateData.referralCode = await generateUniqueReferralCode();
+                } catch (err) {
+                    console.warn("Error generating referral code during upgrade:", err);
+                    // Allow upgrade to proceed, code can be generated later or manually
+                }
+            }
+
+            // Ensure wallet has commissionBalance
+            const walletRef = doc(db, "wallets", uid);
+            const walletSnap = await getDoc(walletRef);
+
+            if (walletSnap.exists()) {
+                await setDoc(walletRef, {
+                    commissionBalance: walletSnap.data().commissionBalance || 0
+                }, { merge: true });
+            } else {
+                // Create wallet if missing
+                await setDoc(walletRef, {
+                    balance: 0,
+                    commissionBalance: 0,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+            }
         }
 
         await updateDoc(userRef, updateData);
@@ -245,6 +271,7 @@ export const setUserRole = async (uid, role) => {
         console.error("Error setting user role:", error);
         throw error;
     }
+    // ...existing code...
 };
 
 /**

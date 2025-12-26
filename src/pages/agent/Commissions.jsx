@@ -135,7 +135,7 @@ export default function AgentCommissions() {
                     <h3 className="info-title">How Commissions Work</h3>
                     <ul className="info-list">
                         <li>You earn commissions on every deposit from your referrals</li>
-                        <li>Commission rate is 4% of the total deposit amount</li>
+                        <li>Commission rate is 40% of the total deposit amount</li>
                         <li>Earnings are added to your balance automatically</li>
                     </ul>
 

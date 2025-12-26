@@ -15,6 +15,7 @@ export default function AgentCreator() {
         name: ""
     });
     const [creating, setCreating] = useState(false);
+    const [upgrading, setUpgrading] = useState(new Set());
 
     useEffect(() => {
         loadUsers();
@@ -37,12 +38,19 @@ export default function AgentCreator() {
     const handleUpgradeToAgent = async (userId) => {
         if (window.confirm("Are you sure you want to upgrade this user to an agent?")) {
             try {
+                setUpgrading(prev => new Set(prev).add(userId));
                 await setUserRole(userId, "agent");
                 alert("User upgraded to agent successfully!");
                 await loadUsers();
             } catch (error) {
                 console.error("Error upgrading user:", error);
                 alert("Failed to upgrade user: " + error.message);
+            } finally {
+                setUpgrading(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(userId);
+                    return newSet;
+                });
             }
         }
     };
@@ -97,11 +105,19 @@ export default function AgentCreator() {
         <button
             className="action-btn action-btn-primary"
             onClick={() => handleUpgradeToAgent(row.id)}
+            disabled={upgrading.has(row.id)}
+            style={{ opacity: upgrading.has(row.id) ? 0.7 : 1 }}
         >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Make Agent
+            {upgrading.has(row.id) ? (
+                <span>Processing...</span>
+            ) : (
+                <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Make Agent
+                </>
+            )}
         </button>
     );
 
@@ -228,7 +244,7 @@ export default function AgentCreator() {
                 <div className="info-icon">ℹ️</div>
                 <div>
                     <div className="info-title">Agent Benefits</div>
-                    <div className="info-text">Agents earn 4% commission on referred user deposits</div>
+                    <div className="info-text">Agents earn 40% commission on referred user deposits</div>
                 </div>
             </div>
 
