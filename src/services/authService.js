@@ -252,6 +252,8 @@ export const setUserRole = async (uid, role) => {
  */
 export const createAgent = async (email, password, name) => {
     let secondaryApp = null;
+    const appName = `SecondaryApp-${Date.now()}`;
+
     try {
         // Validate inputs
         if (!email || !password) {
@@ -272,7 +274,7 @@ export const createAgent = async (email, password, name) => {
         }
 
         // DYNAMICALY IMPORT to avoid circular deps or init issues
-        const { initializeApp, deleteApp } = await import("firebase/app");
+        const { initializeApp, getApps, getApp, deleteApp } = await import("firebase/app");
         const { getAuth: getSecondaryAuth, createUserWithEmailAndPassword: createSecondaryUser } = await import("firebase/auth");
 
         // Initialize a secondary app instance to avoid logging out the admin
@@ -285,12 +287,23 @@ export const createAgent = async (email, password, name) => {
             appId: "1:310036681524:web:7937a954a237d15c030b61"
         };
 
-        secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        // Ensure we don't have a lingering app with the same name (though we use unique names now)
+        if (getApps().length > 0) {
+            const existingApp = getApps().find(app => app.name === appName);
+            if (existingApp) {
+                await deleteApp(existingApp);
+            }
+        }
+
+        secondaryApp = initializeApp(firebaseConfig, appName);
         const secondaryAuth = getSecondaryAuth(secondaryApp);
 
         // Create Firebase Auth account on the secondary app
         const userCredential = await createSecondaryUser(secondaryAuth, email, password);
         const uid = userCredential.user.uid;
+
+        // Force sign out from the secondary app to be safe
+        await secondaryAuth.signOut();
 
         // Create user document with "agent" role using the MAIN db connection (admin permissions)
         await createUserDocument(uid, email, name, "agent");
@@ -316,8 +329,12 @@ export const createAgent = async (email, password, name) => {
     } finally {
         // Cleanup the secondary app
         if (secondaryApp) {
-            const { deleteApp } = await import("firebase/app");
-            await deleteApp(secondaryApp);
+            try {
+                const { deleteApp } = await import("firebase/app");
+                await deleteApp(secondaryApp);
+            } catch (cleanupError) {
+                console.warn("Failed to cleanup secondary app:", cleanupError);
+            }
         }
     }
 };

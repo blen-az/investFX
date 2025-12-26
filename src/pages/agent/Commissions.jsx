@@ -138,17 +138,7 @@ export default function AgentCommissions() {
                         <li>Commission rate is 4% of the total deposit amount</li>
                         <li>Earnings are added to your balance automatically</li>
                     </ul>
-                    <div style={{
-                        marginTop: '12px',
-                        padding: '12px',
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        borderRadius: '6px',
-                        border: '1px solid rgba(16, 185, 129, 0.2)'
-                    }}>
-                        <strong style={{ color: '#10b981' }}>Example:</strong> User deposits $1,000
-                        <br />
-                        → Your commission: $40 (4% of deposit)
-                    </div>
+
                 </div>
             </div>
 
