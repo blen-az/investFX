@@ -170,7 +170,7 @@ export const generateUniqueReferralCode = async () => {
 /**
  * Create a user document in Firestore
  */
-export const createUserDocument = async (uid, email, name, role = "user", referralCode = null) => {
+export const createUserDocument = async (uid, email, name, role = "user", referralCode = null, emailVerified = false) => {
     try {
         const userRef = doc(db, "users", uid);
 
@@ -181,7 +181,7 @@ export const createUserDocument = async (uid, email, name, role = "user", referr
             role,
             createdAt: new Date(),
             frozen: false,
-            emailVerified: false // Default for new docs
+            emailVerified: emailVerified
         };
 
         // Add referral code for agents
@@ -333,7 +333,7 @@ export const createAgent = async (email, password, name) => {
         await secondaryAuth.signOut();
 
         // Create user document with "agent" role using the MAIN db connection (admin permissions)
-        await createUserDocument(uid, email, name, "agent");
+        await createUserDocument(uid, email, name, "agent", null, true);
 
         return {
             success: true,
