@@ -17,8 +17,6 @@ export const openTrade = async (uid, tradeData) => {
             }
 
             const walletData = walletSnap.data();
-            // Fallback for migration: if tradingBalance doesn't exist, it's 0. 
-            // The old 'balance' field is considered 'mainBalance'.
             const tradingBalance = walletData.tradingBalance !== undefined ? walletData.tradingBalance : 0;
 
             if (tradingBalance < tradeData.amount) {
@@ -44,6 +42,16 @@ export const openTrade = async (uid, tradeData) => {
             // Only Delivery trades have an expiration
             if (tradeData.type === 'delivery') {
                 tradeRecord.expiresAt = new Date(Date.now() + parseDuration(tradeData.duration) * 1000);
+            }
+
+            // Calculate Liquidation Price for Perpetual
+            if (tradeData.type === 'perpetual') {
+                const buffer = 0.9; // Liquidate when 90% of margin is lost
+                if (tradeData.side === 'buy') {
+                    tradeRecord.liquidationPrice = tradeData.entryPrice * (1 - (buffer / (tradeData.leverage || 1)));
+                } else {
+                    tradeRecord.liquidationPrice = tradeData.entryPrice * (1 + (buffer / (tradeData.leverage || 1)));
+                }
             }
 
             const tradeRef = doc(collection(db, "trades"));
@@ -143,9 +151,71 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
 };
 
 /**
+ * Automatically check and close trades that have reached expiration or liquidation
+ * This is meant to be called in a heartbeat loop on the client side.
+ */
+export const checkAndAutoCloseTrades = async (uid, activeTrades, currentPrices) => {
+    const results = [];
+    const now = Date.now();
+
+    for (const trade of activeTrades) {
+        if (trade.uid !== uid || trade.status !== 'active') continue;
+
+        let shouldClose = false;
+        let reason = "";
+
+        // 1. Check Delivery Expiration
+        if (trade.type === 'delivery' && trade.expiresAt) {
+            if (now >= trade.expiresAt.getTime()) {
+                shouldClose = true;
+                reason = "expiration";
+            }
+        }
+
+        // 2. Check Perpetual Liquidation
+        if (trade.type === 'perpetual' && trade.liquidationPrice) {
+            const currentPrice = currentPrices[trade.asset];
+            if (currentPrice) {
+                const isLiquidated = trade.side === 'buy'
+                    ? currentPrice <= trade.liquidationPrice
+                    : currentPrice >= trade.liquidationPrice;
+
+                if (isLiquidated) {
+                    shouldClose = true;
+                    reason = "liquidation";
+                }
+            }
+        }
+
+        if (shouldClose) {
+            try {
+                const currentPrice = currentPrices[trade.asset] || trade.entryPrice;
+                const result = await closeTrade(
+                    trade.id,
+                    uid,
+                    trade.side,
+                    trade.entryPrice,
+                    currentPrice,
+                    trade.amount,
+                    trade.profitPercent,
+                    trade.type,
+                    trade.leverage
+                );
+                results.push({ tradeId: trade.id, success: true, reason, result });
+            } catch (error) {
+                console.error(`Failed to auto-close trade ${trade.id}:`, error);
+                results.push({ tradeId: trade.id, success: false, error: error.message });
+            }
+        }
+    }
+    return results;
+};
+
+/**
  * Parse duration string to seconds
  */
 function parseDuration(dur) {
+    if (typeof dur === 'number') return dur;
     if (dur.endsWith("s")) return parseInt(dur);
     if (dur.endsWith("m")) return parseInt(dur) * 60;
     return 60;

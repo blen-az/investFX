@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { openTrade } from "../services/tradeService";
+import { openTrade, checkAndAutoCloseTrades } from "../services/tradeService";
+import { getCryptoPrices } from "../services/priceService";
 import TradingChart from "../components/TradingChart";
 import ActiveTradeModal from "../components/ActiveTradeModal";
 import AlertModal from "../components/AlertModal";
@@ -8,7 +9,7 @@ import Positions from "../components/Positions";
 import coinList from "../data/coinList";
 import "./TradeBinary.css";
 
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, collection, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function Trade() {
@@ -33,20 +34,63 @@ export default function Trade() {
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
   const [leverage, setLeverage] = useState(1);
   const [tradeAmount, setTradeAmount] = useState(10);
+  const [allPrices, setAllPrices] = useState({});
+  const [fundingRate, setFundingRate] = useState(0.01);
+  const [activeTrades, setActiveTrades] = useState([]);
 
   const map = coinList;
 
-  // Subscribe to trading balance
+  // Subscribe to trading balance and active trades
   useEffect(() => {
     if (!user) return;
-    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+    const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
         setTradingBalance(data.tradingBalance !== undefined ? data.tradingBalance : 0);
       }
     });
-    return () => unsub();
+
+    const tradesQuery = query(
+      collection(db, "trades"),
+      where("uid", "==", user.uid),
+      where("status", "==", "active")
+    );
+    const unsubTrades = onSnapshot(tradesQuery, (snapshot) => {
+      const trades = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        expiresAt: doc.data().expiresAt?.toDate(),
+        createdAt: doc.data().createdAt?.toDate()
+      }));
+      setActiveTrades(trades);
+    });
+
+    return () => {
+      unsubWallet();
+      unsubTrades();
+    };
   }, [user]);
+
+  // Heartbeat monitoring for liquidation and expiration
+  useEffect(() => {
+    if (!user || activeTrades.length === 0) return;
+
+    const heartbeat = setInterval(async () => {
+      try {
+        const prices = await getCryptoPrices();
+        setAllPrices(prices);
+
+        // Only run if there's someone to check
+        if (activeTrades.length > 0) {
+          await checkAndAutoCloseTrades(user.uid, activeTrades, prices);
+        }
+      } catch (error) {
+        console.error("Heartbeat error:", error);
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(heartbeat);
+  }, [user, activeTrades]);
 
   // Update time every second
   useEffect(() => {
@@ -204,6 +248,10 @@ export default function Trade() {
               <div className="stat-item">
                 <span className="stat-label">24H</span>
                 <span className="stat-value">{volume24h.toFixed(0)}</span>
+              </div>
+              <div className="stat-item funding-stat">
+                <span className="stat-label">Funding</span>
+                <span className="stat-value highlight">{fundingRate}%</span>
               </div>
             </div>
           </div>

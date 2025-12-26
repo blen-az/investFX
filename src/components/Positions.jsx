@@ -144,9 +144,19 @@ export default function Positions({ currentPrice, currentCoin }) {
 
                                 // PnL Calculation for Perpetual
                                 let pnl = 0;
+                                let pnlPercent = 0;
                                 if (trade.type === 'perpetual' && trade.asset === currentCoin) {
                                     const priceDeltaPercent = (currentPrice - trade.entryPrice) / trade.entryPrice;
                                     pnl = priceDeltaPercent * trade.amount * trade.leverage * (trade.side === "buy" ? 1 : -1);
+                                    pnlPercent = priceDeltaPercent * trade.leverage * (trade.side === "buy" ? 1 : -1) * 100;
+                                }
+
+                                // Risk Level Calculation for Perpetual
+                                let riskLevel = 0; // 0 to 100
+                                if (trade.type === 'perpetual' && trade.liquidationPrice && trade.asset === currentCoin) {
+                                    const distToLiq = Math.abs(currentPrice - trade.liquidationPrice);
+                                    const entryToLiq = Math.abs(trade.entryPrice - trade.liquidationPrice);
+                                    riskLevel = Math.min(100, Math.max(0, (1 - (distToLiq / entryToLiq)) * 100));
                                 }
 
                                 return (
@@ -178,10 +188,12 @@ export default function Positions({ currentPrice, currentCoin }) {
                                             </div>
                                             <div className="detail-col">
                                                 <span className="label">
-                                                    {trade.type === 'perpetual' ? 'Live P&L:' : 'Take Profit:'}
+                                                    {trade.type === 'perpetual' ? 'Real-time P&L:' : 'Take Profit:'}
                                                 </span>
                                                 <span className={`value ${trade.type === 'perpetual' ? (pnl >= 0 ? 'positive' : 'negative') : ''}`}>
-                                                    {trade.type === 'perpetual' ? `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}` : `+${trade.profitPercent}%`}
+                                                    {trade.type === 'perpetual'
+                                                        ? `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} (${pnlPercent.toFixed(2)}%)`
+                                                        : `+${trade.profitPercent}%`}
                                                 </span>
                                             </div>
                                         </div>
@@ -200,9 +212,17 @@ export default function Positions({ currentPrice, currentCoin }) {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="perpetual-actions">
-                                                <div className="liq-price-mini">
-                                                    Liq. Price: ${(trade.entryPrice * (1 - (1 / trade.leverage) * 0.9)).toFixed(2)}
+                                            <div className="perpetual-info-container">
+                                                <div className="perpetual-row">
+                                                    <div className="liq-price-mini">
+                                                        Liq. Price: <span className="warning">${(trade.liquidationPrice || (trade.entryPrice * (1 - (1 / trade.leverage) * 0.9))).toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="risk-indicator">
+                                                        Risk: <span className={`risk-value ${riskLevel > 70 ? 'critical' : riskLevel > 40 ? 'warning' : 'safe'}`}>{riskLevel.toFixed(0)}%</span>
+                                                    </div>
+                                                </div>
+                                                <div className="risk-bar-container">
+                                                    <div className={`risk-bar-fill ${riskLevel > 70 ? 'critical' : riskLevel > 40 ? 'warning' : 'safe'}`} style={{ width: `${riskLevel}%` }}></div>
                                                 </div>
                                                 <button
                                                     className="close-pos-btn"

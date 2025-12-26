@@ -91,6 +91,15 @@
     font-family: 'JetBrains Mono', monospace;
 }
 
+.stat-value.highlight {
+    color: #06b6d4;
+}
+
+.funding-stat {
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 12px;
+}
+
 /* Timeframe Selector */
 .timeframe-selector {
     display: flex;
