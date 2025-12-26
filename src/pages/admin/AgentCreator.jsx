@@ -119,7 +119,7 @@ export default function AgentCreator() {
             <div className="page-header">
                 <div>
                     <h1 className="page-title gradient-text">Agent Management</h1>
-                    <p className="page-subtitle">Create new agents or upgrade existing users</p>
+                    <p className="page-subtitle">Upgrade existing users to agents</p>
                 </div>
 
             </div>
