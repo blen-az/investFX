@@ -148,10 +148,10 @@ export default function Home() {
         <div className="glass-card">
           <div className="action-buttons">
             <Link to="/deposit" className="btn deposit">
-              ➕ Deposit
+              ➕ Quick Deposit
             </Link>
             <Link to="/withdraw" className="btn withdraw">
-              ➖ Withdraw
+              ➖ Quick Withdraw
             </Link>
           </div>
         </div>
