@@ -36,23 +36,35 @@ export default function AgentCreator() {
     };
 
     const handleUpgradeToAgent = async (userId) => {
-        if (window.confirm("Are you sure you want to upgrade this user to an agent?")) {
-            try {
-                setUpgrading(prev => new Set(prev).add(userId));
-                await setUserRole(userId, "agent");
-                alert("User upgraded to agent successfully!");
-                await loadUsers();
-            } catch (error) {
-                console.error("Error upgrading user:", error);
-                alert("Failed to upgrade user: " + error.message);
-            } finally {
-                setUpgrading(prev => {
-                    const newSet = new Set(prev);
-                    newSet.delete(userId);
-                    return newSet;
-                });
-            }
+        console.log("👉 Upgrade button clicked for user:", userId);
+
+        if (!userId) {
+            alert("Error: User ID is missing");
+            return;
         }
+
+        // Removed window.confirm to debug "button not working" reports
+        // if (window.confirm("Are you sure you want to upgrade this user to an agent?")) {
+        try {
+            setUpgrading(prev => new Set(prev).add(userId));
+            console.log("Starting setUserRole...");
+
+            const result = await setUserRole(userId, "agent");
+            console.log("setUserRole success:", result);
+
+            alert(`Success! User upgraded to agent.\nRole: ${result.role}\nReferral Code: ${result.referralCode || 'None'}`);
+            await loadUsers();
+        } catch (error) {
+            console.error("Error upgrading user:", error);
+            alert("Failed to upgrade user: " + error.message);
+        } finally {
+            setUpgrading(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(userId);
+                return newSet;
+            });
+        }
+        // }
     };
 
     const handleCreateAgent = async (e) => {
