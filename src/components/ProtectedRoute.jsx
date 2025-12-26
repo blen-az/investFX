@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ROLES } from "../constants/roles";
 
-export default function ProtectedRoute({ children, requiredRole }) {
+export default function ProtectedRoute({ children, requiredRole, allowedRoles }) {
     const { user, userRole, emailVerified, loading } = useAuth();
 
     if (loading) {
@@ -27,19 +27,13 @@ export default function ProtectedRoute({ children, requiredRole }) {
     }
 
     // Check role requirement
-    if (requiredRole) {
-        // Admin can access everything
-        if (userRole === ROLES.ADMIN) {
-            return children;
-        }
+    if (requiredRole || (allowedRoles && allowedRoles.length > 0)) {
+        const hasAccess =
+            (requiredRole && userRole === requiredRole) ||
+            (allowedRoles && allowedRoles.includes(userRole)) ||
+            userRole === ROLES.ADMIN; // Admin always has access
 
-        // Agent can access agent routes
-        if (requiredRole === ROLES.AGENT && userRole === ROLES.AGENT) {
-            return children;
-        }
-
-        // User can access user routes
-        if (requiredRole === ROLES.USER && userRole === ROLES.USER) {
+        if (hasAccess) {
             return children;
         }
 
