@@ -1,5 +1,6 @@
 // src/pages/agent/AgentDashboard.jsx
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import StatsCard from "../../components/StatsCard";
 import { generateReferralLink, getAgentStats, getAgentReferralCode } from "../../services/agentService";
@@ -179,7 +180,7 @@ export default function AgentDashboard() {
                     <div className="referral-icon">🔗</div>
                     <div>
                         <h2 className="referral-title">Your Referral Link</h2>
-                        <p className="referral-subtitle">Share this link to earn 40% commission on deposits</p>
+                        <p className="referral-subtitle">Share this link to earn 4% commission on deposits</p>
                     </div>
                 </div>
 
@@ -215,35 +216,35 @@ export default function AgentDashboard() {
             <div className="agent-quick-actions">
                 <h2 className="section-title">Quick Actions</h2>
                 <div className="action-grid">
-                    <a href="/agent/referrals" className="action-card">
+                    <Link to="/agent/referrals" className="action-card glass-card">
                         <div className="action-icon">👥</div>
                         <div className="action-title">View Referrals</div>
                         <div className="action-desc">See all users you've referred</div>
-                    </a>
+                    </Link>
 
-                    <a href="/agent/commissions" className="action-card">
+                    <Link to="/agent/commissions" className="action-card glass-card">
                         <div className="action-icon">💰</div>
                         <div className="action-title">Commission History</div>
                         <div className="action-desc">View detailed earnings breakdown</div>
-                    </a>
+                    </Link>
 
-                    <a href="/agent/chats" className="action-card">
+                    <Link to="/agent/chats" className="action-card glass-card">
                         <div className="action-icon">💬</div>
                         <div className="action-title">Chats</div>
                         <div className="action-desc">Message your referrals</div>
-                    </a>
+                    </Link>
 
-                    <a href="/agent/withdraw" className="action-card">
+                    <Link to="/agent/withdraw" className="action-card glass-card">
                         <div className="action-icon">💸</div>
                         <div className="action-title">Withdraw</div>
                         <div className="action-desc">Request withdrawals</div>
-                    </a>
+                    </Link>
 
-                    <a href="/agent/settings" className="action-card">
+                    <Link to="/agent/settings" className="action-card glass-card">
                         <div className="action-icon">⚙️</div>
                         <div className="action-title">Settings</div>
                         <div className="action-desc">Manage your profile</div>
-                    </a>
+                    </Link>
                 </div>
             </div>
 
@@ -255,7 +256,7 @@ export default function AgentDashboard() {
                     <ul className="info-list">
                         <li>Share your referral link with friends</li>
                         <li>They sign up using your link</li>
-                        <li>When they make a deposit, you earn 40% commission</li>
+                        <li>When they make a deposit, you earn 4% commission</li>
                         <li>Commissions are added to your balance automatically</li>
                         <li>Withdraw your earnings anytime</li>
                     </ul>

@@ -104,7 +104,7 @@ export default function Referrals() {
                     <div className="referral-icon">🔗</div>
                     <div>
                         <h2 className="referral-title">Your Referral Link</h2>
-                        <p className="referral-subtitle">Share this link to earn 40% commission</p>
+                        <p className="referral-subtitle">Share this link to earn 4% commission</p>
                     </div>
                 </div>
 

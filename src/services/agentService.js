@@ -90,7 +90,7 @@ export const getCommissionHistory = async (agentId) => {
     }
 };
 
-// Get agent's referral code
+// Get agent's referral code (auto-generate if missing)
 export const getAgentReferralCode = async (agentId) => {
     try {
         const userRef = doc(db, "users", agentId);
@@ -100,7 +100,27 @@ export const getAgentReferralCode = async (agentId) => {
             throw new Error("Agent not found");
         }
 
-        return userSnap.data().referralCode || null;
+        const data = userSnap.data();
+
+        // If code exists, return it
+        if (data.referralCode) {
+            return data.referralCode;
+        }
+
+        // If no code, check if they are actually an agent
+        if (data.role === 'agent') {
+            console.log("Agent missing referral code, generating one...");
+            const { generateUniqueReferralCode } = await import("./authService");
+            const newCode = await generateUniqueReferralCode();
+
+            await import("firebase/firestore").then(({ updateDoc }) => {
+                updateDoc(userRef, { referralCode: newCode });
+            });
+
+            return newCode;
+        }
+
+        return null;
     } catch (error) {
         console.error("Error fetching referral code:", error);
         throw error;

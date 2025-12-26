@@ -2,7 +2,8 @@
 import { auth, db } from "../firebase";
 import {
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail
 } from "firebase/auth";
 import {
     collection,
@@ -149,7 +150,7 @@ const isReferralCodeUnique = async (code) => {
 /**
  * Generate a unique referral code (retry until unique)
  */
-const generateUniqueReferralCode = async () => {
+export const generateUniqueReferralCode = async () => {
     let code = generateReferralCode();
     let attempts = 0;
 
@@ -250,6 +251,7 @@ export const setUserRole = async (uid, role) => {
  * Create an agent account (admin use only)
  */
 export const createAgent = async (email, password, name) => {
+    let secondaryApp = null;
     try {
         // Validate inputs
         if (!email || !password) {
@@ -269,15 +271,29 @@ export const createAgent = async (email, password, name) => {
             throw new Error("An account with this email already exists");
         }
 
-        // Create Firebase Auth account
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // DYNAMICALY IMPORT to avoid circular deps or init issues
+        const { initializeApp, deleteApp } = await import("firebase/app");
+        const { getAuth: getSecondaryAuth, createUserWithEmailAndPassword: createSecondaryUser } = await import("firebase/auth");
+
+        // Initialize a secondary app instance to avoid logging out the admin
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTdhyBMYdpOy3a7SDYHyXmFJPgD5Ao7nA",
+            authDomain: "investfx-1faf1.firebaseapp.com",
+            projectId: "investfx-1faf1",
+            storageBucket: "investfx-1faf1.firebasestorage.app",
+            messagingSenderId: "310036681524",
+            appId: "1:310036681524:web:7937a954a237d15c030b61"
+        };
+
+        secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        const secondaryAuth = getSecondaryAuth(secondaryApp);
+
+        // Create Firebase Auth account on the secondary app
+        const userCredential = await createSecondaryUser(secondaryAuth, email, password);
         const uid = userCredential.user.uid;
 
-        // Create user document with "agent" role
+        // Create user document with "agent" role using the MAIN db connection (admin permissions)
         await createUserDocument(uid, email, name, "agent");
-
-        // Sign out the newly created user (so admin stays logged in)
-        await auth.signOut();
 
         return {
             success: true,
@@ -288,7 +304,6 @@ export const createAgent = async (email, password, name) => {
     } catch (error) {
         console.error("Error creating agent:", error);
 
-        // Provide user-friendly error messages
         if (error.code === "auth/email-already-in-use") {
             throw new Error("This email is already in use");
         } else if (error.code === "auth/invalid-email") {
@@ -298,6 +313,12 @@ export const createAgent = async (email, password, name) => {
         }
 
         throw error;
+    } finally {
+        // Cleanup the secondary app
+        if (secondaryApp) {
+            const { deleteApp } = await import("firebase/app");
+            await deleteApp(secondaryApp);
+        }
     }
 };
 
@@ -316,6 +337,19 @@ export const getUserRole = async (uid) => {
         return userSnap.data().role || "user";
     } catch (error) {
         console.error("Error getting user role:", error);
+        throw error;
+    }
+};
+
+/**
+ * Send password reset email
+ */
+export const resetPassword = async (email) => {
+    try {
+        await sendPasswordResetEmail(auth, email);
+        return { success: true, message: "Password reset email sent" };
+    } catch (error) {
+        console.error("Error sending password reset email:", error);
         throw error;
     }
 };

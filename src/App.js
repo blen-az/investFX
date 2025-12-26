@@ -44,6 +44,7 @@ const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 // Auth Pages (Lazy Loaded)
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 
 // Admin Pages (Lazy Loaded)
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -87,6 +88,7 @@ export default function App() {
                 {/* AUTH ROUTES */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
                 {/* USER PROTECTED ROUTES */}
                 <Route

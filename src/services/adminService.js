@@ -446,6 +446,12 @@ export const approveWithdrawal = async (withdrawalId) => {
         }
 
         const withdrawalData = withdrawalSnap.data();
+
+        // Idempotency check
+        if (withdrawalData.status === "approved" || withdrawalData.status === "rejected") {
+            throw new Error(`Withdrawal is already ${withdrawalData.status}`);
+        }
+
         const { uid, amount, agentId } = withdrawalData;
         const withdrawalAmount = parseFloat(amount);
 
@@ -455,7 +461,7 @@ export const approveWithdrawal = async (withdrawalId) => {
 
         // Determine which balance to deduct from (User balance or Agent commission)
         const targetUid = uid || agentId;
-        const balanceField = uid ? "balance" : "commissionBalance";
+        const balanceField = uid ? "mainBalance" : "commissionBalance";
 
         if (!targetUid) {
             throw new Error("User ID or Agent ID missing from withdrawal record");
@@ -470,25 +476,41 @@ export const approveWithdrawal = async (withdrawalId) => {
         }
 
         const walletData = walletSnap.data();
-        let currentBalance = 0;
-        let finalField = balanceField;
 
-        if (balanceField === "balance") {
-            // Mapping withdrawal from generic "balance" to "mainBalance"
-            finalField = "mainBalance";
-            currentBalance = walletData.mainBalance !== undefined ? walletData.mainBalance : (walletData.balance || 0);
+        // Handle legacy "balance" vs "mainBalance"
+        let currentBalance = 0;
+        if (balanceField === "mainBalance") {
+            currentBalance = walletData.mainBalance !== undefined
+                ? walletData.mainBalance
+                : (walletData.balance || 0);
         } else {
             currentBalance = parseFloat(walletData[balanceField]) || 0;
         }
 
         if (currentBalance < withdrawalAmount) {
-            console.warn(`Insufficient ${balanceField} for withdrawal ${withdrawalId}. Current: ${currentBalance}, Request: ${withdrawalAmount}`);
+            throw new Error(`Insufficient funds. Current: ${currentBalance}, Request: ${withdrawalAmount}`);
         }
 
-        await updateDoc(walletRef, {
-            [finalField]: Math.max(0, currentBalance - withdrawalAmount),
+        const updates = {
+            [balanceField]: currentBalance - withdrawalAmount,
             updatedAt: new Date()
-        });
+        };
+
+        // If main balance, sync asset (USDT TRC20 usually)
+        if (balanceField === "mainBalance") {
+            const assets = walletData.assets || {};
+            // Assume USDT for withdrawals if not specified, or match logic
+            // Ideally we deduct specific asset, but simplified system treats mainBalance as USDT-equivalent
+            if (assets.USDT && assets.USDT.total !== undefined) {
+                assets.USDT.total = Math.max(0, assets.USDT.total - withdrawalAmount);
+                if (assets.USDT.networks?.TRC20) {
+                    assets.USDT.networks.TRC20 = Math.max(0, assets.USDT.networks.TRC20 - withdrawalAmount);
+                }
+                updates.assets = assets;
+            }
+        }
+
+        await updateDoc(walletRef, updates);
 
         // Update withdrawal status
         await updateDoc(withdrawalRef, {
@@ -542,13 +564,54 @@ export const getAllTrades = async () => {
 export const forceTradeResult = async (tradeId, result, pnl) => {
     try {
         const tradeRef = doc(db, "trades", tradeId);
-        await updateDoc(tradeRef, {
+        const tradeSnap = await getDoc(tradeRef);
+
+        if (!tradeSnap.exists()) {
+            throw new Error("Trade not found");
+        }
+
+        const tradeData = tradeSnap.data();
+
+        // Idempotency check
+        if (tradeData.status === "closed") {
+            throw new Error("Trade is already closed");
+        }
+
+        const updates = {
             status: "closed",
             result: result,
             pnl: pnl,
             closedAt: new Date(),
-            forcedBy: "admin" // In production, use actual admin UID
-        });
+            forcedBy: "admin"
+        };
+
+        // Handle wallet update
+        if (result === "win" || result === "tie") {
+            const walletRef = doc(db, "wallets", tradeData.uid);
+            const walletSnap = await getDoc(walletRef);
+
+            if (walletSnap.exists()) {
+                const walletData = walletSnap.data();
+                const currentBalance = walletData.tradingBalance || 0;
+
+                // Calculate return amount
+                // If Win: Principal + PnL
+                // If Tie: Principal only (PnL is usually 0 but we ignore it for safety or add it if strictly 0)
+                let returnAmount = 0;
+                if (result === "win") {
+                    returnAmount = (parseFloat(tradeData.amount) || 0) + (parseFloat(pnl) || 0);
+                } else if (result === "tie") {
+                    returnAmount = parseFloat(tradeData.amount) || 0;
+                }
+
+                await updateDoc(walletRef, {
+                    tradingBalance: currentBalance + returnAmount,
+                    updatedAt: new Date()
+                });
+            }
+        }
+
+        await updateDoc(tradeRef, updates);
         return { success: true };
     } catch (error) {
         console.error("Error forcing trade result:", error);
