@@ -110,11 +110,14 @@ export const verifyOTP = async (uid, code) => {
         }
 
         // Mark user as verified in their document
+        // Use setDoc with merge: true instead of updateDoc in case the document 
+        // wasn't created during signup due to a network glitch (resilient signup)
         const userRef = doc(db, "users", uid);
-        await updateDoc(userRef, {
+        await setDoc(userRef, {
             emailVerified: true,
+            email: data.email, // Ensure email is present if doc is new
             updatedAt: serverTimestamp()
-        });
+        }, { merge: true });
 
         // Clean up: delete the code
         await deleteDoc(doc(db, "verificationCodes", snapshot.docs[0].id));
