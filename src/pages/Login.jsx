@@ -22,6 +22,7 @@ export default function Login() {
         return;
       }
 
+      console.log("Login Redirect Check:", { userRole, isAdmin: userRole === ROLES.ADMIN, isAgent: userRole === ROLES.AGENT });
       if (userRole === ROLES.ADMIN) {
         navigate("/admin/dashboard", { replace: true });
       } else if (userRole === ROLES.AGENT) {

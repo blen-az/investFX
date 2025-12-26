@@ -7,7 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, onSnapshot, query, collection, where, getDocs, limit } from "firebase/firestore";
 import { ROLES } from "../constants/roles";
 import { sendOTP, verifyOTP } from "../services/authService";
 
@@ -95,32 +95,54 @@ export function AuthProvider({ children }) {
       const user = userCredential.user;
       console.log(`✅ Auth user created: ${user.uid}`);
 
-      console.log('Step 2: Creating Firestore user document...');
+      console.log('Step 2: Resolving referral code if provided...');
+      let referrerId = null;
+      if (referralCode) {
+        try {
+          const agentsQuery = query(
+            collection(db, "users"),
+            where("referralCode", "==", referralCode.toUpperCase()),
+            limit(1)
+          );
+          const agentSnapshot = await getDocs(agentsQuery);
+          if (!agentSnapshot.empty) {
+            referrerId = agentSnapshot.docs[0].id;
+            console.log(`✅ Resolved referral code ${referralCode} to UID: ${referrerId}`);
+          } else {
+            console.warn(`⚠️ Invalid referral code provided: ${referralCode}`);
+          }
+        } catch (err) {
+          console.error("Error resolving referral code:", err);
+        }
+      }
+
+      console.log('Step 3: Creating Firestore user document...');
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
-        name: name || email.split('@')[0], // Use provided name or email username
+        name: name || email.split('@')[0],
         role: ROLES.USER,
-        kycStatus: "unverified", // Legacy field
-        verification: {          // New standardized structure
+        kycStatus: "unverified",
+        verification: {
           status: "unverified",
           submittedAt: null,
           idFrontUrl: null,
           idBackUrl: null
         },
-        referredBy: referralCode || null,
+        referredBy: referrerId, // Now correctly stores the agent's UID
+        referralCodeUsed: referralCode || null,
         frozen: false,
-        emailVerified: false, // New users start unverified
+        emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date()
       });
       console.log('✅ User document created');
 
-      console.log('Step 2.5: Sending initial OTP...');
+      console.log('Step 3.5: Sending initial OTP...');
       await sendOTP(user.uid, email, name || email.split('@')[0]);
       console.log('✅ Initial OTP sent');
 
-      console.log('Step 3: Creating wallet document...');
+      console.log('Step 4: Creating wallet document...');
       await setDoc(doc(db, "wallets", user.uid), {
         uid: user.uid,
         balance: 0,           // Legacy

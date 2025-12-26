@@ -10,9 +10,9 @@ export default function AdminCommissions() {
     const [commissions, setCommissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
-        adminProfit: 0,         // 50%
-        agentCommissions: 0,    // 40%
-        builderFees: 0,         // 10%
+        adminProfit: 0,         // 5%
+        agentCommissions: 0,    // 4%
+        builderFees: 0,         // 1%
         totalDeposits: 0
     });
 
@@ -62,15 +62,15 @@ export default function AdminCommissions() {
             setCommissions(history);
 
             // Calculate stats
-            const adminProfit = history.reduce((sum, c) => sum + (c.platformProfit || 0), 0);      // 50%
-            const agentCommissions = history.reduce((sum, c) => sum + (c.agentCommission || 0), 0); // 40%
-            const builderFees = history.reduce((sum, c) => sum + (c.platformFee || 0), 0);          // 10%
+            const adminProfit = history.reduce((sum, c) => sum + (c.platformProfit || 0), 0);      // 5%
+            const agentCommissions = history.reduce((sum, c) => sum + (c.agentCommission || 0), 0); // 4%
+            const builderFees = history.reduce((sum, c) => sum + (c.platformFee || 0), 0);          // 1%
             const totalDeposits = history.reduce((sum, c) => sum + (c.depositAmount || 0), 0);
 
             setStats({
-                adminProfit,      // 50% of deposits
-                agentCommissions, // 40% of deposits
-                builderFees,      // 10% of deposits
+                adminProfit,      // 5% of deposits
+                agentCommissions, // 4% of deposits
+                builderFees,      // 1% of deposits
                 totalDeposits
             });
         } catch (error) {
@@ -101,7 +101,7 @@ export default function AdminCommissions() {
             render: (value) => `$${value?.toFixed(2) || '0.00'}`
         },
         {
-            header: "Platform Fee (10%)",
+            header: "Platform Fee (1%)",
             key: "platformFee",
             render: (value) => (
                 <span style={{ color: '#f8fafc' }}>
@@ -110,7 +110,7 @@ export default function AdminCommissions() {
             )
         },
         {
-            header: "Agent Cut (40%)",
+            header: "Agent Cut (4%)",
             key: "agentCommission",
             render: (value) => (
                 <span style={{ color: '#10b981', fontWeight: 600 }}>
@@ -119,7 +119,7 @@ export default function AdminCommissions() {
             )
         },
         {
-            header: "Admin Profit (50%)",
+            header: "Admin Profit (5%)",
             key: "platformProfit",
             render: (value) => (
                 <span style={{ color: '#3b82f6', fontWeight: 600 }}>
@@ -169,7 +169,7 @@ export default function AdminCommissions() {
                 <div className="stat-card glass-card">
                     <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>👑</div>
                     <div className="stat-content">
-                        <div className="stat-label">Admin Profit (50%)</div>
+                        <div className="stat-label">Admin Profit (5%)</div>
                         <div className="stat-value" style={{ color: '#3b82f6' }}>
                             ${stats.adminProfit?.toFixed(2) || '0.00'}
                         </div>
@@ -178,7 +178,7 @@ export default function AdminCommissions() {
                 <div className="stat-card glass-card">
                     <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>🔧</div>
                     <div className="stat-content">
-                        <div className="stat-label">Builder Fees (10%)</div>
+                        <div className="stat-label">Builder Fees (1%)</div>
                         <div className="stat-value" style={{ color: '#f59e0b' }}>
                             ${stats.builderFees?.toFixed(2) || '0.00'}
                         </div>
@@ -187,7 +187,7 @@ export default function AdminCommissions() {
                 <div className="stat-card glass-card">
                     <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>👥</div>
                     <div className="stat-content">
-                        <div className="stat-label">Agent Commissions (40%)</div>
+                        <div className="stat-label">Agent Commissions (4%)</div>
                         <div className="stat-value" style={{ color: '#10b981' }}>
                             ${stats.agentCommissions?.toFixed(2) || '0.00'}
                         </div>
@@ -205,6 +205,6 @@ export default function AdminCommissions() {
             </div>
 
             <DataTable columns={columns} data={commissions} />
-        </div>
+        </div >
     );
 }

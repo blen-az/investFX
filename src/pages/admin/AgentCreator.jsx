@@ -228,7 +228,7 @@ export default function AgentCreator() {
                 <div className="info-icon">ℹ️</div>
                 <div>
                     <div className="info-title">Agent Benefits</div>
-                    <div className="info-text">Agents earn 40% commission on referred user deposits</div>
+                    <div className="info-text">Agents earn 4% commission on referred user deposits</div>
                 </div>
             </div>
 
