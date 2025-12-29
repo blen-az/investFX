@@ -29,7 +29,6 @@ export default function Trade() {
   const [priceChange, setPriceChange] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTrade, setActiveTrade] = useState(null);
-  const [activeMainTab, setActiveMainTab] = useState("trade"); // trade | positions
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '' });
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
   const [leverage, setLeverage] = useState(1);
@@ -148,8 +147,8 @@ export default function Trade() {
           startTime: new Date(),
         });
       } else {
-        // For perpetual, maybe show a small toast or just switch to positions tab
-        setActiveMainTab('positions');
+        // For perpetual, maybe show a small toast or just auto-scroll
+        console.log("Perpetual trade opened");
       }
     } catch (error) {
       console.error("Error opening trade:", error);
@@ -181,191 +180,173 @@ export default function Trade() {
 
   return (
     <div className="trade-page binary-options-style">
-      {/* Top Main Tabs */}
-      <div className="trade-main-tabs">
+      {/* Contract Type Tabs */}
+      <div className="contract-type-tabs">
         <button
-          className={`main-tab-btn ${activeMainTab === 'trade' ? 'active' : ''}`}
-          onClick={() => setActiveMainTab('trade')}
+          className={`contract-tab ${contractType === 'delivery' ? 'active' : ''}`}
+          onClick={() => setContractType('delivery')}
         >
-          Trade
+          Delivery
         </button>
         <button
-          className={`main-tab-btn ${activeMainTab === 'positions' ? 'active' : ''}`}
-          onClick={() => setActiveMainTab('positions')}
+          className={`contract-tab ${contractType === 'perpetual' ? 'active' : ''}`}
+          onClick={() => setContractType('perpetual')}
         >
-          Positions
+          Perpetual
         </button>
       </div>
 
-      {activeMainTab === "trade" && (
-        <div className="contract-type-tabs">
-          <button
-            className={`contract-tab ${contractType === 'delivery' ? 'active' : ''}`}
-            onClick={() => setContractType('delivery')}
-          >
-            Delivery
-          </button>
-          <button
-            className={`contract-tab ${contractType === 'perpetual' ? 'active' : ''}`}
-            onClick={() => setContractType('perpetual')}
-          >
-            Perpetual
-          </button>
+      <div className="trade-tab-content">
+        {/* Pair Display */}
+        <div className="pair-display">
+          <div className="pair-info">
+            <span className="pair-name">{coinMeta.symbol} / USDT</span>
+            <span className={`pair-change ${priceChange >= 0 ? 'positive' : 'negative'}`}>
+              {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
+            </span>
+          </div>
+          <div className="trading-balance-chip">
+            Balance: ${tradingBalance.toLocaleString()}
+          </div>
         </div>
-      )}
 
-      {activeMainTab === "trade" ? (
-        <div className="trade-tab-content">
-          {/* Pair Display */}
-          <div className="pair-display">
-            <div className="pair-info">
-              <span className="pair-name">{coinMeta.symbol} / USDT</span>
-              <span className={`pair-change ${priceChange >= 0 ? 'positive' : 'negative'}`}>
-                {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
-              </span>
-            </div>
-            <div className="trading-balance-chip">
-              Balance: ${tradingBalance.toLocaleString()}
+        {/* Price Display */}
+        <div className="price-display-section">
+          <div className="main-price">
+            <div className={`price-value ${priceChange >= 0 ? 'green' : 'red'}`}>
+              {livePrice.toFixed(2)}
             </div>
           </div>
-
-          {/* Price Display */}
-          <div className="price-display-section">
-            <div className="main-price">
-              <div className={`price-value ${priceChange >= 0 ? 'green' : 'red'}`}>
-                {livePrice.toFixed(2)}
-              </div>
+          <div className="price-stats">
+            <div className="stat-item">
+              <span className="stat-label">high</span>
+              <span className="stat-value">{highPrice.toFixed(2)}</span>
             </div>
-            <div className="price-stats">
-              <div className="stat-item">
-                <span className="stat-label">high</span>
-                <span className="stat-value">{highPrice.toFixed(2)}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">low</span>
-                <span className="stat-value">{lowPrice.toFixed(2)}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">24H</span>
-                <span className="stat-value">{volume24h.toFixed(0)}</span>
-              </div>
-              <div className="stat-item funding-stat">
-                <span className="stat-label">Funding</span>
-                <span className="stat-value highlight">{fundingRate}%</span>
-              </div>
+            <div className="stat-item">
+              <span className="stat-label">low</span>
+              <span className="stat-value">{lowPrice.toFixed(2)}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">24H</span>
+              <span className="stat-value">{volume24h.toFixed(0)}</span>
+            </div>
+            <div className="stat-item funding-stat">
+              <span className="stat-label">Funding</span>
+              <span className="stat-value highlight">{fundingRate}%</span>
             </div>
           </div>
+        </div>
 
-          {/* Timeframe Selector */}
-          <div className="timeframe-selector">
-            <button className="timeframe-btn">Time</button>
-            <button className="timeframe-btn active">1min</button>
-            <button className="timeframe-btn">5min</button>
-            <button className="timeframe-btn">30min</button>
-            <button className="timeframe-btn">1hour</button>
-            <button className="timeframe-btn">1day</button>
-            <button className="timeframe-btn">1week</button>
-            <button className="timeframe-btn">1mon</button>
-          </div>
+        {/* Timeframe Selector */}
+        <div className="timeframe-selector">
+          <button className="timeframe-btn">Time</button>
+          <button className="timeframe-btn active">1min</button>
+          <button className="timeframe-btn">5min</button>
+          <button className="timeframe-btn">30min</button>
+          <button className="timeframe-btn">1hour</button>
+          <button className="timeframe-btn">1day</button>
+          <button className="timeframe-btn">1week</button>
+          <button className="timeframe-btn">1mon</button>
+        </div>
 
-          {/* Chart Section */}
-          <div className="trade-chart-section">
-            <TradingChart
-              coinId={coinMeta.id}
-              onPrice={(price) => {
-                setLivePrice(price);
-              }}
-              onChangeCoin={(id) => {
-                setCoinMeta({
-                  id,
-                  symbol: map[id].symbol,
-                  name: map[id].name,
-                });
-              }}
+        {/* Chart Section */}
+        <div className="trade-chart-section">
+          <TradingChart
+            coinId={coinMeta.id}
+            onPrice={(price) => {
+              setLivePrice(price);
+            }}
+            onChangeCoin={(id) => {
+              setCoinMeta({
+                id,
+                symbol: map[id].symbol,
+                name: map[id].name,
+              });
+            }}
+          />
+        </div>
+
+        {/* Timestamp with OHLC */}
+        <div className="ohlc-display">
+          <span className="timeframe">(1Min)</span>
+          <span className="timestamp">{formatDateTime(currentTime)}</span>
+          <span className="ohlc-data">
+            O:{livePrice.toFixed(4)} H:{livePrice.toFixed(4)}
+          </span>
+        </div>
+
+        {/* Trade Inputs Section */}
+        <div className="trade-inputs-section">
+          <div className="input-group">
+            <label>Amount (USDT)</label>
+            <input
+              type="number"
+              value={tradeAmount}
+              onChange={(e) => setTradeAmount(Number(e.target.value))}
+              className="trade-input-field"
+              min="1"
             />
           </div>
 
-          {/* Timestamp with OHLC */}
-          <div className="ohlc-display">
-            <span className="timeframe">(1Min)</span>
-            <span className="timestamp">{formatDateTime(currentTime)}</span>
-            <span className="ohlc-data">
-              O:{livePrice.toFixed(4)} H:{livePrice.toFixed(4)}
-            </span>
-          </div>
-
-          {/* Trade Inputs Section */}
-          <div className="trade-inputs-section">
-            <div className="input-group">
-              <label>Amount (USDT)</label>
-              <input
-                type="number"
-                value={tradeAmount}
-                onChange={(e) => setTradeAmount(Number(e.target.value))}
-                className="trade-input-field"
-                min="1"
-              />
+          {contractType === 'delivery' ? (
+            <div className="trade-durations-grid">
+              {tradeDurations.map((option) => (
+                <button
+                  key={option.seconds}
+                  className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
+                  onClick={() => setSelectedDuration(option.seconds)}
+                >
+                  <div className="duration-time">{option.seconds}s</div>
+                  <div className="duration-profit">{option.profitRate}%</div>
+                </button>
+              ))}
             </div>
-
-            {contractType === 'delivery' ? (
-              <div className="trade-durations-grid">
-                {tradeDurations.map((option) => (
+          ) : (
+            <div className="leverage-selector-container">
+              <label>Leverage: {leverage}x</label>
+              <div className="leverage-grid">
+                {[1, 10, 20, 50, 100].map((val) => (
                   <button
-                    key={option.seconds}
-                    className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
-                    onClick={() => setSelectedDuration(option.seconds)}
+                    key={val}
+                    className={`lev-btn ${leverage === val ? 'active' : ''}`}
+                    onClick={() => setLeverage(val)}
                   >
-                    <div className="duration-time">{option.seconds}s</div>
-                    <div className="duration-profit">{option.profitRate}%</div>
+                    {val}x
                   </button>
                 ))}
               </div>
-            ) : (
-              <div className="leverage-selector-container">
-                <label>Leverage: {leverage}x</label>
-                <div className="leverage-grid">
-                  {[1, 10, 20, 50, 100].map((val) => (
-                    <button
-                      key={val}
-                      className={`lev-btn ${leverage === val ? 'active' : ''}`}
-                      onClick={() => setLeverage(val)}
-                    >
-                      {val}x
-                    </button>
-                  ))}
-                </div>
-                {contractType === 'perpetual' && (
-                  <div className="trade-stats-mini">
-                    <div className="mini-stat">
-                      <span>Liquidation Price:</span>
-                      <span className="liq-value">
-                        ${(livePrice * (1 - (1 / leverage) * 0.9)).toFixed(2)}
-                      </span>
-                    </div>
+              {contractType === 'perpetual' && (
+                <div className="trade-stats-mini">
+                  <div className="mini-stat">
+                    <span>Liquidation Price:</span>
+                    <span className="liq-value">
+                      ${(livePrice * (1 - (1 / leverage) * 0.9)).toFixed(2)}
+                    </span>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Transaction Mode Label */}
-          <div className="transaction-mode-label">Transaction mode</div>
-
-          {/* Buy/Sell Buttons */}
-          <div className="trade-action-buttons">
-            <button className="trade-action-btn buy-btn" onClick={() => handleTradeStart('up')}>
-              BUY / UP
-            </button>
-            <button className="trade-action-btn sell-btn" onClick={() => handleTradeStart('down')}>
-              SELL / DOWN
-            </button>
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="positions-tab-content">
-          <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} />
+
+        {/* Transaction Mode Label */}
+        <div className="transaction-mode-label">Transaction mode</div>
+
+        {/* Buy/Sell Buttons */}
+        <div className="trade-action-buttons">
+          <button className="trade-action-btn buy-btn" onClick={() => handleTradeStart('up')}>
+            BUY / UP
+          </button>
+          <button className="trade-action-btn sell-btn" onClick={() => handleTradeStart('down')}>
+            SELL / DOWN
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* Positions & History Section at Bottom */}
+      <div className="positions-section" style={{ marginTop: 20, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} />
+      </div>
 
       {/* ACTIVE TRADE MODAL */}
       {activeTrade && (

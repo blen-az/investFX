@@ -15,7 +15,7 @@ export default function Deposits() {
     const loadDeposits = async () => {
         try {
             setLoading(true);
-            const data = await getAllDeposits();
+            const data = await getAllDeposits("pending");
             setDeposits(data);
         } catch (error) {
             console.error("Error loading deposits:", error);
@@ -53,12 +53,12 @@ export default function Deposits() {
             key: "uid",
             render: (value, row) => {
                 // Find user details
-                const userEmail = row.userEmail || value;
-                const userName = row.userName || userEmail?.split('@')[0];
+                const userEmail = row.userEmail || "Unknown Email";
+                const userName = row.userName || userEmail?.split('@')[0] || "Unknown User";
                 return (
                     <div>
-                        <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '14px' }}>{userName}</div>
-                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{userEmail}</div>
+                        <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '14px' }}>{userEmail}</div>
+                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{userName}</div>
                     </div>
                 );
             }

@@ -57,26 +57,48 @@ export const setUserBalance = async (userId, amount, operation = "set", target =
     try {
         const walletRef = doc(db, "wallets", userId);
         const walletSnap = await getDoc(walletRef);
-        const balanceField = target === "trading" ? "tradingBalance" : "mainBalance";
+
+        // Map target names to field names
+        const fieldMap = {
+            'main': 'mainBalance',
+            'funding': 'mainBalance', // Alias
+            'trading': 'tradingBalance',
+            'futures': 'tradingBalance', // Alias
+            'spot': 'spotBalance',
+            'contract': 'contractBalance',
+            'earn': 'earnBalance',
+            'fiat': 'fiatBalance',
+            'commission': 'commissionBalance'
+        };
+
+        const balanceField = fieldMap[target.toLowerCase()] || 'mainBalance';
 
         if (!walletSnap.exists()) {
-            const initialBalance = target === "main" && operation === "set" ? amount : 0;
-            const initialTrading = target === "trading" && operation === "set" ? amount : 0;
-
-            // Create wallet if it doesn't exist
-            await setDoc(walletRef, {
+            // If wallet doesn't exist, create it with the one balance set
+            const initialData = {
                 uid: userId,
-                mainBalance: initialBalance,
-                tradingBalance: initialTrading,
+                mainBalance: 0,
+                tradingBalance: 0,
+                spotBalance: 0,
+                contractBalance: 0,
+                earnBalance: 0,
+                fiatBalance: 0,
                 commissionBalance: 0,
                 assets: {
-                    USDT: { name: 'Tether', symbol: 'USDT', total: initialBalance, networks: { "TRC20": initialBalance } },
-                    BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
-                    ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+                    USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } },
                 },
                 createdAt: new Date(),
                 updatedAt: new Date()
-            });
+            };
+
+            // Set the specific requested balance
+            initialData[balanceField] = operation === "set" ? amount : 0;
+            if (target === "main" || target === "funding") {
+                initialData.assets.USDT.total = initialData[balanceField];
+                initialData.assets.USDT.networks.TRC20 = initialData[balanceField];
+            }
+
+            await setDoc(walletRef, initialData);
             return { success: true };
         }
 
@@ -99,19 +121,16 @@ export const setUserBalance = async (userId, amount, operation = "set", target =
             updatedAt: new Date()
         };
 
-        // Synchronize with assets map for the Assets page
-        if (target === "main") {
+        // Synchronize with assets map if updating Funding/Main
+        if (balanceField === 'mainBalance') {
             const assets = walletData.assets || {
-                USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } },
-                BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
-                ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+                USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } }
             };
 
             if (!assets.USDT) assets.USDT = { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } };
 
-            // For general mainBalance updates, we treat it as USDT
+            // For general funding updates, treat as USDT
             assets.USDT.total = newBalance;
-            // Update the first available network or default to TRC20
             const firstNetwork = Object.keys(assets.USDT.networks || {})[0] || "TRC20";
             if (!assets.USDT.networks) assets.USDT.networks = {};
             assets.USDT.networks[firstNetwork] = newBalance;
@@ -180,11 +199,23 @@ export const getAllDeposits = async (status = null) => {
 
             if (depositData.uid) {
                 try {
-                    const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", depositData.uid)));
-                    if (!userDoc.empty) {
-                        const userData = userDoc.docs[0].data();
+                    // Try fetching by Doc ID first (standard)
+                    const userRef = doc(db, "users", depositData.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
                         userName = userData.name;
                         userEmail = userData.email;
+                    } else {
+                        // Fallback: Query by uid field
+                        const userQ = query(collection(db, "users"), where("uid", "==", depositData.uid));
+                        const userDocs = await getDocs(userQ);
+                        if (!userDocs.empty) {
+                            const userData = userDocs.docs[0].data();
+                            userName = userData.name;
+                            userEmail = userData.email;
+                        }
                     }
                 } catch (err) {
                     console.error("Error fetching user for deposit:", err);
@@ -407,11 +438,23 @@ export const getAllWithdrawals = async (status = null) => {
 
             if (withdrawalData.uid) {
                 try {
-                    const userDoc = await getDocs(query(collection(db, "users"), where("uid", "==", withdrawalData.uid)));
-                    if (!userDoc.empty) {
-                        const userData = userDoc.docs[0].data();
+                    // Try fetching by Doc ID first (standard)
+                    const userRef = doc(db, "users", withdrawalData.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
                         userName = userData.name;
                         userEmail = userData.email;
+                    } else {
+                        // Fallback: Query by uid field
+                        const userQ = query(collection(db, "users"), where("uid", "==", withdrawalData.uid));
+                        const userDocs = await getDocs(userQ);
+                        if (!userDocs.empty) {
+                            const userData = userDocs.docs[0].data();
+                            userName = userData.name;
+                            userEmail = userData.email;
+                        }
                     }
                 } catch (err) {
                     console.error("Error fetching user for withdrawal:", err);

@@ -16,6 +16,7 @@ export default function Users() {
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [balanceAmount, setBalanceAmount] = useState("");
     const [balanceOperation, setBalanceOperation] = useState("set");
+    const [balanceTarget, setBalanceTarget] = useState("funding");
 
     const [showAgentModal, setShowAgentModal] = useState(false);
     const [agents, setAgents] = useState([]);
@@ -71,7 +72,7 @@ export default function Users() {
                 return;
             }
 
-            await setUserBalance(selectedUser.id, amount, balanceOperation);
+            await setUserBalance(selectedUser.id, amount, balanceOperation, balanceTarget);
             setShowBalanceModal(false);
             setBalanceAmount("");
             await loadUsers();
@@ -260,13 +261,46 @@ export default function Users() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Current Balance</label>
+                        <label className="form-label">Target Wallet</label>
+                        <select
+                            className="form-input"
+                            value={balanceTarget}
+                            onChange={(e) => setBalanceTarget(e.target.value)}
+                        >
+                            <option value="funding">Funding Account</option>
+                            <option value="spot">Spot Account</option>
+                            <option value="futures">Futures Account</option>
+                            <option value="earn">Earn Account</option>
+                            <option value="contract">Contract Account</option>
+                            <option value="fiat">Fiat Account</option>
+                            <option value="commission">Commission Account</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Current Balance ({balanceTarget})</label>
                         <div className="user-info-display" style={{
                             fontSize: '18px',
                             fontWeight: '600',
                             color: '#10b981'
                         }}>
-                            ${selectedUser?.balance?.toFixed(2) || '0.00'}
+                            ${(() => {
+                                if (!selectedUser) return '0.00';
+                                // Map target to property name in user object (which comes from getAllUsers)
+                                // Note: getAllUsers currently only returns main and trading balances flattened.
+                                // We might need to look at specific props if they exist, or rely on what's available.
+                                // The User object from getAllUsers is populated with: balance (main+trading), mainBalance, tradingBalance, commissionBalance.
+                                // Spot/Earn etc might be missing from the list view data if not added to getAllUsers.
+                                // For now, we show what we have or 0 if unknown in the list view, 
+                                // BUT the operation will work correctly on backend.
+
+                                switch (balanceTarget) {
+                                    case 'funding': return selectedUser.mainBalance?.toFixed(2) || '0.00';
+                                    case 'futures': return selectedUser.tradingBalance?.toFixed(2) || '0.00';
+                                    case 'commission': return selectedUser.commissionBalance?.toFixed(2) || '0.00';
+                                    default: return '---'; // Other balances not fetched in list view yet
+                                }
+                            })()}
                         </div>
                     </div>
 
@@ -305,7 +339,14 @@ export default function Users() {
                                 color: '#06b6d4'
                             }}>
                                 {(() => {
-                                    const current = selectedUser?.balance || 0;
+                                    let current = 0;
+                                    switch (balanceTarget) {
+                                        case 'funding': current = selectedUser?.mainBalance || 0; break;
+                                        case 'futures': current = selectedUser?.tradingBalance || 0; break;
+                                        case 'commission': current = selectedUser?.commissionBalance || 0; break;
+                                        default: current = 0; // Assume 0 if not visible
+                                    }
+
                                     const amount = parseFloat(balanceAmount);
                                     if (balanceOperation === "set") return amount.toFixed(2);
                                     if (balanceOperation === "add") return (current + amount).toFixed(2);

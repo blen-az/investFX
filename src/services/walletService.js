@@ -83,12 +83,47 @@ export async function transferBetweenAccounts(userId, fromAccount, toAccount, am
             createdAt: serverTimestamp()
         });
 
-        // Update balances
-        transaction.update(walletRef, {
+        // Prepare updates
+        const updates = {
             [fromField]: fromBalance - amount,
             [toField]: toBalance + amount,
             updatedAt: serverTimestamp()
-        });
+        };
+
+        // Sync assets if funding (mainBalance) is involved
+        // We treat mainBalance as effectively USDT for simplicity in this system
+        if (fromKey === 'funding' || fromKey === 'main' || toKey === 'funding' || toKey === 'main') {
+            const assets = walletData.assets || {
+                USDT: { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } }
+            };
+
+            // Ensure USDT exists
+            if (!assets.USDT) {
+                assets.USDT = { name: 'Tether', symbol: 'USDT', total: 0, networks: { "TRC20": 0 } };
+            }
+            if (!assets.USDT.networks) {
+                assets.USDT.networks = { "TRC20": 0 };
+            }
+
+            // If moving FROM funding, reduce asset
+            if (fromKey === 'funding' || fromKey === 'main') {
+                assets.USDT.total = Math.max(0, (assets.USDT.total || 0) - amount);
+                const network = "TRC20"; // Default
+                assets.USDT.networks[network] = Math.max(0, (assets.USDT.networks[network] || 0) - amount);
+            }
+
+            // If moving TO funding, increase asset
+            if (toKey === 'funding' || toKey === 'main') {
+                assets.USDT.total = (assets.USDT.total || 0) + amount;
+                const network = "TRC20"; // Default
+                assets.USDT.networks[network] = (assets.USDT.networks[network] || 0) + amount;
+            }
+
+            updates.assets = assets;
+        }
+
+        // Update balances
+        transaction.update(walletRef, updates);
 
         return { success: true, transferId: transferRef.id };
     });

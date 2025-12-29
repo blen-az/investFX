@@ -16,15 +16,15 @@ export default function Home() {
   const [balanceHidden, setBalanceHidden] = useState(true);
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [kycStatus, setKycStatus] = useState("unverified");
 
   useEffect(() => {
     if (!user?.uid) {
-      // User not loaded yet or doesn't exist, keep waiting
       return;
     }
 
-    // User exists, fetch wallet data
-    const unsub = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
+    // Subscribe to Wallet
+    const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
         const main = data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0);
@@ -37,8 +37,38 @@ export default function Home() {
       setLoading(false);
     });
 
-    return () => unsub();
+    // Subscribe to User for KYC Status
+    const unsubUser = onSnapshot(doc(db, "users", user.uid), (doc) => {
+      if (doc.exists()) {
+        const uData = doc.data();
+        setKycStatus(uData.verification?.status || uData.kycStatus || "unverified");
+      }
+    });
+
+    return () => {
+      unsubWallet();
+      unsubUser();
+    };
   }, [user]);
+
+  // ... fetch effects ...
+
+  const getBadge = () => {
+    // Basic inline styles for simplicity since we want it to look good immediately without new CSS file
+    const baseStyle = { fontSize: '11px', padding: '3px 8px', borderRadius: '4px', marginLeft: '8px', fontWeight: '700', textDecoration: 'none' };
+
+    if (kycStatus === "verified")
+      return <span style={{ ...baseStyle, background: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}>Verified</span>;
+    if (kycStatus === "pending")
+      return <span style={{ ...baseStyle, background: 'rgba(234, 179, 8, 0.2)', color: '#fbbf24' }}>In Review</span>;
+
+    // Unverified
+    return (
+      <Link to="/profile?tab=kyc" style={{ ...baseStyle, background: '#eab308', color: '#000' }}>
+        Verify Now
+      </Link>
+    );
+  };
 
   useEffect(() => {
     fetch("https://api.coingecko.com/api/v3/search/trending")
@@ -108,18 +138,30 @@ export default function Home() {
 
   return (
     <div className="fx-home">
-      {/* MOBILE AVATAR HEADER - Hidden on Desktop */}
-      <div className="mobile-avatar-header">
-        <div className="mobile-logo">
-          <span className="logo-icon">⚡</span>
-          <span className="logo-text">AvaTrade</span>
+      {/* HEADER - Updated to include Name and Badge */}
+      <div className="mobile-avatar-header" style={{ justifyContent: 'space-between', padding: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="avatar-circle">
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="Profile" />
+            ) : (
+              <span>{(user?.displayName || user?.email || 'U')[0].toUpperCase()}</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '16px', fontWeight: '700', color: '#f1f5f9' }}>
+              {user?.displayName || "Trader"}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: '2px' }}>
+              <span style={{ fontSize: '11px', color: '#94a3b8' }}>ID: {user?.uid?.slice(0, 8)}</span>
+              {getBadge()}
+            </div>
+          </div>
         </div>
-        <div className="avatar-circle">
-          {user?.photoURL ? (
-            <img src={user.photoURL} alt="Profile" />
-          ) : (
-            <span>{(user?.displayName || user?.email || 'U')[0].toUpperCase()}</span>
-          )}
+
+        {/* Logo/Brand on right or hidden if minimal */}
+        <div className="mobile-logo" style={{ marginRight: 0 }}>
+          <span className="logo-icon">⚡</span>
         </div>
       </div>
 

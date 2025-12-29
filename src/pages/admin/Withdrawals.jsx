@@ -15,7 +15,7 @@ export default function Withdrawals() {
     const loadWithdrawals = async () => {
         try {
             setLoading(true);
-            const data = await getAllWithdrawals();
+            const data = await getAllWithdrawals("pending");
             setWithdrawals(data);
         } catch (error) {
             console.error("Error loading withdrawals:", error);
@@ -52,12 +52,12 @@ export default function Withdrawals() {
             header: "User",
             key: "uid",
             render: (value, row) => {
-                const userEmail = row.userEmail || value;
-                const userName = row.userName || userEmail?.split('@')[0];
+                const userEmail = row.userEmail || "Unknown Email";
+                const userName = row.userName || userEmail?.split('@')[0] || "Unknown User";
                 return (
                     <div>
-                        <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '14px' }}>{userName}</div>
-                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{userEmail}</div>
+                        <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '14px' }}>{userEmail}</div>
+                        <div style={{ fontSize: '12px', color: '#94a3b8' }}>{userName}</div>
                     </div>
                 );
             }

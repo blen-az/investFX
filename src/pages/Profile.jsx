@@ -25,6 +25,7 @@ export default function Profile() {
 
   // KYC State
   const [kycStatus, setKycStatus] = useState("unverified");
+  const [rejectionReason, setRejectionReason] = useState(null);
   const [idFrontFile, setIdFrontFile] = useState(null);
   const [idBackFile, setIdBackFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -62,6 +63,7 @@ export default function Profile() {
         // Priority: New verification object -> Legacy kycStatus field -> Default to unverified
         const status = userData.verification?.status || userData.kycStatus || "unverified";
         setKycStatus(status);
+        setRejectionReason(userData.verification?.rejectionReason || null);
       }
     });
 
@@ -127,6 +129,7 @@ export default function Profile() {
   const getBadge = () => {
     if (kycStatus === "verified") return <span className="profile-badge status-verified">Verified</span>;
     if (kycStatus === "pending") return <span className="profile-badge status-pending">In Review</span>;
+    if (kycStatus === "rejected") return <span className="profile-badge status-rejected" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>Rejected</span>;
     return <span className="profile-badge status-unverified">Unverified</span>;
   };
 
@@ -235,7 +238,27 @@ export default function Profile() {
                 Status: <span className={`status-val ${kycStatus}`}>{kycStatus.toUpperCase()}</span>
               </div>
 
-              {kycStatus === 'unverified' && (
+              {kycStatus === 'rejected' && (
+                <div className="status-message rejected-box" style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginTop: '20px',
+                  textAlign: 'center'
+                }}>
+                  <span style={{ fontSize: '32px', display: 'block', marginBottom: '10px' }}>❌</span>
+                  <h4 style={{ color: '#ef4444', margin: '0 0 8px 0' }}>Verification Rejected</h4>
+                  <p style={{ color: '#f8fafc', margin: 0 }}>
+                    Reason: {rejectionReason || "Documents did not meet requirements."}
+                  </p>
+                  <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>
+                    Please upload new, clear documents below.
+                  </p>
+                </div>
+              )}
+
+              {(kycStatus === 'unverified' || kycStatus === 'rejected') && (
                 <div className="upload-ui">
                   <div className="dual-upload">
                     <FileUpload
