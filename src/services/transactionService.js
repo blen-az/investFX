@@ -71,7 +71,45 @@ export const getUserTransactions = async (uid) => {
             });
         });
 
-        // 4. Sort all by date descending
+        // 4. Fetch Transfers
+        const transfersQuery = query(
+            collection(db, "transfers"),
+            where("userId", "==", uid)
+        );
+        const transfersSnap = await getDocs(transfersQuery);
+        transfersSnap.forEach(doc => {
+            const data = doc.data();
+            transactions.push({
+                id: doc.id,
+                type: "Transfer",
+                amount: data.amount,
+                asset: "USDT", // Assuming transfers are mainly USDT for now based on walletService
+                status: "completed",
+                date: data.createdAt?.toDate() || new Date(),
+                details: `From ${data.fromAccount} to ${data.toAccount}`
+            });
+        });
+
+        // 5. Fetch Exchanges
+        const exchangesQuery = query(
+            collection(db, "exchanges"),
+            where("userId", "==", uid)
+        );
+        const exchangesSnap = await getDocs(exchangesQuery);
+        exchangesSnap.forEach(doc => {
+            const data = doc.data();
+            transactions.push({
+                id: doc.id,
+                type: "Exchange",
+                amount: -data.fromAmount, // Outgoing amount
+                asset: data.fromCurrency,
+                status: "completed",
+                date: data.createdAt?.toDate() || new Date(),
+                details: `For ${data.toAmount.toFixed(4)} ${data.toCurrency} @ ${data.rate}`
+            });
+        });
+
+        // 6. Sort all by date descending
         return transactions.sort((a, b) => b.date - a.date);
 
     } catch (error) {
