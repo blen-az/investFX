@@ -1,0 +1,209 @@
+/* TradePerpetual.css */
+
+/* Extend binary options style but add specific overrides for Perpetual mode */
+.perpetual-mode-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: #060a10;
+    /* Darker background from image */
+}
+
+/* Side Selector Tabs (Buy/Sell) */
+.side-selector {
+    display: flex;
+    background: #1e222d;
+    border-radius: 4px;
+    /* More square as per image */
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.side-tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #848e9c;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.side-tab.buy.active {
+    color: #0ECB81;
+    /* Bright Green */
+    background: rgba(14, 203, 129, 0.1);
+    border-bottom-color: #0ECB81;
+    position: relative;
+}
+
+/* Diagonal separation effect simulation if needed, but simple tabs are cleaner */
+
+.side-tab.sell.active {
+    color: #F6465D;
+    /* Bright Red */
+    background: rgba(246, 70, 93, 0.1);
+    border-bottom-color: #F6465D;
+}
+
+/* Form Inputs */
+.perp-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.perp-label {
+    font-size: 12px;
+    color: #848e9c;
+}
+
+.perp-input-container {
+    display: flex;
+    align-items: center;
+    background: #1e222d;
+    border-radius: 4px;
+    padding: 0 12px;
+    border: 1px solid #1e222d;
+}
+
+.perp-input-container:focus-within {
+    border-color: #F0B90B;
+    /* Binance Yellowish highlight */
+}
+
+.perp-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #eaecef;
+    padding: 12px 0;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+}
+
+.perp-suffix {
+    font-size: 12px;
+    color: #848e9c;
+    margin-left: 8px;
+}
+
+/* Order Type Dropdown Mock */
+.order-type-select {
+    width: 100%;
+    background: #1e222d;
+    color: #eaecef;
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    appearance: none;
+    /* Custom arrow would be added here */
+}
+
+/* Percentage Grid */
+.percentage-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.percent-btn {
+    background: #1e222d;
+    border: 1px solid #2b3139;
+    color: #848e9c;
+    font-size: 12px;
+    padding: 6px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.percent-btn:hover {
+    background: #2b3139;
+}
+
+/* Balance Display */
+.perp-balance {
+    font-size: 12px;
+    color: #848e9c;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Main Action Button */
+.perp-action-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+.perp-action-btn.buy {
+    background: #0ECB81;
+}
+
+.perp-action-btn.sell {
+    background: #F6465D;
+}
+
+/* Bottom Tabs (Orders/Assets) */
+.bottom-tabs {
+    display: flex;
+    gap: 20px;
+    margin-top: 24px;
+    border-bottom: 1px solid #2b3139;
+    padding-bottom: 12px;
+}
+
+.bottom-tab {
+    font-size: 14px;
+    color: #848e9c;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.bottom-tab.active {
+    color: #eaecef;
+    font-weight: 700;
+    position: relative;
+}
+
+.bottom-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #F0B90B;
+}
+
+/* Empty State */
+.empty-record {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    color: #848e9c;
+    gap: 10px;
+}
+
+.empty-icon {
+    font-size: 40px;
+    opacity: 0.3;
+}

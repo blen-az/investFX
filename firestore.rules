@@ -6,46 +6,60 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
+    
+    // Helper function to check if user is admin
+    // Reads the user document to check the 'role' field
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
 
     // Users collection
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isOwner(userId) || isAdmin();
     }
 
     // Wallets collection
     match /wallets/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isOwner(userId) || isAdmin();
     }
 
-    // Transfers collection (uses userId)
+    // Transfers collection
     match /transfers/{transferId} {
-      allow read: if resource.data.userId == request.auth.uid;
-      allow create: if request.resource.data.userId == request.auth.uid;
+      allow read: if resource.data.userId == request.auth.uid || isAdmin();
+      allow create: if request.resource.data.userId == request.auth.uid || isAdmin();
     }
 
-    // Exchanges collection (uses userId)
+    // Exchanges collection
     match /exchanges/{exchangeId} {
-      allow read: if resource.data.userId == request.auth.uid;
-      allow create: if request.resource.data.userId == request.auth.uid;
+      allow read: if resource.data.userId == request.auth.uid || isAdmin();
+      allow create: if request.resource.data.userId == request.auth.uid || isAdmin();
     }
 
-    // Deposits collection (uses uid)
+    // Deposits collection
     match /deposits/{depositId} {
-       allow read: if resource.data.uid == request.auth.uid;
-       allow create: if request.resource.data.uid == request.auth.uid;
+       allow read: if resource.data.uid == request.auth.uid || isAdmin();
+       allow create: if request.resource.data.uid == request.auth.uid || isAdmin();
+       allow update: if isAdmin();
     }
 
-    // Withdrawals collection (uses uid)
+    // Withdrawals collection
     match /withdrawals/{withdrawalId} {
-       allow read: if resource.data.uid == request.auth.uid;
-       allow create: if request.resource.data.uid == request.auth.uid;
+       allow read: if resource.data.uid == request.auth.uid || isAdmin();
+       allow create: if request.resource.data.uid == request.auth.uid || isAdmin();
+       allow update: if isAdmin();
     }
 
-    // Trades collection (uses uid)
+    // Trades collection
     match /trades/{tradeId} {
-       allow read: if resource.data.uid == request.auth.uid;
-       allow create: if request.resource.data.uid == request.auth.uid;
-       allow update: if resource.data.uid == request.auth.uid;
+       allow read: if resource.data.uid == request.auth.uid || isAdmin();
+       allow create: if request.resource.data.uid == request.auth.uid || isAdmin();
+       allow update: if resource.data.uid == request.auth.uid || isAdmin();
+    }
+    
+    // Commissions collection
+    match /commissions/{commissionId} {
+        allow read: if resource.data.agentId == request.auth.uid || isAdmin();
+        allow write: if isAdmin();
     }
     
     // Catch-all: Deny everything else by default
