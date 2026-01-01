@@ -1,4 +1,5 @@
 // src/services/authService.js
+import emailjs from '@emailjs/browser';
 import { auth, db } from "../firebase";
 import {
     createUserWithEmailAndPassword,
@@ -31,7 +32,6 @@ export const generateOTP = () => {
 /**
  * Send OTP to user via Firestore trigger email
  */
-import emailjs from '@emailjs/browser';
 
 // EMAILJS CONFIGURATION
 // TODO: Replace these with your actual EmailJS keys
