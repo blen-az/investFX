@@ -91,8 +91,10 @@ export const sendOTP = async (uid, email, name) => {
         return { success: true, expiresAt };
     } catch (error) {
         console.error("Error sending OTP:", error);
-        // Don't block signup flow if email fails, but log it
-        // Optionally throw error if email is strict requirement
+        // Log detailed EmailJS error if available
+        if (error.text) {
+            console.error("EmailJS Error Details:", error.text);
+        }
         throw error;
     }
 };
