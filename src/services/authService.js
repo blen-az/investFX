@@ -31,6 +31,17 @@ export const generateOTP = () => {
 /**
  * Send OTP to user via Firestore trigger email
  */
+import emailjs from '@emailjs/browser';
+
+// EMAILJS CONFIGURATION
+// TODO: Replace these with your actual EmailJS keys
+const EMAILJS_SERVICE_ID = "service_6hrbkob";
+const EMAILJS_TEMPLATE_ID = "template_zjl7ocl";
+const EMAILJS_PUBLIC_KEY = "gfUrTaA1o-GWaLHrj";
+
+/**
+ * Send OTP to user via EmailJS
+ */
 export const sendOTP = async (uid, email, name) => {
     try {
         const code = generateOTP();
@@ -55,31 +66,33 @@ export const sendOTP = async (uid, email, name) => {
             createdAt: serverTimestamp()
         });
 
-        // 2. Trigger the email via Google Apps Script (Free method)
-        // Set this URL after deploying your Google Apps Script
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfODIs9FLl5i38bS8R8Nc2QoOm83O9Uul6LmNasjrcXUi3X_gXfKo7WFsuDRnfAfc/exec";
-        if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE") {
-            try {
-                const params = new URLSearchParams();
-                params.append('email', email);
-                params.append('name', name || email.split('@')[0]);
-                params.append('code', code);
-
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    body: params
-                });
-            } catch (err) {
-                console.warn("GAS Email trigger failed:", err);
-            }
-        } else {
-            console.warn("Google Script URL not set. Email not sent.");
+        // 2. Trigger the email via EmailJS
+        if (EMAILJS_SERVICE_ID === "service_id" && process.env.NODE_ENV === 'development') {
+            console.warn("⚠️ EmailJS keys not configured. OTP not sent via email.");
+            console.log(`[DEV MODE] OTP for ${email}: ${code}`);
+            return { success: true, expiresAt };
         }
 
+        const templateParams = {
+            to_email: email,
+            to_name: name || email.split('@')[0],
+            otp_code: code,
+            company_name: "AvaTrade" // Customize as needed
+        };
+
+        await emailjs.send(
+            EMAILJS_SERVICE_ID,
+            EMAILJS_TEMPLATE_ID,
+            templateParams,
+            EMAILJS_PUBLIC_KEY
+        );
+
+        console.log(`OTP sent to ${email}`);
         return { success: true, expiresAt };
     } catch (error) {
         console.error("Error sending OTP:", error);
+        // Don't block signup flow if email fails, but log it
+        // Optionally throw error if email is strict requirement
         throw error;
     }
 };
