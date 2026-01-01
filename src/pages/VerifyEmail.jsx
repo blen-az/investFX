@@ -103,7 +103,8 @@ export default function VerifyEmail() {
             setSuccess("A new code has been sent to your email.");
             setTimeout(() => setSuccess(""), 3000);
         } catch (err) {
-            setError("Failed to resend code. Please try again.");
+            console.error("Resend error:", err);
+            setError("Failed: " + (err.text || err.message || "Unknown error"));
         } finally {
             setResending(false);
         }
