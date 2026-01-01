@@ -61,6 +61,13 @@ service cloud.firestore {
         allow read: if resource.data.agentId == request.auth.uid || isAdmin();
         allow write: if isAdmin();
     }
+
+    // Verification Codes collection
+    match /verificationCodes/{codeId} {
+        allow read: if resource.data.uid == request.auth.uid || isAdmin();
+        allow delete: if resource.data.uid == request.auth.uid || isAdmin();
+        allow create: if request.resource.data.uid == request.auth.uid;
+    }
     
     // Catch-all: Deny everything else by default
     match /{document=**} {
