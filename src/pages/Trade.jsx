@@ -188,13 +188,13 @@ export default function Trade() {
     // Explicit calculations
     const factor = percent / 100;
     const margin = tradingBalance * factor;
-    // Position Size = Margin * Leverage
-    const rawAmount = margin * leverage;
+    // Position Size = Margin * Leverage (handled in Service or implied)
+    // We set tradeAmount to Margin because openTrade deducts this 'amount' from balance.
 
     // Floor to 2 decimals
-    const amount = Math.floor(rawAmount * 100) / 100;
+    const amount = Math.floor(margin * 100) / 100;
 
-    console.log(`[Perp Calc] Balance: ${tradingBalance} | Percent: ${percent}% | Margin: ${margin} | Leverage: ${leverage} | Result (Position Size): ${amount}`);
+    console.log(`[Perp Calc] Balance: ${tradingBalance} | Percent: ${percent}% | Margin: ${amount} | Leverage: ${leverage}`);
     setTradeAmount(amount);
   };
 
@@ -404,14 +404,14 @@ export default function Trade() {
                 <div style={{ color: '#848e9c', fontSize: '12px', margin: '10px 0 5px' }}>1.00 {coinMeta.symbol}</div>
 
                 <div className="perp-form-group">
-                  <label className="perp-label">Trading lots</label>
+                  <label className="perp-label">Margin (USDT)</label>
                   <div className="perp-input-container">
                     <input
                       type="number"
                       value={tradeAmount}
                       onChange={(e) => setTradeAmount(Number(e.target.value))}
                       className="perp-input"
-                      placeholder="Volume"
+                      placeholder="Amount"
                     />
                   </div>
                 </div>

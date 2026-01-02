@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
-import { getAllUsers, setUserBalance, freezeUser } from "../../services/adminService";
+import { getAllUsers, setUserBalance, freezeUser, assignUserToAgent, getAllAgents } from "../../services/adminService";
 import { setUserTradeControl } from "../../services/tradeSettingsService";
 import "./Users.css";
 
@@ -89,28 +89,44 @@ export default function Users() {
 
     const handleAssignAgent = async () => {
         try {
-            const { assignUserToAgent } = await import("../../services/adminService");
+            if (!selectedUser || !selectedAgent) {
+                alert("Please select both a user and an agent.");
+                return;
+            }
+
+            console.log(`Assigning user ${selectedUser.id} to agent ${selectedAgent}...`);
             await assignUserToAgent(selectedUser.id, selectedAgent);
+
             setShowAgentModal(false);
             setSelectedAgent("");
             await loadUsers();
-            alert("User assigned to agent successfully!");
+            alert("✅ User assigned to agent successfully!");
         } catch (error) {
             console.error("Error assigning agent:", error);
-            alert("Failed to assign agent: " + error.message);
+            // Show specific error message
+            if (error.code === 'permission-denied') {
+                alert("❌ Permission Denied: You do not have permission to perform this action. Check your admin privileges.");
+            } else {
+                alert(`❌ Failed to assign agent: ${error.message}`);
+            }
         }
     };
 
     const openAgentModal = async (user) => {
         setSelectedUser(user);
         try {
-            const { getAllAgents } = await import("../../services/adminService");
+            console.log("Fetching agents list...");
             const agentList = await getAllAgents();
+            console.log(`Found ${agentList.length} agents.`);
             setAgents(agentList);
             setShowAgentModal(true);
         } catch (error) {
             console.error("Error loading agents:", error);
-            alert("Failed to load agents list");
+            if (error.code === 'permission-denied') {
+                alert("❌ Permission Denied: Cannot fetch agents list.");
+            } else {
+                alert(`❌ Failed to load agents list: ${error.message}`);
+            }
         }
     };
 
