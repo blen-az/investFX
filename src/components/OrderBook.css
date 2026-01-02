@@ -1,8 +1,8 @@
 /* src/components/OrderBook.css */
 .order-book {
     font-family: 'Roboto', 'Inter', sans-serif;
-    padding: 0 10px;
-    font-size: 12px;
+    padding: 0;
+    font-size: 11px;
     color: #848e9c;
     width: 100%;
 }
@@ -10,14 +10,17 @@
 .ob-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 11px;
+    margin-bottom: 4px;
+    font-size: 10px;
+    opacity: 0.7;
 }
 
 .ob-row {
     display: flex;
     justify-content: space-between;
-    line-height: 1.8;
+    line-height: 1.6;
+    /* Reduced line height */
+    margin-bottom: 1px;
 }
 
 .ob-price {
@@ -38,11 +41,11 @@
 }
 
 .ob-current-price {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     color: #f8fafc;
     text-align: center;
-    margin: 10px 0;
+    margin: 6px 0;
 }
 
 .ob-current-price.green {
