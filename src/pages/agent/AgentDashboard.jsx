@@ -25,12 +25,13 @@ export default function AgentDashboard() {
     useEffect(() => {
         const loadData = async () => {
             if (user?.uid) {
-                try {
-                    setLoading(true);
-                    setLoadingCode(true);
-                    setCodeError("");
 
-                    // Fetch referral code
+                setLoading(true);
+                setLoadingCode(true);
+                setCodeError("");
+
+                // 1. Fetch referral code independently
+                try {
                     const code = await getAgentReferralCode(user.uid);
                     if (code) {
                         setReferralCode(code);
@@ -39,16 +40,23 @@ export default function AgentDashboard() {
                     } else {
                         setCodeError("No referral code found. Please contact admin to generate one.");
                     }
+                } catch (codeErr) {
+                    console.error("Error loading referral code:", codeErr);
+                    setCodeError(`Failed to load referral code: ${codeErr.message}`);
+                } finally {
+                    setLoadingCode(false);
+                }
 
-                    // Fetch stats
+                // 2. Fetch stats independently
+                try {
                     const agentStats = await getAgentStats(user.uid);
                     setStats(agentStats);
-                } catch (error) {
-                    console.error("Error loading agent data:", error);
-                    setCodeError(`Failed to load referral code: ${error.message}`);
+                } catch (statsErr) {
+                    console.error("Error loading agent stats:", statsErr);
+                    // We don't block the UI for this, just log it. 
+                    // Optionally set a specialized error state for stats if needed.
                 } finally {
                     setLoading(false);
-                    setLoadingCode(false);
                 }
             }
         };
