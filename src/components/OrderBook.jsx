@@ -1,112 +1,69 @@
-// src/components/OrderPanel.jsx
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from 'react';
+import './OrderBook.css';
 
-/**
- * OrderPanel
- * - Demo balance + holdings persisted in localStorage
- * - Market order execution at provided livePrice (prop)
- * - Buy / Sell forms, SL/TP simple inputs (saved)
- */
-export default function OrderPanel({ coin = { id: "bitcoin", symbol: "btc", name: "Bitcoin" }, livePrice = null }) {
-  const keyBal = "demo_balance_v2";
-  const keyHold = `demo_hold_${coin.id}`;
-  const keyTrades = "demo_trades_v2";
+export default function OrderBook({ currentPrice }) {
+  // Generate some mock order book data around the current price
+  const { asks, bids } = useMemo(() => {
+    const price = parseFloat(currentPrice) || 4351.87;
+    const askList = [];
+    const bidList = [];
 
-  const [balance, setBalance] = useState(() => Number(localStorage.getItem(keyBal) || 10000));
-  const [holdings, setHoldings] = useState(() => Number(localStorage.getItem(keyHold) || 0));
-  const [usdAmount, setUsdAmount] = useState("");
-  const [side, setSide] = useState("buy");
-  const [trades, setTrades] = useState(() => JSON.parse(localStorage.getItem(keyTrades) || "[]"));
-
-  useEffect(() => localStorage.setItem(keyBal, String(balance)), [balance]);
-  useEffect(() => localStorage.setItem(keyHold, String(holdings)), [holdings]);
-  useEffect(() => localStorage.setItem(keyTrades, JSON.stringify(trades)), [trades]);
-
-  // update keys if coin changes (simple reset for holdings key)
-  useEffect(() => {
-    const b = Number(localStorage.getItem(keyBal) || 10000);
-    const h = Number(localStorage.getItem(`demo_hold_${coin.id}`) || 0);
-    setBalance(b);
-    setHoldings(h);
-    setTrades(JSON.parse(localStorage.getItem(keyTrades) || "[]"));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coin.id]);
-
-  function uid() {
-    return Date.now() + Math.floor(Math.random() * 1000);
-  }
-
-  function executeMarket() {
-    const amt = Number(usdAmount);
-    if (!amt || amt <= 0) { alert("Enter USD amount"); return; }
-    if (!livePrice || livePrice <= 0) { alert("Live price not available"); return; }
-
-    const qty = amt / livePrice;
-    if (side === "buy") {
-      if (amt > balance) { alert("Insufficient balance"); return; }
-      setBalance((b) => +(b - amt).toFixed(6));
-      setHoldings((h) => +(h + qty).toFixed(8));
-    } else {
-      if (qty > holdings) { alert("Not enough holdings"); return; }
-      setHoldings((h) => +(h - qty).toFixed(8));
-      setBalance((b) => +(b + amt).toFixed(6));
+    // Generate Asks (Red - Sell Orders) - Higher than current price
+    for (let i = 0; i < 5; i++) {
+      const p = price + (Math.random() * 2);
+      const size = (Math.random() * 0.5 + 0.01).toFixed(4); // e.g. 0.032
+      askList.push({ price: p.toFixed(4), size });
     }
+    // Sort asks ascending (lowest ask at bottom)
+    askList.sort((a, b) => b.price - a.price); // Visual order: High top, Low bottom? 
+    // Usually Asks are stacked: Lowest Ask close to spread.
+    // In UI: Asks top, Current Price middle, Bids bottom.
+    // Asks need explicitly reversed or sorted ascending?
+    // Let's sort Descending for the list (Highest price at top).
 
-    const t = { id: uid(), time: new Date().toISOString(), coin: coin.id, side: side.toUpperCase(), usd: amt, qty, price: livePrice };
-    setTrades((s) => [t, ...s].slice(0, 200));
-    setUsdAmount("");
-  }
+    // Generate Bids (Green - Buy Orders) - Lower than current price
+    for (let i = 0; i < 5; i++) {
+      const p = price - (Math.random() * 2);
+      const size = (Math.random() * 20 + 5).toFixed(4); // e.g. 18.0755
+      bidList.push({ price: p.toFixed(4), size });
+    }
+    // Sort bids descending (Highest bid at top)
+    bidList.sort((a, b) => b.price - a.price);
 
-  function resetDemo() {
-    if (!window.confirm("Reset demo balance and holdings?")) return;
-    setBalance(10000);
-    setHoldings(0);
-    setTrades([]);
-  }
+    return { asks: askList, bids: bidList };
+  }, [currentPrice]);
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div>
-          <div style={{ fontWeight: 900, color: "var(--accent)" }}>{coin.name}</div>
-          <div className="sub">{coin.symbol?.toUpperCase()} / USD</div>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <div className="small">Live</div>
-          <div style={{ fontWeight: 900, color: "var(--accent)", fontSize: 18 }}>{livePrice ? `$${Number(livePrice).toLocaleString()}` : "—"}</div>
-        </div>
+    <div className="order-book">
+      {/* Header */}
+      <div className="ob-header">
+        <span>Price</span>
+        <span>Number</span>
       </div>
 
-      <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
-        <button className="btn" onClick={() => setSide("buy")} style={{ background: side === "buy" ? "var(--positive)" : "#222", color: side === "buy" ? "#000" : "#fff" }}>Buy</button>
-        <button className="btn" onClick={() => setSide("sell")} style={{ background: side === "sell" ? "var(--negative)" : "#222", color: "#fff" }}>Sell</button>
+      {/* Asks (Sell) */}
+      <div className="ob-list asks">
+        {asks.map((ask, idx) => (
+          <div key={`ask-${idx}`} className="ob-row">
+            <span className="ob-price red">{ask.price}</span>
+            <span className="ob-size">{ask.size}</span>
+          </div>
+        ))}
       </div>
 
-      <div style={{ marginTop: 10 }}>
-        <input value={usdAmount} onChange={(e) => setUsdAmount(e.target.value)} className="input" placeholder="Amount in USD" />
+      {/* Current Price Display */}
+      <div className="ob-current-price">
+        {parseFloat(currentPrice).toFixed(2)}
       </div>
 
-      <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-        <button className="btn" onClick={executeMarket} style={{ background: "var(--accent)", color: "#000" }}>{side === "buy" ? "Buy Market" : "Sell Market"}</button>
-        <button className="btn" onClick={resetDemo}>Reset</button>
-      </div>
-
-      <div style={{ marginTop: 12 }} className="card small">
-        <div>Balance: <strong style={{ color: "var(--accent)" }}>${balance.toFixed(2)}</strong></div>
-        <div>Holdings: <strong>{holdings.toFixed(8)} {coin.symbol?.toUpperCase()}</strong></div>
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <h4 style={{ margin: 0, color: "var(--accent)" }}>Recent Trades</h4>
-        <div style={{ maxHeight: 160, overflow: "auto", marginTop: 8 }}>
-          {trades.length === 0 && <div className="small">No trades yet</div>}
-          {trades.map(t => (
-            <div key={t.id} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
-              <div className="small">{new Date(t.time).toLocaleString()} • <strong style={{ color: t.side === "BUY" ? "var(--positive)" : "var(--negative)" }}>{t.side}</strong></div>
-              <div className="small">${t.usd.toFixed(2)} @ {Number(t.price).toFixed(2)}</div>
-            </div>
-          ))}
-        </div>
+      {/* Bids (Buy) */}
+      <div className="ob-list bids">
+        {bids.map((bid, idx) => (
+          <div key={`bid-${idx}`} className="ob-row">
+            <span className="ob-price green">{bid.price}</span>
+            <span className="ob-size">{bid.size}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

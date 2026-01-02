@@ -6,6 +6,7 @@ import TradingChart from "../components/TradingChart";
 import ActiveTradeModal from "../components/ActiveTradeModal";
 import AlertModal from "../components/AlertModal";
 import Positions from "../components/Positions";
+import OrderBook from "../components/OrderBook"; // Imported
 import coinList from "../data/coinList";
 import "./TradeBinary.css";
 import "./TradePerpetual.css";
@@ -40,6 +41,7 @@ export default function Trade() {
   // Perpetual Specific State
   const [perpSide, setPerpSide] = useState('buy'); // 'buy' or 'sell'
   const [perpTab, setPerpTab] = useState('positions'); // 'positions' | 'history'
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const map = coinList;
 
@@ -49,7 +51,9 @@ export default function Trade() {
     const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
-        setTradingBalance(data.tradingBalance !== undefined ? data.tradingBalance : 0);
+        const bal = parseFloat(data.tradingBalance);
+        setTradingBalance(!isNaN(bal) ? bal : 0);
+        console.log("Current Trading Balance:", bal);
       }
     });
 
@@ -176,8 +180,22 @@ export default function Trade() {
   };
 
   const handlePerpPercentage = (percent) => {
-    const amount = (tradingBalance * (percent / 100)).toFixed(2);
-    setTradeAmount(parseFloat(amount));
+    if (!tradingBalance || isNaN(tradingBalance)) {
+      console.warn("Cannot calculate percentage: Invalid Balance", tradingBalance);
+      return;
+    }
+
+    // Explicit calculations
+    const factor = percent / 100;
+    const margin = tradingBalance * factor;
+    // Position Size = Margin * Leverage
+    const rawAmount = margin * leverage;
+
+    // Floor to 2 decimals
+    const amount = Math.floor(rawAmount * 100) / 100;
+
+    console.log(`[Perp Calc] Balance: ${tradingBalance} | Percent: ${percent}% | Margin: ${margin} | Leverage: ${leverage} | Result (Position Size): ${amount}`);
+    setTradeAmount(amount);
   };
 
   const handleTradeClose = () => {
@@ -221,8 +239,13 @@ export default function Trade() {
         {/* Pair Display */}
         <div className="pair-display">
           <div className="pair-info">
-            {/* Hamburger menu icon shim */}
-            <span style={{ fontSize: '20px', marginRight: '5px' }}>≡</span>
+            {/* Hamburger menu icon */}
+            <span
+              style={{ fontSize: '20px', marginRight: '5px', cursor: 'pointer' }}
+              onClick={() => setIsDrawerOpen(true)}
+            >
+              ≡
+            </span>
             <span className="pair-name">{coinMeta.symbol} / USDT</span>
             <span className={`pair-change ${priceChange >= 0 ? 'positive' : 'negative'}`}>
               {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
@@ -331,116 +354,116 @@ export default function Trade() {
           /* ================= PERPETUAL MODE UI (New) ================= */
           <div className="perpetual-mode-container">
 
-            {/* 1. Side Selector (Buy/Sell) */}
-            <div className="side-selector">
-              <div
-                className={`side-tab buy ${perpSide === 'buy' ? 'active' : ''}`}
-                onClick={() => setPerpSide('buy')}
-              >
-                Buy
-              </div>
-              <div
-                className={`side-tab sell ${perpSide === 'sell' ? 'active' : ''}`}
-                onClick={() => setPerpSide('sell')}
-              >
-                Sell
-              </div>
-            </div>
+            {/* Split Layout: Left Form | Right OrderBook */}
+            <div style={{ display: 'flex', gap: '15px' }}>
 
-            {/* 2. Order Form */}
-            <div className="perp-form-group">
-              {/* Row 1: Order Type & Count? (Mocking the UI layout) */}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <div className="perp-input-container" style={{ flex: 1.5 }}>
-                  <select className="order-type-select">
-                    <option>market price</option>
-                    <option>limit price</option>
-                  </select>
-                </div>
-                <div className="perp-input-container" style={{ flex: 1 }}>
-                  <select className="order-type-select">
-                    <option>1</option>
-                    <option>2</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="perp-form-group">
-              <div className="perp-input-container" style={{ padding: '12px' }}>
-                <span style={{ color: '#848e9c', fontSize: '13px' }}>Trade at the current best price</span>
-              </div>
-            </div>
-
-            <div style={{ margin: '10px 0', fontSize: '24px', fontWeight: '700', color: '#f8fafc', textAlign: 'center' }}>
-              {livePrice.toFixed(2)}
-            </div>
-
-            <div className="perp-form-group">
-              <label className="perp-label">Trading lots / Amount (USDT)</label>
-              <div className="perp-input-container">
-                <input
-                  type="number"
-                  value={tradeAmount}
-                  onChange={(e) => setTradeAmount(Number(e.target.value))}
-                  className="perp-input"
-                  placeholder="Enter amount"
-                />
-              </div>
-            </div>
-
-            {/* Percentage Grid */}
-            <div className="percentage-grid">
-              {[25, 50, 75, 100].map(percent => (
-                <button
-                  key={percent}
-                  className="percent-btn"
-                  onClick={() => handlePerpPercentage(percent)}
-                >
-                  {percent}%
-                </button>
-              ))}
-            </div>
-
-            {/* Balance & Leverage */}
-            <div className="perp-balance">
-              <span>Balance: {tradingBalance.toFixed(4)} USDT</span>
-              {/* Reuse existing leverage selector style but minimize it or put it in a modal? 
-                        For now, simple button for leverage 
-                    */}
-            </div>
-            <div className="leverage-selector-container">
-              <label>Leverage: {leverage}x</label>
-              <div className="leverage-grid">
-                {[1, 10, 20, 50, 100].map((val) => (
-                  <button
-                    key={val}
-                    className={`lev-btn ${leverage === val ? 'active' : ''}`}
-                    onClick={() => setLeverage(val)}
+              {/* LEFT SIDE: Trading Form */}
+              <div style={{ flex: '1.4' }}>
+                {/* 1. Side Selector (Buy/Sell) */}
+                <div className="side-selector">
+                  <div
+                    className={`side-tab buy ${perpSide === 'buy' ? 'active' : ''}`}
+                    onClick={() => setPerpSide('buy')}
                   >
-                    {val}x
-                  </button>
-                ))}
+                    Buy
+                  </div>
+                  <div
+                    className={`side-tab sell ${perpSide === 'sell' ? 'active' : ''}`}
+                    onClick={() => setPerpSide('sell')}
+                  >
+                    Sell
+                  </div>
+                </div>
+
+                {/* 2. Order Form */}
+                <div className="perp-form-group">
+                  {/* Row 1: Order Type & Count */}
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div className="perp-input-container" style={{ flex: 1.5 }}>
+                      <select className="order-type-select">
+                        <option>market price</option>
+                        <option>limit price</option>
+                      </select>
+                    </div>
+                    <div className="perp-input-container" style={{ flex: 1 }}>
+                      <select className="order-type-select">
+                        <option>1</option>
+                        <option>2</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="perp-form-group">
+                  <div className="perp-input-container" style={{ padding: '12px' }}>
+                    <span style={{ color: '#848e9c', fontSize: '13px' }}>Trade at the current best price</span>
+                  </div>
+                </div>
+
+                {/* Unit Label */}
+                <div style={{ color: '#848e9c', fontSize: '12px', margin: '10px 0 5px' }}>1.00 {coinMeta.symbol}</div>
+
+                <div className="perp-form-group">
+                  <label className="perp-label">Trading lots</label>
+                  <div className="perp-input-container">
+                    <input
+                      type="number"
+                      value={tradeAmount}
+                      onChange={(e) => setTradeAmount(Number(e.target.value))}
+                      className="perp-input"
+                      placeholder="Volume"
+                    />
+                  </div>
+                </div>
+
+                {/* Percentage Grid */}
+                <div className="percentage-grid">
+                  {[25, 50, 75, 100].map(percent => (
+                    <button
+                      key={percent}
+                      className="percent-btn"
+                      onClick={() => handlePerpPercentage(percent)}
+                    >
+                      {percent}%
+                    </button>
+                  ))}
+                </div>
+
+                {/* Balance */}
+                <div className="perp-balance" style={{ marginTop: '10px' }}>
+                  Balance: {tradingBalance.toFixed(4)} USDT
+                </div>
+
+                {/* Action Button */}
+                <button
+                  className={`perp-action-btn ${perpSide}`}
+                  onClick={() => handleTradeStart(perpSide === 'buy' ? 'up' : 'down')}
+                  style={{ marginTop: '16px' }}
+                >
+                  {perpSide === 'buy' ? 'Buy (go long)' : 'Sell (go short)'}
+                </button>
+              </div>
+
+              {/* RIGHT SIDE: Order Book */}
+              <div style={{ flex: '1', borderLeft: '1px solid #1e293b', paddingLeft: '10px' }}>
+                <OrderBook currentPrice={livePrice} />
+
+                {/* Leverage Selector (Moved to right column or below?) */}
+                {/* For now, keep it simple or integrate it. 
+                         The screenshot has "OrderBook" on right. 
+                     */}
               </div>
             </div>
-
-            {/* Action Button */}
-            <button
-              className={`perp-action-btn ${perpSide}`}
-              onClick={() => handleTradeStart(perpSide === 'buy' ? 'up' : 'down')}
-              style={{ marginTop: '16px' }}
-            >
-              {perpSide === 'buy' ? 'Buy (go long)' : 'Sell (go short)'}
-            </button>
 
             {/* Bottom Tabs: Current delegate / History */}
-            <div className="bottom-tabs">
+            <div className="bottom-tabs" style={{ marginTop: '30px' }}>
+              {/* ... existing tabs ... */}
               <div
                 className={`bottom-tab ${perpTab === 'positions' ? 'active' : ''}`}
                 onClick={() => setPerpTab('positions')}
               >
                 <span style={{ marginRight: '5px' }}>📄</span>
-                hold position
+                Current delegate
               </div>
               <div
                 className={`bottom-tab ${perpTab === 'history' ? 'active' : ''}`}
@@ -510,6 +533,33 @@ export default function Trade() {
         type="error"
         onClose={() => setAlertModal({ isOpen: false, message: '' })}
       />
+
+      {/* Coin Selection Sidebar Drawer */}
+      {isDrawerOpen && (
+        <div className="drawer-overlay" onClick={() => setIsDrawerOpen(false)}>
+          <div className="drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <h3>Markets</h3>
+              <span className="close-drawer" onClick={() => setIsDrawerOpen(false)}>✕</span>
+            </div>
+            <div className="drawer-list">
+              {Object.entries(map).map(([id, coin]) => (
+                <div
+                  key={id}
+                  className={`drawer-item ${coinMeta.id === id ? 'active' : ''}`}
+                  onClick={() => {
+                    setCoinMeta({ id, ...coin });
+                    setIsDrawerOpen(false);
+                  }}
+                >
+                  <div style={{ fontWeight: 'bold' }}>{coin.symbol}/USDT</div>
+                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>{coin.name}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
