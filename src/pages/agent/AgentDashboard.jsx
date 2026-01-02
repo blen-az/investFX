@@ -45,7 +45,7 @@ export default function AgentDashboard() {
                     setStats(agentStats);
                 } catch (error) {
                     console.error("Error loading agent data:", error);
-                    setCodeError("Failed to load referral code");
+                    setCodeError(`Failed to load referral code: ${error.message}`);
                 } finally {
                     setLoading(false);
                     setLoadingCode(false);

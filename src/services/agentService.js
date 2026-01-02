@@ -1,6 +1,7 @@
 // src/services/agentService.js
-import { collection, query, where, getDocs, orderBy, limit, getDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, limit, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { generateUniqueReferralCode } from "./authService";
 
 // Get agent dashboard statistics
 export const getAgentStats = async (agentId) => {
@@ -110,12 +111,9 @@ export const getAgentReferralCode = async (agentId) => {
         // If no code, check if they are actually an agent
         if (data.role === 'agent') {
             console.log("Agent missing referral code, generating one...");
-            const { generateUniqueReferralCode } = await import("./authService");
             const newCode = await generateUniqueReferralCode();
 
-            await import("firebase/firestore").then(({ updateDoc }) => {
-                updateDoc(userRef, { referralCode: newCode });
-            });
+            await updateDoc(userRef, { referralCode: newCode });
 
             return newCode;
         }
