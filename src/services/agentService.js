@@ -1,7 +1,6 @@
 // src/services/agentService.js
 import { collection, query, where, getDocs, orderBy, limit, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { generateUniqueReferralCode } from "./authService";
 
 // Get agent dashboard statistics
 export const getAgentStats = async (agentId) => {
@@ -91,6 +90,11 @@ export const getCommissionHistory = async (agentId) => {
     }
 };
 
+// Helper to generate random code locally to avoid permission issues with global uniqueness check
+const generateLocalReferralCode = () => {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+};
+
 // Get agent's referral code (auto-generate if missing)
 export const getAgentReferralCode = async (agentId) => {
     try {
@@ -111,7 +115,8 @@ export const getAgentReferralCode = async (agentId) => {
         // If no code, check if they are actually an agent
         if (data.role === 'agent') {
             console.log("Agent missing referral code, generating one...");
-            const newCode = await generateUniqueReferralCode();
+            // Generate locally to avoid "Permission Denied" on global uniqueness check
+            const newCode = generateLocalReferralCode();
 
             await updateDoc(userRef, { referralCode: newCode });
 

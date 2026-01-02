@@ -477,13 +477,11 @@ export default function Trade() {
             {/* Content for Bottom Tabs */}
             <div className="tab-content-area">
               {perpTab === 'positions' ? (
-                /* Re-using Positions component but we might need to style it differently or pass a 'variant' prop */
-                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} variant="perpetual" />
+                /* Active Positions */
+                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} initialTab="active" variant="perpetual" />
               ) : (
-                <div className="empty-record">
-                  <div className="empty-icon">📅</div>
-                  <span>No record yet</span>
-                </div>
+                /* Completed History */
+                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} initialTab="completed" variant="perpetual" />
               )}
             </div>
 

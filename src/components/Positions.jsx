@@ -5,9 +5,9 @@ import { collection, query, where, onSnapshot, orderBy } from "firebase/firestor
 import { closeTrade } from "../services/tradeService";
 import "./Positions.css";
 
-export default function Positions({ currentPrice, currentCoin }) {
+export default function Positions({ currentPrice, currentCoin, initialTab = "active" }) {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState("active"); // active | completed
+    const [activeTab, setActiveTab] = useState(initialTab); // active | completed
     const [activeTrades, setActiveTrades] = useState([]);
     const [completedTrades, setCompletedTrades] = useState([]);
     const [loading, setLoading] = useState(true);
