@@ -4,7 +4,13 @@ const COINS = [
   { id: "bitcoin", label: "BTC / USD" },
   { id: "ethereum", label: "ETH / USD" },
   { id: "solana", label: "SOL / USD" },
+  { id: "binancecoin", label: "BNB / USD" },
+  { id: "ripple", label: "XRP / USD" },
+  { id: "cardano", label: "ADA / USD" },
   { id: "dogecoin", label: "DOGE / USD" },
+  { id: "polkadot", label: "DOT / USD" },
+  { id: "litecoin", label: "LTC / USD" },
+  { id: "chainlink", label: "LINK / USD" },
 ];
 
 let tvScriptLoadingPromise = null;
@@ -19,7 +25,13 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       case "bitcoin": return "BINANCE:BTCUSDT";
       case "ethereum": return "BINANCE:ETHUSDT";
       case "solana": return "BINANCE:SOLUSDT";
+      case "binancecoin": return "BINANCE:BNBUSDT";
+      case "ripple": return "BINANCE:XRPUSDT";
+      case "cardano": return "BINANCE:ADAUSDT";
       case "dogecoin": return "BINANCE:DOGEUSDT";
+      case "polkadot": return "BINANCE:DOTUSDT";
+      case "litecoin": return "BINANCE:LTCUSDT";
+      case "chainlink": return "BINANCE:LINKUSDT";
       default: return "BINANCE:BTCUSDT";
     }
   };
@@ -88,14 +100,26 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       bitcoin: "btcusdt",
       ethereum: "ethusdt",
       solana: "solusdt",
+      binancecoin: "bnbusdt",
+      ripple: "xrpusdt",
+      cardano: "adausdt",
       dogecoin: "dogeusdt",
+      polkadot: "dotusdt",
+      litecoin: "ltcusdt",
+      chainlink: "linkusdt",
     };
 
     const coinIds = {
       bitcoin: "bitcoin",
       ethereum: "ethereum",
       solana: "solana",
+      binancecoin: "binancecoin",
+      ripple: "ripple",
+      cardano: "cardano",
       dogecoin: "dogecoin",
+      polkadot: "polkadot",
+      litecoin: "litecoin",
+      chainlink: "chainlink",
     };
 
     // Fallback: Fetch price from API if WebSocket doesn't connect quickly

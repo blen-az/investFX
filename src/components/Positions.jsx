@@ -99,10 +99,18 @@ export default function Positions({ currentPrice, currentCoin }) {
     };
 
     const getSymbolIcon = (asset) => {
-        if (asset?.includes("BTC")) return "₿";
-        if (asset?.includes("ETH")) return "Ξ";
-        if (asset?.includes("SOL")) return "S";
-        return "₿";
+        if (!asset) return "🪙";
+        if (asset.includes("BTC")) return "₿";
+        if (asset.includes("ETH")) return "Ξ";
+        if (asset.includes("SOL")) return "S";
+        if (asset.includes("XRP")) return "✕";
+        if (asset.includes("ADA")) return "₳";
+        if (asset.includes("DOGE")) return "Ð";
+        if (asset.includes("DOT")) return "●";
+        if (asset.includes("LTC")) return "Ł";
+        if (asset.includes("LINK")) return "🔗";
+        if (asset.includes("BNB")) return "🟡";
+        return "🪙";
     };
 
     return (

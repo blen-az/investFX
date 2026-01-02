@@ -11,10 +11,11 @@ let priceCache = {
 };
 
 // Primary API (CoinGecko)
-const COINGECKO_API = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,solana,binancecoin,ripple,cardano,dogecoin&vs_currencies=usd";
+// Primary API (CoinGecko)
+const COINGECKO_API = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,solana,binancecoin,ripple,cardano,dogecoin,polkadot,litecoin,chainlink&vs_currencies=usd";
 
 // Backup API (CoinCap)
-const COINCAP_API = "https://api.coincap.io/v2/assets?ids=bitcoin,ethereum,tether,solana,binancecoin,ripple,cardano,dogecoin";
+const COINCAP_API = "https://api.coincap.io/v2/assets?ids=bitcoin,ethereum,tether,solana,binancecoin,ripple,cardano,dogecoin,polkadot,litecoin,chainlink";
 
 /**
  * Get current prices for major cryptocurrencies
@@ -42,7 +43,10 @@ export async function getCryptoPrices() {
             BNB: data.binancecoin.usd,
             XRP: data.ripple.usd,
             ADA: data.cardano.usd,
-            DOGE: data.dogecoin.usd
+            DOGE: data.dogecoin.usd,
+            DOT: data.polkadot.usd,
+            LTC: data.litecoin.usd,
+            LINK: data.chainlink.usd
         };
 
         priceCache = { data: prices, timestamp: now };

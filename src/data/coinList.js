@@ -11,9 +11,33 @@ const coinList = {
     symbol: "SOL",
     name: "Solana",
   },
+  binancecoin: {
+    symbol: "BNB",
+    name: "BNB",
+  },
+  ripple: {
+    symbol: "XRP",
+    name: "XRP",
+  },
+  cardano: {
+    symbol: "ADA",
+    name: "Cardano",
+  },
+  polkadot: {
+    symbol: "DOT",
+    name: "Polkadot",
+  },
   dogecoin: {
     symbol: "DOGE",
     name: "Dogecoin",
+  },
+  litecoin: {
+    symbol: "LTC",
+    name: "Litecoin",
+  },
+  chainlink: {
+    symbol: "LINK",
+    name: "Chainlink",
   },
 };
 
