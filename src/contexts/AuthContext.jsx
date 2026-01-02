@@ -50,19 +50,25 @@ export function AuthProvider({ children }) {
         unsubscribeUserDoc = onSnapshot(doc(db, "users", currentUser.uid), (userDoc) => {
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            // Important: We update the state with a new object to trigger re-renders
+            // Explicitly map key fields to ensure they exist
             setUser({
-              ...currentUser,
-              displayName: userData.name || currentUser.email.split('@')[0],
-              // Add other useful fields from DB to the user state if needed
-              phoneNumber: userData.phone || null
+              uid: currentUser.uid,
+              email: currentUser.email || userData.email, // Fallback to ensure email is present
+              displayName: userData.name || currentUser.displayName || "",
+              photoURL: userData.photoURL || currentUser.photoURL || "",
+              ...userData
             });
             setUserRole(userData.role || ROLES.USER);
             setEmailVerified(userData.emailVerified || false);
             console.log('User data updated from Firestore:', userData.name);
           } else {
             console.log('User document does not exist, using auth defaults');
-            setUser(currentUser);
+            setUser({
+              uid: currentUser.uid,
+              email: currentUser.email,
+              displayName: currentUser.displayName,
+              ...currentUser
+            });
             setUserRole(ROLES.USER);
             setEmailVerified(false);
           }
@@ -227,8 +233,19 @@ export function AuthProvider({ children }) {
 
   // RESEND OTP
   async function resendOTP() {
-    if (!user) throw new Error("No user logged in");
-    return await sendOTP(user.uid, user.email, user.displayName);
+    if (!user && !auth.currentUser) throw new Error("No user logged in");
+
+    // Use auth.currentUser as fallback if user state is not fully ready
+    const targetUser = user || auth.currentUser;
+    const email = targetUser.email;
+    const name = targetUser.displayName || targetUser.name || (email ? email.split('@')[0] : "User");
+
+    if (!email) {
+      console.error("Attempted to resend OTP but email is missing", targetUser);
+      throw new Error("User email is missing. Please try logging in again.");
+    }
+
+    return await sendOTP(targetUser.uid, email, name);
   }
 
   // Role check helpers
