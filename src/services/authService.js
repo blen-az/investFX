@@ -42,6 +42,12 @@ const EMAILJS_PUBLIC_KEY = "gfUrTaA1o-GWaLHrj";
 /**
  * Send OTP to user via EmailJS
  */
+// Initialize EmailJS with public key
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+/**
+ * Send OTP to user via EmailJS
+ */
 export const sendOTP = async (uid, email, name) => {
     try {
         const code = generateOTP();
@@ -67,18 +73,17 @@ export const sendOTP = async (uid, email, name) => {
         });
 
         // 2. Trigger the email via EmailJS
-        if (EMAILJS_SERVICE_ID === "service_id" && process.env.NODE_ENV === 'development') {
-            console.warn("⚠️ EmailJS keys not configured. OTP not sent via email.");
-            console.log(`[DEV MODE] OTP for ${email}: ${code}`);
-            return { success: true, expiresAt };
-        }
+        const cleanEmail = email.trim();
+        const cleanName = (name || cleanEmail.split('@')[0]).trim();
 
         const templateParams = {
-            to_email: email,
-            to_name: name || email.split('@')[0],
+            to_email: cleanEmail,
+            to_name: cleanName,
             otp_code: code,
-            company_name: "AvaTrade" // Customize as needed
+            company_name: "AvaTrade"
         };
+
+        console.log(`Sending EmailJS to: '${cleanEmail}' with code: ${code}`);
 
         await emailjs.send(
             EMAILJS_SERVICE_ID,
@@ -87,7 +92,7 @@ export const sendOTP = async (uid, email, name) => {
             EMAILJS_PUBLIC_KEY
         );
 
-        console.log(`OTP sent to ${email}`);
+        console.log(`OTP sent to ${cleanEmail}`);
         return { success: true, expiresAt };
     } catch (error) {
         console.error("Error sending OTP:", error);
