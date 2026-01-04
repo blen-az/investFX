@@ -584,6 +584,57 @@ export const rejectWithdrawal = async (withdrawalId, reason) => {
     }
 };
 
+// Get all active trades for admin (without limit or high limit, to ensure none are missed)
+export const getActiveTradesForAdmin = async () => {
+    try {
+        const tradesRef = collection(db, "trades");
+        const q = query(tradesRef, where("status", "==", "active"));
+        const snapshot = await getDocs(q);
+
+        const trades = [];
+
+        for (const tradeDoc of snapshot.docs) {
+            const tradeData = tradeDoc.data();
+
+            // Fetch user details
+            let userEmail = "Unknown";
+            let userName = "Unknown";
+
+            if (tradeData.uid) {
+                try {
+                    const userRef = doc(db, "users", tradeData.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        userEmail = userData.email;
+                        userName = userData.name;
+                    }
+                } catch (err) {
+                    console.error("Error fetching user for trade:", err);
+                }
+            }
+
+            trades.push({
+                id: tradeDoc.id,
+                ...tradeData,
+                userEmail,
+                userName,
+                createdAt: tradeData.createdAt?.toDate(),
+                closedAt: tradeData.closedAt?.toDate()
+            });
+        }
+
+        // Sort by creation date desc
+        trades.sort((a, b) => b.createdAt - a.createdAt);
+
+        return trades;
+    } catch (error) {
+        console.error("Error fetching active trades:", error);
+        throw error;
+    }
+};
+
 // Get all trades
 export const getAllTrades = async () => {
     try {
@@ -591,12 +642,41 @@ export const getAllTrades = async () => {
         const q = query(tradesRef, orderBy("createdAt", "desc"), limit(100));
         const snapshot = await getDocs(q);
 
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate(),
-            closedAt: doc.data().closedAt?.toDate()
-        }));
+        const trades = [];
+
+        for (const tradeDoc of snapshot.docs) {
+            const tradeData = tradeDoc.data();
+
+            // Fetch user details
+            let userEmail = "Unknown";
+            let userName = "Unknown";
+
+            if (tradeData.uid) {
+                try {
+                    const userRef = doc(db, "users", tradeData.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        userEmail = userData.email;
+                        userName = userData.name;
+                    }
+                } catch (err) {
+                    console.error("Error fetching user for trade:", err);
+                }
+            }
+
+            trades.push({
+                id: tradeDoc.id,
+                ...tradeData,
+                userEmail,
+                userName,
+                createdAt: tradeData.createdAt?.toDate(),
+                closedAt: tradeData.closedAt?.toDate()
+            });
+        }
+
+        return trades;
     } catch (error) {
         console.error("Error fetching trades:", error);
         throw error;
@@ -635,16 +715,19 @@ export const forceTradeResult = async (tradeId, result, pnl) => {
 
             if (walletSnap.exists()) {
                 const walletData = walletSnap.data();
-                const currentBalance = walletData.tradingBalance || 0;
+                const currentBalance = parseFloat(walletData.tradingBalance) || 0;
 
                 // Calculate return amount
                 // If Win: Principal + PnL
                 // If Tie: Principal only (PnL is usually 0 but we ignore it for safety or add it if strictly 0)
                 let returnAmount = 0;
+                const tradeAmount = parseFloat(tradeData.amount) || 0;
+                const pnlAmount = parseFloat(pnl) || 0;
+
                 if (result === "win") {
-                    returnAmount = (parseFloat(tradeData.amount) || 0) + (parseFloat(pnl) || 0);
+                    returnAmount = tradeAmount + pnlAmount;
                 } else if (result === "tie") {
-                    returnAmount = parseFloat(tradeData.amount) || 0;
+                    returnAmount = tradeAmount;
                 }
 
                 await updateDoc(walletRef, {

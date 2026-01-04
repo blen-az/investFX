@@ -108,7 +108,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
             }
 
             const walletData = walletSnap.data();
-            const tradingBalance = walletData.tradingBalance !== undefined ? walletData.tradingBalance : 0;
+            const tradingBalance = parseFloat(walletData.tradingBalance) || 0;
 
             let returnAmount;
             if (type === 'perpetual') {

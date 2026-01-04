@@ -7,6 +7,8 @@ import "./AgentCreator.css";
 
 export default function AgentCreator() {
     const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
 
     const [upgrading, setUpgrading] = useState(new Set());
@@ -15,6 +17,20 @@ export default function AgentCreator() {
         loadUsers();
     }, []);
 
+    // Filter users whenever search query or users list changes
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredUsers(users);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = users.filter(user =>
+                (user.name?.toLowerCase() || "").includes(query) ||
+                (user.email?.toLowerCase() || "").includes(query)
+            );
+            setFilteredUsers(filtered);
+        }
+    }, [searchQuery, users]);
+
     const loadUsers = async () => {
         try {
             setLoading(true);
@@ -22,6 +38,7 @@ export default function AgentCreator() {
             // Only show regular users (not already agents or admins)
             const regularUsers = data.filter(u => u.role === 'user');
             setUsers(regularUsers);
+            setFilteredUsers(regularUsers);
         } catch (error) {
             console.error("Error loading users:", error);
         } finally {
@@ -135,6 +152,30 @@ export default function AgentCreator() {
             </div>
 
             <h3 style={{ marginBottom: '16px', color: '#f8fafc' }}>Upgrade Existing Users</h3>
+
+            {/* Search Bar */}
+            <div className="search-bar glass-card" style={{ marginBottom: '24px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                    <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <input
+                    type="text"
+                    placeholder="Search users by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="search-clear"
+                        title="Clear search"
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
+
             {users.length === 0 ? (
                 <div className="empty-state-card glass-card">
                     <div className="empty-icon">👥</div>
@@ -142,7 +183,7 @@ export default function AgentCreator() {
                     <p>All users are already agents or admins</p>
                 </div>
             ) : (
-                <DataTable columns={columns} data={users} actions={actions} />
+                <DataTable columns={columns} data={filteredUsers} actions={actions} />
             )}
         </div>
     );

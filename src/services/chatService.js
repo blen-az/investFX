@@ -21,20 +21,21 @@ import {
 export const getOrCreateChat = async (userId, agentId) => {
     try {
         // Check if chat already exists
+        // Simplified query to avoid composite index requirement (userId + agentId)
         const chatsRef = collection(db, "chats");
         const q = query(
             chatsRef,
-            where("userId", "==", userId),
-            where("agentId", "==", agentId)
+            where("userId", "==", userId)
         );
 
         const snapshot = await getDocs(q);
+        const existingChat = snapshot.docs.find(d => d.data().agentId === agentId);
 
-        if (!snapshot.empty) {
+        if (existingChat) {
             // Chat exists, return it
             return {
-                id: snapshot.docs[0].id,
-                ...snapshot.docs[0].data()
+                id: existingChat.id,
+                ...existingChat.data()
             };
         }
 
@@ -164,10 +165,10 @@ export const getUserChat = async (userId) => {
 export const getAgentChats = async (agentId) => {
     try {
         const chatsRef = collection(db, "chats");
+        // Simplified query to avoid composite index requirement (agentId + lastMessageTime)
         const q = query(
             chatsRef,
-            where("agentId", "==", agentId),
-            orderBy("lastMessageTime", "desc")
+            where("agentId", "==", agentId)
         );
 
         const snapshot = await getDocs(q);
@@ -189,7 +190,8 @@ export const getAgentChats = async (agentId) => {
             });
         }
 
-        return chats;
+        // Sort in memory
+        return chats.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
     } catch (error) {
         console.error("Error getting agent chats:", error);
         throw error;
@@ -224,10 +226,10 @@ export const markAsRead = async (chatId, userRole) => {
  */
 export const subscribeToAgentChats = (agentId, callback) => {
     const chatsRef = collection(db, "chats");
+    // Simplified query to avoid composite index requirement (agentId + lastMessageTime)
     const q = query(
         chatsRef,
-        where("agentId", "==", agentId),
-        orderBy("lastMessageTime", "desc")
+        where("agentId", "==", agentId)
     );
 
     return onSnapshot(q, async (snapshot) => {
@@ -252,6 +254,9 @@ export const subscribeToAgentChats = (agentId, callback) => {
                 console.error("Error fetching user for chat:", err);
             }
         }
+
+        // Sort in memory
+        chats.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
 
         callback(chats);
     });

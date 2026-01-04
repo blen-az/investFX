@@ -2,26 +2,52 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
-import { getAllTrades, forceTradeResult } from "../../services/adminService";
+import { getAllTrades, getActiveTradesForAdmin, forceTradeResult } from "../../services/adminService";
 import "./Users.css";
 
 export default function Trades() {
     const [trades, setTrades] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filteredTrades, setFilteredTrades] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedTrade, setSelectedTrade] = useState(null);
     const [showForceModal, setShowForceModal] = useState(false);
     const [forceResult, setForceResult] = useState("win");
     const [forcePnl, setForcePnl] = useState("");
+    const [activeTab, setActiveTab] = useState("active"); // "active" or "history"
 
     useEffect(() => {
         loadTrades();
-    }, []);
+    }, [activeTab]);
+
+    // Filter trades whenever search query or trades list changes
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredTrades(trades);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = trades.filter(trade =>
+                (trade.userEmail?.toLowerCase() || "").includes(query) ||
+                (trade.userName?.toLowerCase() || "").includes(query) ||
+                (trade.asset?.toLowerCase() || "").includes(query) ||
+                (trade.uid?.toLowerCase() || "").includes(query) ||
+                (trade.id?.toLowerCase() || "").includes(query)
+            );
+            setFilteredTrades(filtered);
+        }
+    }, [searchQuery, trades]);
 
     const loadTrades = async () => {
         try {
             setLoading(true);
-            const data = await getAllTrades();
+            let data;
+            if (activeTab === "active") {
+                data = await getActiveTradesForAdmin();
+            } else {
+                data = await getAllTrades();
+            }
             setTrades(data);
+            setFilteredTrades(data);
         } catch (error) {
             console.error("Error loading trades:", error);
         } finally {
@@ -42,9 +68,16 @@ export default function Trades() {
 
     const columns = [
         {
-            header: "User ID",
-            key: "uid",
-            render: (value) => <span style={{ fontSize: '12px', color: '#94a3b8' }}>{value}</span>
+            header: "User",
+            key: "userEmail",
+            render: (value, row) => (
+                <div>
+                    <div style={{ fontWeight: 600, color: '#f8fafc', fontSize: '13px' }}>{value || row.uid}</div>
+                    {row.userName && row.userName !== 'Unknown' && (
+                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>{row.userName}</div>
+                    )}
+                </div>
+            )
         },
         {
             header: "Asset",
@@ -122,7 +155,56 @@ export default function Trades() {
                     <p className="page-subtitle">View and force trade results</p>
                 </div>
             </div>
-            <DataTable columns={columns} data={trades} actions={actions} />
+
+            {/* Tabs */}
+            <div className="filter-tabs" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                        className={`filter-tab ${activeTab === "active" ? "active" : ""}`}
+                        onClick={() => setActiveTab("active")}
+                    >
+                        Active Trades
+                    </button>
+                    <button
+                        className={`filter-tab ${activeTab === "history" ? "active" : ""}`}
+                        onClick={() => setActiveTab("history")}
+                    >
+                        Trade History
+                    </button>
+                </div>
+                <button
+                    onClick={loadTrades}
+                    className="action-btn action-btn-secondary"
+                    style={{ padding: '8px 16px', fontSize: '13px' }}
+                >
+                    ↻ Refresh
+                </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="search-bar glass-card" style={{ marginBottom: '24px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                    <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <input
+                    type="text"
+                    placeholder="Search trades by user email, name, or asset..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="search-clear"
+                        title="Clear search"
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
+
+            <DataTable columns={columns} data={filteredTrades} actions={actions} />
 
             {/* Force Result Modal */}
             <Modal
