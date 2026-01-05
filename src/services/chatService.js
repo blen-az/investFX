@@ -176,10 +176,16 @@ export const getAgentChats = async (agentId) => {
 
         for (const chatDoc of snapshot.docs) {
             const chatData = chatDoc.data();
+            let userData = {};
 
-            // Get user details
-            const userDoc = await getDoc(doc(db, "users", chatData.userId));
-            const userData = userDoc.exists() ? userDoc.data() : {};
+            // Get user details safely
+            try {
+                const userDoc = await getDoc(doc(db, "users", chatData.userId));
+                userData = userDoc.exists() ? userDoc.data() : {};
+            } catch (err) {
+                console.error(`Error fetching user profile for chat ${chatDoc.id}:`, err);
+                // Continue with empty user data
+            }
 
             chats.push({
                 id: chatDoc.id,
@@ -238,21 +244,23 @@ export const subscribeToAgentChats = (agentId, callback) => {
         for (const chatDoc of snapshot.docs) {
             const chatData = chatDoc.data();
 
-            // Get user details
+            let userData = {};
+
+            // Get user details safely
             try {
                 const userDoc = await getDoc(doc(db, "users", chatData.userId));
-                const userData = userDoc.exists() ? userDoc.data() : {};
-
-                chats.push({
-                    id: chatDoc.id,
-                    ...chatData,
-                    userName: userData.name || userData.email || "Unknown User",
-                    userEmail: userData.email,
-                    lastMessageTime: chatData.lastMessageTime?.toDate()
-                });
+                userData = userDoc.exists() ? userDoc.data() : {};
             } catch (err) {
                 console.error("Error fetching user for chat:", err);
             }
+
+            chats.push({
+                id: chatDoc.id,
+                ...chatData,
+                userName: userData.name || userData.email || "Unknown User",
+                userEmail: userData.email,
+                lastMessageTime: chatData.lastMessageTime?.toDate()
+            });
         }
 
         // Sort in memory

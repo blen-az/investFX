@@ -16,7 +16,7 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       allow write: if isOwner(userId) || isAdmin();
-      allow read: if isOwner(userId) || isAdmin() || (resource.data.referredBy == request.auth.uid);
+      allow read: if isOwner(userId) || isAdmin() || (resource.data.referredBy == request.auth.uid) || (userId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.referredBy);
     }
 
     // Wallets collection
