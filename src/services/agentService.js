@@ -136,3 +136,87 @@ export const generateReferralLink = (referralCode) => {
     return `${baseUrl}/signup?ref=${referralCode}`;
 };
 
+// Get list of sub-agents (users referred by this agent who are also agents)
+export const getSubAgents = async (agentId) => {
+    try {
+        const usersRef = collection(db, "users");
+        // Query for users referred by this agent AND have role 'agent'
+        const q = query(
+            usersRef,
+            where("referredBy", "==", agentId),
+            where("role", "==", "agent")
+        );
+        const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate()
+        }));
+    } catch (error) {
+        console.error("Error fetching sub-agents:", error);
+        throw error;
+    }
+};
+
+// Get orders from all users referred by the agent
+export const getAgentDownlineOrders = async (agentId) => {
+    try {
+        // 1. First get all referred users
+        const referredUsers = await getReferredUsers(agentId);
+        const userIds = referredUsers.map(u => u.id);
+
+        if (userIds.length === 0) return [];
+
+        const tradesRef = collection(db, "trades");
+        // Note: Ideally we filter by userIds, but 'in' query has limit 10.
+        // For now fetching recent trades and filtering in memory.
+        const q = query(tradesRef, orderBy("createdAt", "desc"), limit(200));
+        const snapshot = await getDocs(q);
+
+        const downlineTrades = snapshot.docs
+            .map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate()
+            }))
+            .filter(trade => userIds.includes(trade.uid));
+
+        return downlineTrades;
+    } catch (error) {
+        console.error("Error fetching downline orders:", error);
+        throw error;
+    }
+};
+
+// Get deposits/withdrawals from all users referred by the agent
+export const getAgentDownlineFinance = async (agentId, type = 'deposit') => {
+    try {
+        // 1. First get all referred users
+        const referredUsers = await getReferredUsers(agentId);
+        const userIds = referredUsers.map(u => u.id);
+
+        if (userIds.length === 0) return [];
+
+        const collectionName = type === 'deposit' ? 'deposits' : 'withdrawals';
+        const financeRef = collection(db, collectionName);
+
+        const q = query(financeRef, orderBy("createdAt", "desc"), limit(200));
+        const snapshot = await getDocs(q);
+
+        const downlineTransactions = snapshot.docs
+            .map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate()
+            }))
+            .filter(tx => userIds.includes(tx.uid));
+
+        return downlineTransactions;
+
+    } catch (error) {
+        console.error(`Error fetching downline ${type}s:`, error);
+        throw error;
+    }
+};
+

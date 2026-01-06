@@ -100,6 +100,28 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
         }
 
         return await runTransaction(db, async (transaction) => {
+            // 1. Get Trade Doc inside transaction to ensure atomicity
+            const tradeRef = doc(db, "trades", tradeId);
+            const tradeSnap = await transaction.get(tradeRef);
+
+            if (!tradeSnap.exists()) {
+                throw new Error("Trade not found");
+            }
+
+            const tradeData = tradeSnap.data();
+
+            // CRITICAL FIX: Check if trade is already closed
+            if (tradeData.status !== "active") {
+                console.warn(`Trade ${tradeId} is already closed. Skipping payout.`);
+                return {
+                    success: false,
+                    reason: "Trade already closed",
+                    outcome: tradeData.result,
+                    pnl: tradeData.pnl,
+                    newTradingBalance: null // Balance unchanged
+                };
+            }
+
             const walletRef = doc(db, "wallets", uid);
             const walletSnap = await transaction.get(walletRef);
 
@@ -121,14 +143,14 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
 
             // Prevent balance from going negative below zero
             const finalReturn = Math.max(0, returnAmount);
+            const newBalance = tradingBalance + finalReturn;
 
             transaction.update(walletRef, {
-                tradingBalance: tradingBalance + finalReturn,
+                tradingBalance: newBalance,
                 updatedAt: serverTimestamp()
             });
 
             // Update trade record
-            const tradeRef = doc(db, "trades", tradeId);
             transaction.update(tradeRef, {
                 status: "closed",
                 result: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
@@ -141,7 +163,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                 success: true,
                 outcome: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
                 pnl,
-                newTradingBalance: tradingBalance + finalReturn
+                newTradingBalance: newBalance
             };
         });
     } catch (error) {
