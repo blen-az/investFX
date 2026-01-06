@@ -5,11 +5,11 @@
             "queryScope": "COLLECTION",
             "fields": [
                 {
-                    "fieldPath": "uid",
+                    "fieldPath": "status",
                     "order": "ASCENDING"
                 },
                 {
-                    "fieldPath": "status",
+                    "fieldPath": "uid",
                     "order": "ASCENDING"
                 },
                 {
@@ -23,11 +23,11 @@
             "queryScope": "COLLECTION",
             "fields": [
                 {
-                    "fieldPath": "uid",
+                    "fieldPath": "status",
                     "order": "ASCENDING"
                 },
                 {
-                    "fieldPath": "status",
+                    "fieldPath": "uid",
                     "order": "ASCENDING"
                 },
                 {
