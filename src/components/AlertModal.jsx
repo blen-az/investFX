@@ -28,7 +28,7 @@ export default function AlertModal({ isOpen, onClose, title, message, type = 'er
             {/* Modal */}
             <div className="alert-modal">
                 <div className="alert-header">
-                    <div className="alert-domain">www.avatradescoin.com says</div>
+                    <div className="alert-domain">{window.location.hostname} says</div>
                 </div>
 
                 <div className="alert-content">

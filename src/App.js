@@ -65,6 +65,9 @@ const AgentCommissions = lazy(() => import("./pages/agent/Commissions"));
 const AgentChats = lazy(() => import("./pages/agent/AgentChats"));
 const AgentWithdraw = lazy(() => import("./pages/agent/AgentWithdraw"));
 const AgentSettings = lazy(() => import("./pages/agent/AgentSettings"));
+const AgentsList = lazy(() => import("./pages/agent/AgentsList")); // New
+const AgentOrderList = lazy(() => import("./pages/agent/AgentOrderList")); // New
+const AgentFinance = lazy(() => import("./pages/agent/AgentFinance")); // New
 
 export default function App() {
   return (
@@ -381,6 +384,48 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
                       <AgentSettings />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* NEW AGENT ROUTES */}
+                <Route
+                  path="/agent/agents"
+                  element={
+                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                      <AgentsList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/agent/orders/delivery"
+                  element={
+                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                      <AgentOrderList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/agent/orders/contract"
+                  element={
+                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                      <AgentOrderList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/agent/deposits"
+                  element={
+                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                      <AgentFinance />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/agent/withdrawals"
+                  element={
+                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                      <AgentFinance />
                     </ProtectedRoute>
                   }
                 />

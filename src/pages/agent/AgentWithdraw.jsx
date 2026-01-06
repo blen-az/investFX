@@ -5,6 +5,7 @@ import { requestWithdrawal, getWithdrawalHistory, getWithdrawalStats } from "../
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase";
 import DataTable from "../../components/DataTable";
+import AgentLayout from "./AgentLayout";
 import "./AgentWithdraw.css";
 
 export default function AgentWithdraw() {
@@ -191,204 +192,206 @@ export default function AgentWithdraw() {
     }
 
     return (
-        <div className="agent-withdraw-page">
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title gradient-text">Withdraw Earnings</h1>
-                    <p className="page-subtitle">Request withdrawal of your commission earnings</p>
+        <AgentLayout>
+            <div className="agent-withdraw-page">
+                <div className="page-header">
+                    <div>
+                        <h1 className="page-title gradient-text">Withdraw Earnings</h1>
+                        <p className="page-subtitle">Request withdrawal of your commission earnings</p>
+                    </div>
                 </div>
-            </div>
 
-            {/* Stats Cards */}
-            <div className="withdraw-stats-grid">
-                <div className="stat-card glass-card">
-                    <div className="stat-icon">💰</div>
-                    <div className="stat-content">
-                        <div className="stat-label">Commission Balance</div>
-                        <div className="stat-value">${commissionBalance.toFixed(2)}</div>
+                {/* Stats Cards */}
+                <div className="withdraw-stats-grid">
+                    <div className="stat-card glass-card">
+                        <div className="stat-icon">💰</div>
+                        <div className="stat-content">
+                            <div className="stat-label">Commission Balance</div>
+                            <div className="stat-value">${commissionBalance.toFixed(2)}</div>
+                        </div>
                     </div>
-                </div>
-                <div className="stat-card glass-card">
-                    <div className="stat-icon">⏳</div>
-                    <div className="stat-content">
-                        <div className="stat-label">Pending Withdrawals</div>
-                        <div className="stat-value">${stats.pendingWithdrawals.toFixed(2)}</div>
+                    <div className="stat-card glass-card">
+                        <div className="stat-icon">⏳</div>
+                        <div className="stat-content">
+                            <div className="stat-label">Pending Withdrawals</div>
+                            <div className="stat-value">${stats.pendingWithdrawals.toFixed(2)}</div>
+                        </div>
                     </div>
-                </div>
-                <div className="stat-card glass-card">
-                    <div className="stat-icon">✅</div>
-                    <div className="stat-content">
-                        <div className="stat-label">Available to Withdraw</div>
-                        <div className="stat-value" style={{ color: '#10b981' }}>
-                            ${availableBalance.toFixed(2)}
+                    <div className="stat-card glass-card">
+                        <div className="stat-icon">✅</div>
+                        <div className="stat-content">
+                            <div className="stat-label">Available to Withdraw</div>
+                            <div className="stat-value" style={{ color: '#10b981' }}>
+                                ${availableBalance.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="stat-card glass-card">
+                        <div className="stat-icon">📊</div>
+                        <div className="stat-content">
+                            <div className="stat-label">This Month Withdrawn</div>
+                            <div className="stat-value">${stats.thisMonthWithdrawn.toFixed(2)}</div>
                         </div>
                     </div>
                 </div>
-                <div className="stat-card glass-card">
-                    <div className="stat-icon">📊</div>
-                    <div className="stat-content">
-                        <div className="stat-label">This Month Withdrawn</div>
-                        <div className="stat-value">${stats.thisMonthWithdrawn.toFixed(2)}</div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Withdrawal Form */}
-            <div className="withdrawal-form-card glass-card">
-                <h2 style={{ marginBottom: '20px', color: '#f8fafc' }}>Request Withdrawal</h2>
+                {/* Withdrawal Form */}
+                <div className="withdrawal-form-card glass-card">
+                    <h2 style={{ marginBottom: '20px', color: '#f8fafc' }}>Request Withdrawal</h2>
 
-                {error && (
-                    <div style={{
-                        padding: '12px',
-                        background: 'rgba(239, 68, 68, 0.2)',
-                        border: '1px solid rgba(239, 68, 68, 0.4)',
-                        borderRadius: '8px',
-                        color: '#ef4444',
-                        marginBottom: '16px'
-                    }}>
-                        {error}
-                    </div>
-                )}
+                    {error && (
+                        <div style={{
+                            padding: '12px',
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            border: '1px solid rgba(239, 68, 68, 0.4)',
+                            borderRadius: '8px',
+                            color: '#ef4444',
+                            marginBottom: '16px'
+                        }}>
+                            {error}
+                        </div>
+                    )}
 
-                {success && (
-                    <div style={{
-                        padding: '12px',
-                        background: 'rgba(16, 185, 129, 0.2)',
-                        border: '1px solid rgba(16, 185, 129, 0.4)',
-                        borderRadius: '8px',
-                        color: '#10b981',
-                        marginBottom: '16px'
-                    }}>
-                        {success}
-                    </div>
-                )}
+                    {success && (
+                        <div style={{
+                            padding: '12px',
+                            background: 'rgba(16, 185, 129, 0.2)',
+                            border: '1px solid rgba(16, 185, 129, 0.4)',
+                            borderRadius: '8px',
+                            color: '#10b981',
+                            marginBottom: '16px'
+                        }}>
+                            {success}
+                        </div>
+                    )}
 
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Withdrawal Amount *</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="10"
-                            max={availableBalance}
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            placeholder="Enter amount (min $10)"
-                            className="form-input"
-                        />
-                        <small style={{ color: '#94a3b8', fontSize: '12px' }}>
-                            Available: ${availableBalance.toFixed(2)} | Min: $10 | Max: $10,000
-                        </small>
-                    </div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>Withdrawal Amount *</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="10"
+                                max={availableBalance}
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                placeholder="Enter amount (min $10)"
+                                className="form-input"
+                            />
+                            <small style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                Available: ${availableBalance.toFixed(2)} | Min: $10 | Max: $10,000
+                            </small>
+                        </div>
 
-                    <div className="form-group">
-                        <label>Payment Method *</label>
-                        <select
-                            value={paymentMethod}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="form-input"
+                        <div className="form-group">
+                            <label>Payment Method *</label>
+                            <select
+                                value={paymentMethod}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                className="form-input"
+                            >
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="crypto">Cryptocurrency</option>
+                            </select>
+                        </div>
+
+                        {paymentMethod === "bank_transfer" && (
+                            <>
+                                <div className="form-group">
+                                    <label>Account Name *</label>
+                                    <input
+                                        type="text"
+                                        value={paymentDetails.accountName}
+                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, accountName: e.target.value })}
+                                        placeholder="Account holder name"
+                                        className="form-input"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Account Number *</label>
+                                    <input
+                                        type="text"
+                                        value={paymentDetails.accountNumber}
+                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value })}
+                                        placeholder="Account number"
+                                        className="form-input"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Bank Name *</label>
+                                    <input
+                                        type="text"
+                                        value={paymentDetails.bankName}
+                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, bankName: e.target.value })}
+                                        placeholder="Bank name"
+                                        className="form-input"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>SWIFT/BIC Code (Optional)</label>
+                                    <input
+                                        type="text"
+                                        value={paymentDetails.swiftCode}
+                                        onChange={(e) => setPaymentDetails({ ...paymentDetails, swiftCode: e.target.value })}
+                                        placeholder="SWIFT code for international transfers"
+                                        className="form-input"
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {paymentMethod === "paypal" && (
+                            <div className="form-group">
+                                <label>PayPal Email *</label>
+                                <input
+                                    type="email"
+                                    value={paymentDetails.email}
+                                    onChange={(e) => setPaymentDetails({ ...paymentDetails, email: e.target.value })}
+                                    placeholder="your.email@example.com"
+                                    className="form-input"
+                                />
+                            </div>
+                        )}
+
+                        {paymentMethod === "crypto" && (
+                            <div className="form-group">
+                                <label>Wallet Address *</label>
+                                <input
+                                    type="text"
+                                    value={paymentDetails.walletAddress}
+                                    onChange={(e) => setPaymentDetails({ ...paymentDetails, walletAddress: e.target.value })}
+                                    placeholder="Your cryptocurrency wallet address"
+                                    className="form-input"
+                                />
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={submitting || availableBalance < 10}
+                            className="submit-btn"
                         >
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="paypal">PayPal</option>
-                            <option value="crypto">Cryptocurrency</option>
-                        </select>
-                    </div>
-
-                    {paymentMethod === "bank_transfer" && (
-                        <>
-                            <div className="form-group">
-                                <label>Account Name *</label>
-                                <input
-                                    type="text"
-                                    value={paymentDetails.accountName}
-                                    onChange={(e) => setPaymentDetails({ ...paymentDetails, accountName: e.target.value })}
-                                    placeholder="Account holder name"
-                                    className="form-input"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Account Number *</label>
-                                <input
-                                    type="text"
-                                    value={paymentDetails.accountNumber}
-                                    onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value })}
-                                    placeholder="Account number"
-                                    className="form-input"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Bank Name *</label>
-                                <input
-                                    type="text"
-                                    value={paymentDetails.bankName}
-                                    onChange={(e) => setPaymentDetails({ ...paymentDetails, bankName: e.target.value })}
-                                    placeholder="Bank name"
-                                    className="form-input"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>SWIFT/BIC Code (Optional)</label>
-                                <input
-                                    type="text"
-                                    value={paymentDetails.swiftCode}
-                                    onChange={(e) => setPaymentDetails({ ...paymentDetails, swiftCode: e.target.value })}
-                                    placeholder="SWIFT code for international transfers"
-                                    className="form-input"
-                                />
-                            </div>
-                        </>
-                    )}
-
-                    {paymentMethod === "paypal" && (
-                        <div className="form-group">
-                            <label>PayPal Email *</label>
-                            <input
-                                type="email"
-                                value={paymentDetails.email}
-                                onChange={(e) => setPaymentDetails({ ...paymentDetails, email: e.target.value })}
-                                placeholder="your.email@example.com"
-                                className="form-input"
-                            />
-                        </div>
-                    )}
-
-                    {paymentMethod === "crypto" && (
-                        <div className="form-group">
-                            <label>Wallet Address *</label>
-                            <input
-                                type="text"
-                                value={paymentDetails.walletAddress}
-                                onChange={(e) => setPaymentDetails({ ...paymentDetails, walletAddress: e.target.value })}
-                                placeholder="Your cryptocurrency wallet address"
-                                className="form-input"
-                            />
-                        </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={submitting || availableBalance < 10}
-                        className="submit-btn"
-                    >
-                        {submitting ? "Submitting..." : "Request Withdrawal"}
-                    </button>
-                </form>
-            </div>
-
-            {/* Withdrawal History */}
-            <div className="section-header">
-                <h2 className="section-title">Withdrawal History</h2>
-            </div>
-
-            {withdrawals.length === 0 ? (
-                <div className="empty-state-card glass-card">
-                    <div className="empty-icon">💸</div>
-                    <h3>No Withdrawals Yet</h3>
-                    <p>Your withdrawal requests will appear here</p>
+                            {submitting ? "Submitting..." : "Request Withdrawal"}
+                        </button>
+                    </form>
                 </div>
-            ) : (
-                <DataTable columns={columns} data={withdrawals} />
-            )}
-        </div>
+
+                {/* Withdrawal History */}
+                <div className="section-header">
+                    <h2 className="section-title">Withdrawal History</h2>
+                </div>
+
+                {withdrawals.length === 0 ? (
+                    <div className="empty-state-card glass-card">
+                        <div className="empty-icon">💸</div>
+                        <h3>No Withdrawals Yet</h3>
+                        <p>Your withdrawal requests will appear here</p>
+                    </div>
+                ) : (
+                    <DataTable columns={columns} data={withdrawals} />
+                )}
+            </div>
+        </AgentLayout>
     );
 }

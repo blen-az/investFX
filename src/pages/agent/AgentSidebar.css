@@ -1,0 +1,145 @@
+/* src/pages/agent/AgentSidebar.css */
+:root {
+    --sidebar-bg: #0B0F14;
+    --sidebar-surface: #13171f;
+    --sidebar-border: #1F2937;
+    --sidebar-text: #94A3B8;
+    --sidebar-active: #06b6d4;
+    /* Teal/Cyan */
+    --sidebar-hover: #1A1F26;
+}
+
+.agent-sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--sidebar-border);
+    background: var(--sidebar-surface);
+}
+
+.sidebar-logo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.menu-group {
+    margin-bottom: 8px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.menu-item:hover {
+    background: var(--sidebar-hover);
+    color: #fff;
+}
+
+.menu-item.active {
+    color: var(--sidebar-active);
+    background: rgba(6, 182, 212, 0.05);
+    border-right: 3px solid var(--sidebar-active);
+}
+
+.menu-icon {
+    margin-right: 12px;
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+}
+
+.menu-text {
+    flex: 1;
+}
+
+.arrow {
+    font-size: 0.7rem;
+    transition: transform 0.3s;
+}
+
+.arrow.down {
+    transform: rotate(180deg);
+}
+
+.submenu {
+    background: #080a0e;
+    /* Slightly darker than sidebar */
+    padding: 4px 0;
+}
+
+.submenu-item {
+    display: block;
+    padding: 10px 24px 10px 60px;
+    /* Indented */
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.submenu-item:hover {
+    color: #fff;
+}
+
+.submenu-item.active {
+    color: var(--sidebar-active);
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+/* Mobile Responsive */
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+}
+
+@media (max-width: 768px) {
+    .agent-sidebar {
+        transform: translateX(-100%);
+        border-right: none;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .agent-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-backdrop.open {
+        display: block;
+    }
+}

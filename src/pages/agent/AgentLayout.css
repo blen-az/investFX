@@ -1,0 +1,64 @@
+/* src/pages/agent/AgentLayout.css */
+.agent-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #000;
+    /* Deep black background */
+}
+
+.agent-main-content {
+    flex: 1;
+    margin-left: 260px;
+    /* Width of sidebar */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.mobile-header {
+    display: none;
+    height: 60px;
+    background: #0B0F14;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid #1F2937;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.mobile-toggle-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+.mobile-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+.content-scrollable {
+    flex: 1;
+    padding: 24px;
+    background: #000;
+    /* Match body bg */
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .agent-main-content {
+        margin-left: 0;
+    }
+
+    .mobile-header {
+        display: flex;
+    }
+
+    .content-scrollable {
+        padding: 16px;
+    }
+}
