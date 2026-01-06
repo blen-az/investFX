@@ -240,7 +240,7 @@ export const subscribeToAgentChats = (agentId, callback) => {
 
     return onSnapshot(q, async (snapshot) => {
         const chats = [];
-
+        // ... (existing logic)
         for (const chatDoc of snapshot.docs) {
             const chatData = chatDoc.data();
 
@@ -267,6 +267,9 @@ export const subscribeToAgentChats = (agentId, callback) => {
         chats.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
 
         callback(chats);
+    }, (error) => {
+        console.error("Error subscribing to agent chats:", error);
+        if (callback.onError) callback.onError(error);
     });
 };
 

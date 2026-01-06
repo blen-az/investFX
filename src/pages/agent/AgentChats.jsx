@@ -43,13 +43,31 @@ export default function AgentChats() {
         console.log("🟢 Subscribing to agent chats for agentId:", currentUser.uid);
 
         // Subscribe to agent's chats
-        unsubscribeChatsRef.current = subscribeToAgentChats(currentUser.uid, (chatList) => {
+        const handleChatsUpdate = (chatList) => {
             console.log("🟢 Received chat list:", chatList);
             setChats(chatList);
             setLoading(false);
-        });
+        };
+
+        // Attach error handler to the callback function property (pattern used in service)
+        handleChatsUpdate.onError = (error) => {
+            console.error("🔴 Error in chat subscription:", error);
+            setLoading(false);
+            // Optional: Set an error state to display to user
+        };
+
+        unsubscribeChatsRef.current = subscribeToAgentChats(currentUser.uid, handleChatsUpdate);
+
+        // Safety timeout in case subscription hangs
+        const timeoutId = setTimeout(() => {
+            if (loading) {
+                console.warn("⚠️ Chat loading timed out");
+                setLoading(false);
+            }
+        }, 5000);
 
         return () => {
+            clearTimeout(timeoutId);
             if (unsubscribeChatsRef.current) {
                 unsubscribeChatsRef.current();
             }

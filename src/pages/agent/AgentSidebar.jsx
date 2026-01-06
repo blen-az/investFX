@@ -42,6 +42,14 @@ const AgentSidebar = ({ isOpen, onClose }) => {
                         </Link>
                     </div>
 
+                    {/* Chat with Users */}
+                    <div className="menu-group">
+                        <Link to="/agent/chats" className={`menu-item ${isActive('/agent/chats') ? 'active' : ''}`}>
+                            <span className="menu-icon">💬</span>
+                            <span className="menu-text">Chats</span>
+                        </Link>
+                    </div>
+
                     {/* User Management */}
                     <div className="menu-group">
                         <div className="menu-item has-submenu" onClick={() => toggleMenu('users')}>

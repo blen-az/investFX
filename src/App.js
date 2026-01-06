@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
 import Layout from "./components/Layout";
@@ -370,6 +370,10 @@ export default function App() {
                       <AgentChats />
                     </ProtectedRoute>
                   }
+                />
+                <Route
+                  path="/agent/service"
+                  element={<Navigate to="/agent/chats" replace />}
                 />
                 <Route
                   path="/agent/withdraw"
