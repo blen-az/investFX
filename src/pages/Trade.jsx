@@ -348,6 +348,11 @@ export default function Trade() {
                   SELL / DOWN
                 </button>
               </div>
+
+              {/* Positions / History */}
+              <div className="trade-history-section" style={{ marginTop: '20px' }}>
+                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} />
+              </div>
             </div>
           </>
         ) : (
