@@ -69,6 +69,7 @@ export const requestWithdrawal = async (agentId, amount, paymentMethod, paymentD
             paymentMethod,
             paymentDetails,
             requestedAt: new Date(),
+            createdAt: new Date(), // Standardize for admin query
             processedAt: null,
             processedBy: null,
             notes: ""

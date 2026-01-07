@@ -19,6 +19,7 @@ export default function Deposits() {
             setDeposits(data);
         } catch (error) {
             console.error("Error loading deposits:", error);
+            alert(`Error loading deposits: ${error.message}`);
         } finally {
             setLoading(false);
         }

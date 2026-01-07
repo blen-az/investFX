@@ -19,6 +19,7 @@ export default function Withdrawals() {
             setWithdrawals(data);
         } catch (error) {
             console.error("Error loading withdrawals:", error);
+            alert(`Error loading withdrawals: ${error.message}`);
         } finally {
             setLoading(false);
         }
