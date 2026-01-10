@@ -145,6 +145,12 @@ export default function AdminDashboard() {
                         <div className="action-desc">View and edit user accounts</div>
                     </Link>
 
+                    <Link to="/admin/agents" className="action-card glass-card">
+                        <div className="action-icon">👔</div>
+                        <div className="action-title">Manage Agents</div>
+                        <div className="action-desc">View agents and downlines</div>
+                    </Link>
+
                     <Link to="/admin/deposits" className="action-card glass-card">
                         <div className="action-icon">📥</div>
                         <div className="action-title">Approve Deposits</div>

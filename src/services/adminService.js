@@ -45,6 +45,9 @@ export const getAllUsers = async (filters = {}) => {
             });
         }
 
+        // Sort by joined date desc
+        users.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
         return users;
     } catch (error) {
         console.error("Error fetching users:", error);
@@ -797,6 +800,40 @@ export const getAllAgents = async () => {
         }));
     } catch (error) {
         console.error("Error fetching agents:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get users referred by a specific agent
+ */
+export const getUsersByReferrer = async (agentId) => {
+    try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("referredBy", "==", agentId));
+        const snapshot = await getDocs(q);
+
+        const users = [];
+        for (const userDoc of snapshot.docs) {
+            const userData = userDoc.data();
+
+            // Get wallet balance (optional but good for display)
+            const walletDoc = await getDocs(query(collection(db, "wallets"), where("uid", "==", userDoc.id)));
+            const walletData = walletDoc.docs[0]?.data();
+
+            users.push({
+                id: userDoc.id,
+                ...userData,
+                balance: (walletData?.mainBalance || 0) + (walletData?.tradingBalance || 0),
+                createdAt: userData.createdAt?.toDate()
+            });
+        }
+        // Sort by joined date desc
+        users.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        return users;
+    } catch (error) {
+        console.error("Error fetching referred users:", error);
         throw error;
     }
 };

@@ -50,6 +50,7 @@ const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Users = lazy(() => import("./pages/admin/Users"));
 const AgentCreator = lazy(() => import("./pages/admin/AgentCreator"));
+const Agents = lazy(() => import("./pages/admin/Agents")); // New
 const Deposits = lazy(() => import("./pages/admin/Deposits"));
 const Withdrawals = lazy(() => import("./pages/admin/Withdrawals"));
 const Trades = lazy(() => import("./pages/admin/Trades"));
@@ -278,6 +279,14 @@ export default function App() {
                   element={
                     <ProtectedRoute requiredRole={ROLES.ADMIN}>
                       <AgentCreator />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/agents"
+                  element={
+                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                      <Agents />
                     </ProtectedRoute>
                   }
                 />
