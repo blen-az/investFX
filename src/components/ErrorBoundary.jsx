@@ -88,7 +88,7 @@ class ErrorBoundary extends React.Component {
 
                         <p className="error-help">
                             If this problem persists, please contact support at{' '}
-                            <a href="mailto:support@avatrade.com">support@avatrade.com</a>
+                            <a href="mailto:support@waymoretrading.com">support@waymoretrading.com</a>
                         </p>
                     </div>
                 </div>

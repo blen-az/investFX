@@ -80,7 +80,7 @@ export const sendOTP = async (uid, email, name) => {
             to_email: cleanEmail,
             to_name: cleanName,
             otp_code: code,
-            company_name: "AvaTrade"
+            company_name: "WayMore Trading"
         };
 
         console.log(`Sending EmailJS to: '${cleanEmail}' with code: ${code}`);

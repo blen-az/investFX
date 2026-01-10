@@ -40,8 +40,8 @@ export default function Promotion() {
         const referralLink = `${window.location.origin}/signup?ref=${referralCode}`;
         if (navigator.share) {
             navigator.share({
-                title: 'Join AvaTrade',
-                text: 'Start trading with AvaTrade using my referral code!',
+                title: 'Join WayMore Trading',
+                text: 'Start trading with WayMore Trading using my referral code!',
                 url: referralLink
             });
         } else {

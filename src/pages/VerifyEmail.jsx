@@ -117,7 +117,7 @@ export default function VerifyEmail() {
             <div className="login-container">
                 <div className="login-card">
                     <div className="login-header">
-                        <div className="login-logo">AvaTrade</div>
+                        <div className="login-logo">WayMore Trading</div>
                         <h2 className="login-title">Verify Email</h2>
                         <p className="login-subtitle">
                             We've sent a 6-digit code to <br />

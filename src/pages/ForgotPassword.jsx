@@ -38,7 +38,7 @@ export default function ForgotPassword() {
             <div className="forgot-password-container">
                 <div className="forgot-password-card">
                     <div className="forgot-password-header">
-                        <div className="forgot-password-logo">AvaTrade</div>
+                        <div className="forgot-password-logo">WayMore Trading</div>
                         <h2 className="forgot-password-title">Reset Password</h2>
                         <p className="forgot-password-subtitle">
                             Enter your email to receive a password reset link
