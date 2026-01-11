@@ -148,3 +148,99 @@ export const getMigrationStatus = async () => {
         throw error;
     }
 };
+
+/**
+ * Generate a unique 8-character alphanumeric Short ID (copy from authService logic)
+ */
+const generateShortId = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let autoId = "";
+    for (let i = 0; i < 8; i++) {
+        autoId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return autoId;
+};
+
+const isShortIdUnique = async (shortId, existingIds) => {
+    return !existingIds.includes(shortId);
+};
+
+const generateUniqueShortId = async (existingIds) => {
+    let id = generateShortId();
+    let attempts = 0;
+    while (!await isShortIdUnique(id, existingIds) && attempts < 10) {
+        id = generateShortId();
+        attempts++;
+    }
+    if (attempts >= 10) return generateShortId() + Date.now().toString().slice(-4);
+    existingIds.push(id);
+    return id;
+};
+
+/**
+ * Migrate all users without shortId
+ */
+export const migrateShortIds = async () => {
+    try {
+        console.log("Starting Short ID migration...");
+        const usersRef = collection(db, "users");
+        const snapshot = await getDocs(usersRef);
+
+        const existingIds = [];
+        const usersToUpdate = [];
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.shortId) existingIds.push(data.shortId);
+            else usersToUpdate.push({ id: doc.id, email: data.email });
+        });
+
+        if (usersToUpdate.length === 0) {
+            return { success: true, message: "All users already have Short IDs" };
+        }
+
+        let successCount = 0;
+        let errors = [];
+
+        for (const user of usersToUpdate) {
+            try {
+                const shortId = await generateUniqueShortId(existingIds);
+                const userRef = doc(db, "users", user.id);
+                await updateDoc(userRef, { shortId, updatedAt: new Date() });
+                successCount++;
+            } catch (err) {
+                console.error(`Failed to update ${user.email}:`, err);
+                errors.push({ email: user.email, error: err.message });
+            }
+        }
+
+        return {
+            success: errors.length === 0,
+            message: `Migration completed: ${successCount} users updated`,
+            updated: successCount,
+            failed: errors.length,
+            errors
+        };
+    } catch (error) {
+        console.error("Error migrating Short IDs:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get status for Short ID migration
+ */
+export const getShortIdMigrationStatus = async () => {
+    try {
+        const usersRef = collection(db, "users");
+        const snapshot = await getDocs(usersRef);
+        let missing = 0;
+        snapshot.forEach(doc => {
+            if (!doc.data().shortId) missing++;
+        });
+        return { needsMigration: missing > 0, missingCount: missing };
+    } catch (error) {
+        console.error("Error getting Short ID status:", error);
+        throw error;
+    }
+};

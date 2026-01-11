@@ -188,14 +188,62 @@ export const generateUniqueReferralCode = async () => {
 
 
 /**
+ * Generate a unique 8-character alphanumeric Short ID
+ */
+export const generateShortId = () => {
+    // 8 chars: enough distinctness, readable
+    // Uppercase + Numbers
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let autoId = "";
+    for (let i = 0; i < 8; i++) {
+        autoId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return autoId;
+};
+
+/**
+ * Check if Short ID is unique
+ */
+const isShortIdUnique = async (shortId) => {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("shortId", "==", shortId));
+    const snapshot = await getDocs(q);
+    return snapshot.empty;
+};
+
+/**
+ * Generate a unique Short ID (retry until unique)
+ */
+export const generateUniqueShortId = async () => {
+    let id = generateShortId();
+    let attempts = 0;
+
+    while (!(await isShortIdUnique(id)) && attempts < 10) {
+        id = generateShortId();
+        attempts++;
+    }
+
+    if (attempts >= 10) {
+        // Fallback: append timestamp if really stuck (highly unlikely)
+        return generateShortId() + Date.now().toString().slice(-4);
+    }
+
+    return id;
+};
+
+/**
  * Create a user document in Firestore
  */
 export const createUserDocument = async (uid, email, name, role = "user", referralCode = null, emailVerified = false) => {
     try {
         const userRef = doc(db, "users", uid);
 
+        // Generate Short ID
+        constshortId = await generateUniqueShortId();
+
         const userData = {
             uid,
+            shortId: constshortId,
             email,
             name: name || email.split("@")[0],
             role,

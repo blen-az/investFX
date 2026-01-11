@@ -62,6 +62,15 @@ export default function Agents() {
 
     const columns = [
         {
+            header: "ID",
+            key: "shortId",
+            render: (value, row) => (
+                <span style={{ fontFamily: 'monospace', color: '#6366f1', background: 'rgba(99, 102, 241, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }}>
+                    {value || row.id.substring(0, 6).toUpperCase()}
+                </span>
+            )
+        },
+        {
             header: "Name",
             key: "name",
             render: (value, row) => (
@@ -93,6 +102,15 @@ export default function Agents() {
     ];
 
     const userColumns = [
+        {
+            header: "ID",
+            key: "shortId",
+            render: (value, row) => (
+                <span style={{ fontFamily: 'monospace', color: '#6366f1', background: 'rgba(99, 102, 241, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }}>
+                    {value || row.id.substring(0, 6).toUpperCase()}
+                </span>
+            )
+        },
         {
             header: "Name",
             key: "name",

@@ -3,7 +3,12 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import StatsCard from "../../components/StatsCard";
 import { getAllUsers, getAllDeposits, getAllWithdrawals, getAllTrades } from "../../services/adminService";
-import { migrateAgentReferralCodes, getMigrationStatus } from "../../services/migrationService";
+import {
+    migrateAgentReferralCodes,
+    getMigrationStatus,
+    migrateShortIds,
+    getShortIdMigrationStatus
+} from "../../services/migrationService";
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
@@ -19,6 +24,9 @@ export default function AdminDashboard() {
     const [migrationStatus, setMigrationStatus] = useState(null);
     const [migrating, setMigrating] = useState(false);
     const [migrationMessage, setMigrationMessage] = useState("");
+    const [shortIdStatus, setShortIdStatus] = useState(null);
+    const [migratingShortIds, setMigratingShortIds] = useState(false);
+    const [shortIdMessage, setShortIdMessage] = useState("");
 
     useEffect(() => {
         loadDashboardStats();
@@ -61,6 +69,8 @@ export default function AdminDashboard() {
         try {
             const status = await getMigrationStatus();
             setMigrationStatus(status);
+            const sIdStatus = await getShortIdMigrationStatus();
+            setShortIdStatus(sIdStatus);
         } catch (error) {
             console.error("Error checking migration status:", error);
         }
@@ -81,6 +91,24 @@ export default function AdminDashboard() {
             setMigrationMessage("Migration failed: " + error.message);
         } finally {
             setMigrating(false);
+        }
+    };
+
+    const handleShortIdMigration = async () => {
+        if (!window.confirm("This will generate Short IDs for all users who don't have one. Continue?")) {
+            return;
+        }
+
+        try {
+            setMigratingShortIds(true);
+            setShortIdMessage("");
+            const result = await migrateShortIds();
+            setShortIdMessage(result.message);
+            await checkMigrationStatus();
+        } catch (error) {
+            setShortIdMessage("Migration failed: " + error.message);
+        } finally {
+            setMigratingShortIds(false);
         }
     };
 
@@ -202,48 +230,93 @@ export default function AdminDashboard() {
             </div>
 
             {/* Migration Tools */}
-            {migrationStatus?.needsMigration && (
+            {(migrationStatus?.needsMigration || shortIdStatus?.needsMigration) && (
                 <div className="migration-section" style={{ marginTop: '32px' }}>
                     <h2 className="section-title">🔧 Migration Tools</h2>
-                    <div className="glass-card" style={{ padding: '24px' }}>
-                        <div style={{ marginBottom: '16px' }}>
-                            <h3 style={{ color: '#f8fafc', marginBottom: '8px' }}>Agent Referral Codes</h3>
-                            <p style={{ color: '#94a3b8', fontSize: '14px' }}>
-                                {migrationStatus.agentsWithoutCodes} agent(s) need referral codes assigned.
-                            </p>
-                        </div>
 
-                        {migrationMessage && (
-                            <div style={{
-                                padding: '12px',
-                                marginBottom: '16px',
-                                background: migrationMessage.includes('failed') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                border: `1px solid ${migrationMessage.includes('failed') ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
-                                borderRadius: '8px',
-                                color: migrationMessage.includes('failed') ? '#ef4444' : '#10b981',
-                                fontSize: '14px'
-                            }}>
-                                {migrationMessage}
+                    {migrationStatus?.needsMigration && (
+                        <div className="glass-card" style={{ padding: '24px', marginBottom: '16px' }}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <h3 style={{ color: '#f8fafc', marginBottom: '8px' }}>Agent Referral Codes</h3>
+                                <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+                                    {migrationStatus.agentsWithoutCodes} agent(s) need referral codes assigned.
+                                </p>
                             </div>
-                        )}
 
-                        <button
-                            onClick={handleMigration}
-                            disabled={migrating}
-                            style={{
-                                padding: '12px 24px',
-                                background: migrating ? '#64748b' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                border: 'none',
-                                borderRadius: '8px',
-                                color: 'white',
-                                fontWeight: 600,
-                                cursor: migrating ? 'not-allowed' : 'pointer',
-                                fontSize: '14px'
-                            }}
-                        >
-                            {migrating ? '⏳ Migrating...' : '🚀 Migrate Agent Referral Codes'}
-                        </button>
-                    </div>
+                            {migrationMessage && (
+                                <div style={{
+                                    padding: '12px',
+                                    marginBottom: '16px',
+                                    background: migrationMessage.includes('failed') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                    border: `1px solid ${migrationMessage.includes('failed') ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+                                    borderRadius: '8px',
+                                    color: migrationMessage.includes('failed') ? '#ef4444' : '#10b981',
+                                    fontSize: '14px'
+                                }}>
+                                    {migrationMessage}
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleMigration}
+                                disabled={migrating}
+                                style={{
+                                    padding: '12px 24px',
+                                    background: migrating ? '#64748b' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                    cursor: migrating ? 'not-allowed' : 'pointer',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {migrating ? '⏳ Migrating...' : '🚀 Migrate Agent Referral Codes'}
+                            </button>
+                        </div>
+                    )}
+
+                    {shortIdStatus?.needsMigration && (
+                        <div className="glass-card" style={{ padding: '24px' }}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <h3 style={{ color: '#f8fafc', marginBottom: '8px' }}>User Short IDs</h3>
+                                <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+                                    {shortIdStatus.missingCount} user(s) need Short IDs generated.
+                                </p>
+                            </div>
+
+                            {shortIdMessage && (
+                                <div style={{
+                                    padding: '12px',
+                                    marginBottom: '16px',
+                                    background: shortIdMessage.includes('failed') ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                    border: `1px solid ${shortIdMessage.includes('failed') ? 'rgba(239, 68, 68, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+                                    borderRadius: '8px',
+                                    color: shortIdMessage.includes('failed') ? '#ef4444' : '#10b981',
+                                    fontSize: '14px'
+                                }}>
+                                    {shortIdMessage}
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleShortIdMigration}
+                                disabled={migratingShortIds}
+                                style={{
+                                    padding: '12px 24px',
+                                    background: migratingShortIds ? '#64748b' : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                    cursor: migratingShortIds ? 'not-allowed' : 'pointer',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {migratingShortIds ? '⏳ Generating...' : '⚡ Generate Short IDs'}
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
