@@ -239,11 +239,11 @@ export const createUserDocument = async (uid, email, name, role = "user", referr
         const userRef = doc(db, "users", uid);
 
         // Generate Short ID
-        constshortId = await generateUniqueShortId();
+        const shortId = await generateUniqueShortId();
 
         const userData = {
             uid,
-            shortId: constshortId,
+            shortId: shortId,
             email,
             name: name || email.split("@")[0],
             role,
