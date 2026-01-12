@@ -83,23 +83,35 @@ export const sendOTP = async (uid, email, name) => {
             company_name: "WayMore"
         };
 
-        console.log(`Sending EmailJS to: '${cleanEmail}' with code: ${code}`);
+        console.log(`📧 Attempting to send email via EmailJS...`);
+        console.log(`Service ID: ${EMAILJS_SERVICE_ID}`);
+        console.log(`Template ID: ${EMAILJS_TEMPLATE_ID}`);
+        console.log(`To: ${cleanEmail}`);
+        console.log(`OTP Code: ${code}`);
 
-        await emailjs.send(
+        const response = await emailjs.send(
             EMAILJS_SERVICE_ID,
             EMAILJS_TEMPLATE_ID,
             templateParams,
             EMAILJS_PUBLIC_KEY
         );
 
-        console.log(`OTP sent to ${cleanEmail}`);
+        console.log(`✅ OTP email sent successfully!`, response);
         return { success: true, expiresAt };
     } catch (error) {
-        console.error("Error sending OTP:", error);
+        console.error("❌ Error sending OTP:", error);
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error status:", error.status);
+
         // Log detailed EmailJS error if available
         if (error.text) {
             console.error("EmailJS Error Details:", error.text);
         }
+        if (error.response) {
+            console.error("EmailJS Response:", error.response);
+        }
+
         throw error;
     }
 };

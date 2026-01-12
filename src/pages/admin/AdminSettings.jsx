@@ -1,7 +1,7 @@
 // src/pages/admin/AdminSettings.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { updatePassword, updateEmail, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { db, auth } from "../../firebase";
 import { getPlatformSettings, updatePlatformSettings } from "../../services/adminService";
@@ -75,6 +75,28 @@ export default function AdminSettings() {
         loadAdminData();
     }, [user]);
 
+    // Real-time listener for platform settings
+    useEffect(() => {
+        const settingsRef = doc(db, "settings", "platform");
+        const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const settings = docSnap.data();
+                setPlatformSettings(prev => ({
+                    ...prev,
+                    ...settings,
+                    depositAddresses: {
+                        ...prev.depositAddresses,
+                        ...(settings.depositAddresses || {})
+                    }
+                }));
+            }
+        }, (error) => {
+            console.error("Error listening to platform settings:", error);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     useEffect(() => {
         setPasswordStrength(getPasswordStrength(passwordData.newPassword));
     }, [passwordData.newPassword]);
@@ -96,19 +118,6 @@ export default function AdminSettings() {
                     securityAlerts: data.securityAlerts !== false,
                     dashboardRefreshRate: data.dashboardRefreshRate || 30
                 });
-            }
-
-            // Load Platform Settings
-            const settings = await getPlatformSettings();
-            if (settings) {
-                setPlatformSettings(prev => ({
-                    ...prev,
-                    ...settings,
-                    depositAddresses: {
-                        ...prev.depositAddresses,
-                        ...(settings.depositAddresses || {})
-                    }
-                }));
             }
         } catch (error) {
             console.error("Error loading admin data:", error);
