@@ -65,6 +65,8 @@ export default function Signup() {
         setError("Password should be at least 6 characters.");
       } else if (err.code === "auth/invalid-email") {
         setError("Invalid email address.");
+      } else if (err.code === "auth/network-request-failed") {
+        setError("Network error. Please check your internet connection and try again.");
       } else {
         setError(err.message || "Failed to create account. Please try again.");
       }

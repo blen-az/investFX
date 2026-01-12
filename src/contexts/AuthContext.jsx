@@ -46,6 +46,33 @@ export function AuthProvider({ children }) {
       console.log('Auth state changed:', currentUser ? currentUser.email : 'No user');
 
       if (currentUser) {
+        // Self-Healing: Ensure wallet exists (for users who signed up during outage/bug)
+        try {
+          const walletRef = doc(db, "wallets", currentUser.uid);
+          const walletSnap = await getDoc(walletRef);
+
+          if (!walletSnap.exists()) {
+            console.log("⚠️ REPAIR: Wallet missing for user, creating default wallet...");
+            await setDoc(walletRef, {
+              uid: currentUser.uid,
+              balance: 0,
+              mainBalance: 0,
+              tradingBalance: 0,
+              commissionBalance: 0,
+              assets: {
+                USDT: { name: "Tether", symbol: "USDT", total: 0, networks: { "TRC20": 0, "ERC20": 0, "BEP20": 0 } },
+                BTC: { name: "Bitcoin", symbol: "BTC", total: 0, networks: { "Bitcoin": 0 } },
+                ETH: { name: "Ethereum", symbol: "ETH", total: 0, networks: { "Ethereum": 0, "Arbitrum": 0, "Optimism": 0 } },
+                SOL: { name: "Solana", symbol: "SOL", total: 0, networks: { "Solana": 0 } }
+              },
+              updatedAt: new Date()
+            });
+            console.log("✅ REPAIR: Wallet created successfully");
+          }
+        } catch (err) {
+          console.error("Error checking/creating wallet:", err);
+        }
+
         // Subscribe to real-time user document updates
         unsubscribeUserDoc = onSnapshot(doc(db, "users", currentUser.uid), (userDoc) => {
           if (userDoc.exists()) {
@@ -144,10 +171,6 @@ export function AuthProvider({ children }) {
       });
       console.log('✅ User document created');
 
-      console.log('Step 3.5: Sending initial OTP...');
-      await sendOTP(user.uid, email, name || email.split('@')[0]);
-      console.log('✅ Initial OTP sent');
-
       console.log('Step 4: Creating wallet document...');
       await setDoc(doc(db, "wallets", user.uid), {
         uid: user.uid,
@@ -196,6 +219,16 @@ export function AuthProvider({ children }) {
         updatedAt: new Date()
       });
       console.log('✅ Wallet document created');
+
+      console.log('Step 3.5: Sending initial OTP...');
+      try {
+        await sendOTP(user.uid, email, name || email.split('@')[0]);
+        console.log('✅ Initial OTP sent');
+      } catch (otpError) {
+        console.error('⚠️ Failed to send initial OTP:', otpError);
+        // Do not throw error, allow signup to complete
+        // User can resend OTP from verification page
+      }
 
       setUserRole(ROLES.USER);
       console.log('✅ Signup complete!');

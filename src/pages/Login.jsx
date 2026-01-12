@@ -41,7 +41,11 @@ export default function Login() {
       await login(email, password);
       // user state change will trigger useEffect redirect
     } catch (err) {
-      setError("Failed to login. Please check your credentials.");
+      if (err.code === "auth/network-request-failed") {
+        setError("Network error. Please check your internet connection and try again.");
+      } else {
+        setError("Failed to login. Please check your credentials.");
+      }
       setLoading(false);
     }
   };
