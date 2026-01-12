@@ -5,7 +5,6 @@ import ParticleBackground from "../components/ParticleBackground";
 import "./Deposit.css";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
-import { getPlatformSettings } from "../services/adminService";
 
 export default function Deposit() {
   const { user } = useAuth();
@@ -23,17 +22,32 @@ export default function Deposit() {
   });
 
   React.useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const settings = await getPlatformSettings();
-        if (settings && settings.depositAddresses) {
-          setDepositAddresses(settings.depositAddresses);
+    const settingsRef = doc(db, "settings", "platform");
+    const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.depositAddresses) {
+          setDepositAddresses(data.depositAddresses);
         }
-      } catch (error) {
-        console.error("Error fetching deposit addresses:", error);
+      } else {
+        // Default addresses if document doesn't exist
+        setDepositAddresses({
+          BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+          ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+          USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+        });
       }
-    };
-    fetchSettings();
+    }, (error) => {
+      console.error("Error listening to platform settings:", error);
+      // Fallback to defaults on error
+      setDepositAddresses({
+        BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+        ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+        USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+      });
+    });
+
+    return () => unsubscribe();
   }, []);
 
   React.useEffect(() => {
