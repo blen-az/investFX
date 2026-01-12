@@ -35,6 +35,7 @@ export default function AdminSettings() {
     const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [depositSaved, setDepositSaved] = useState(false);
     const [message, setMessage] = useState({ type: "", text: "" });
 
     // Profile form
@@ -77,10 +78,13 @@ export default function AdminSettings() {
 
     // Real-time listener for platform settings
     useEffect(() => {
+        console.log("🔌 [Admin] Setting up platform settings listener...");
         const settingsRef = doc(db, "settings", "platform");
         const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
+            console.log("📡 [Admin] Received update from Firestore");
             if (docSnap.exists()) {
                 const settings = docSnap.data();
+                console.log("📦 [Admin] Platform settings data:", settings);
                 setPlatformSettings(prev => ({
                     ...prev,
                     ...settings,
@@ -89,12 +93,18 @@ export default function AdminSettings() {
                         ...(settings.depositAddresses || {})
                     }
                 }));
+                console.log("✅ [Admin] Deposit addresses updated in state");
+            } else {
+                console.log("⚠️ [Admin] Settings document doesn't exist yet");
             }
         }, (error) => {
-            console.error("Error listening to platform settings:", error);
+            console.error("❌ [Admin] Error listening to platform settings:", error);
         });
 
-        return () => unsubscribe();
+        return () => {
+            console.log("🔌 [Admin] Cleaning up platform settings listener");
+            unsubscribe();
+        };
     }, []);
 
     useEffect(() => {
@@ -202,11 +212,18 @@ export default function AdminSettings() {
         e.preventDefault();
         try {
             setSaving(true);
+            setDepositSaved(false);
+            console.log("🔄 Starting deposit address save...");
             await updatePlatformSettings(platformSettings);
+            console.log("✅ Deposit addresses saved successfully!");
             showMessage("success", "Platform settings updated successfully!");
+            setDepositSaved(true);
+            // Reset saved status after 3 seconds
+            setTimeout(() => setDepositSaved(false), 3000);
         } catch (error) {
-            console.error("Error updating platform settings:", error);
+            console.error("❌ Error updating platform settings:", error);
             showMessage("error", "Failed to update platform settings");
+            setDepositSaved(false);
         } finally {
             setSaving(false);
         }
@@ -525,7 +542,7 @@ export default function AdminSettings() {
                     </div>
 
                     <button type="submit" className="btn btn-primary" disabled={saving}>
-                        {saving ? "Saving..." : "Save Deposit Addresses"}
+                        {saving ? "Saving..." : depositSaved ? "✓ Saved!" : "Save Deposit Addresses"}
                     </button>
                 </form>
             </div>
