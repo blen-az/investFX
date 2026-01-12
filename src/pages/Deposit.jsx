@@ -22,14 +22,26 @@ export default function Deposit() {
   });
 
   React.useEffect(() => {
+    console.log("🔌 Setting up deposit addresses listener...");
     const settingsRef = doc(db, "settings", "platform");
     const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
+      console.log("📡 Received update from Firestore");
       if (docSnap.exists()) {
         const data = docSnap.data();
+        console.log("📦 Platform settings data:", data);
         if (data.depositAddresses) {
+          console.log("✅ Updating deposit addresses:", data.depositAddresses);
           setDepositAddresses(data.depositAddresses);
+        } else {
+          console.log("⚠️ No depositAddresses in data, using defaults");
+          setDepositAddresses({
+            BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+            ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+            USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+          });
         }
       } else {
+        console.log("⚠️ Document doesn't exist, using default addresses");
         // Default addresses if document doesn't exist
         setDepositAddresses({
           BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -38,7 +50,7 @@ export default function Deposit() {
         });
       }
     }, (error) => {
-      console.error("Error listening to platform settings:", error);
+      console.error("❌ Error listening to platform settings:", error);
       // Fallback to defaults on error
       setDepositAddresses({
         BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -47,7 +59,10 @@ export default function Deposit() {
       });
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log("🔌 Cleaning up deposit addresses listener");
+      unsubscribe();
+    };
   }, []);
 
   React.useEffect(() => {

@@ -966,15 +966,17 @@ export const getPlatformSettings = async () => {
  */
 export const updatePlatformSettings = async (settings) => {
     try {
+        console.log("💾 Saving platform settings to Firestore:", settings);
         const settingsRef = doc(db, "settings", "platform");
         await setDoc(settingsRef, {
             ...settings,
             updatedAt: new Date()
         }, { merge: true });
 
+        console.log("✅ Platform settings saved successfully!");
         return { success: true };
     } catch (error) {
-        console.error("Error updating platform settings:", error);
+        console.error("❌ Error updating platform settings:", error);
         throw error;
     }
 };
