@@ -35,9 +35,9 @@ export const generateOTP = () => {
 
 // EMAILJS CONFIGURATION
 // TODO: Replace these with your actual EmailJS keys
-const EMAILJS_SERVICE_ID = "service_6hrbkob";
-const EMAILJS_TEMPLATE_ID = "template_zjl7ocl";
-const EMAILJS_PUBLIC_KEY = "gfUrTaA1o-GWaLHrj";
+const EMAILJS_SERVICE_ID = "service_q4r230l";
+const EMAILJS_TEMPLATE_ID = "template_ijgb52j";
+const EMAILJS_PUBLIC_KEY = "G_fj_PhAagAfuQjBH";
 
 /**
  * Send OTP to user via EmailJS
@@ -80,7 +80,7 @@ export const sendOTP = async (uid, email, name) => {
             to_email: cleanEmail,
             to_name: cleanName,
             otp_code: code,
-            company_name: "WayMore Trading"
+            company_name: "WayMore"
         };
 
         console.log(`Sending EmailJS to: '${cleanEmail}' with code: ${code}`);
