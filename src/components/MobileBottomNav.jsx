@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
     LayoutDashboard,
@@ -13,26 +13,18 @@ import {
     User,
     Lock,
     Wallet,
-    Coins,
-    LogOut
+    Coins
 } from 'lucide-react';
 import './MobileBottomNav.css';
 
 export default function MobileBottomNav() {
-    const { user, userRole, isAdmin, isAgent, logout } = useAuth();
+    const { user, userRole, isAdmin, isAgent } = useAuth();
     const location = useLocation();
-    const navigate = useNavigate();
-    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     // Don't show on login/signup pages
     if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/') {
         return null;
     }
-
-    const handleLogout = async () => {
-        await logout();
-        navigate('/');
-    };
 
     // Different nav items based on user role
     const getNavItems = () => {
@@ -65,10 +57,11 @@ export default function MobileBottomNav() {
 
         return [
             { path: '/home', icon: <Home size={24} />, label: 'Home' },
-            { path: '/trade', icon: <TrendingUp size={24} />, label: 'Trade' },
-            { path: '/wallet', icon: <User size={24} />, label: 'Mine' },
             { path: '/market', icon: <BarChart2 size={24} />, label: 'Market' },
-            { type: 'button', onClick: handleLogout, icon: <LogOut size={24} />, label: 'Logout' }
+            { path: '/trade', icon: <TrendingUp size={24} />, label: 'Trade' },
+            { path: '/assets', icon: <Coins size={24} />, label: 'Assets' },
+            { path: '/transactions', icon: <History size={24} />, label: 'History' },
+            { path: '/wallet', icon: <User size={24} />, label: 'Mine' }
         ];
     };
 
@@ -77,28 +70,17 @@ export default function MobileBottomNav() {
     return (
         <nav className="mobile-bottom-nav">
             <div className="mobile-nav-container">
-                {navItems.map((item, index) => (
-                    item.type === 'button' ? (
-                        <button
-                            key={`button-${index}`}
-                            onClick={item.onClick}
-                            className="mobile-nav-item logout-mobile"
-                        >
-                            <span className="mobile-nav-icon">{item.icon}</span>
-                            <span className="mobile-nav-label">{item.label}</span>
-                        </button>
-                    ) : (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            className={({ isActive }) =>
-                                `mobile-nav-item ${isActive ? 'active' : ''}`
-                            }
-                        >
-                            <span className="mobile-nav-icon">{item.icon}</span>
-                            <span className="mobile-nav-label">{item.label}</span>
-                        </NavLink>
-                    )
+                {navItems.map((item) => (
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
+                        className={({ isActive }) =>
+                            `mobile-nav-item ${isActive ? 'active' : ''}`
+                        }
+                    >
+                        <span className="mobile-nav-icon">{item.icon}</span>
+                        <span className="mobile-nav-label">{item.label}</span>
+                    </NavLink>
                 ))}
             </div>
         </nav>
