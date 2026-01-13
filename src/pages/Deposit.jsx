@@ -143,14 +143,6 @@ export default function Deposit() {
       color: "#627EEA",
       balance: "0.00000000",
     },
-    {
-      id: "solana",
-      name: "Solana",
-      symbol: "SOL",
-      icon: "S",
-      color: "#14F195",
-      balance: "0.00000000",
-    },
   ];
 
   const filteredCryptos = cryptocurrencies.filter(
