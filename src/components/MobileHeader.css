@@ -1,6 +1,6 @@
 /* Mobile Header - Only visible on mobile devices */
 .mobile-header {
-    display: none;
+    display: none !important;
     background: rgba(26, 31, 46, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -11,9 +11,22 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
+/* Hide on desktop */
+@media (min-width: 769px) {
+    .mobile-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+}
+
+/* Show only on mobile */
 @media (max-width: 768px) {
     .mobile-header {
-        display: block;
+        display: block !important;
+        visibility: visible !important;
+        height: auto !important;
     }
 }
 
