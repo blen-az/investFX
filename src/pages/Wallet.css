@@ -6,43 +6,25 @@
     background: transparent;
 }
 
-/* User Header */
+/* User Header - HIDDEN (Using MobileHeader component instead) */
 .mine-user-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 24px 20px;
+    display: none !important;
 }
 
 .user-avatar-main {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #3b82f6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: 800;
-    color: white;
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    display: none !important;
 }
 
 .user-info-text {
-    flex: 1;
+    display: none !important;
 }
 
 .user-email-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 4px;
+    display: none !important;
 }
 
 .user-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #f8fafc;
+    display: none !important;
 }
 
 .status-badge {
@@ -72,16 +54,11 @@
 }
 
 .user-full-email {
-    font-size: 13px;
-    color: #94a3b8;
-    font-family: 'JetBrains Mono', monospace;
+    display: none !important;
 }
 
 .user-profile-id {
-    font-size: 11px;
-    color: #64748b;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 2px;
+    display: none !important;
 }
 
 /* Stats Grid */

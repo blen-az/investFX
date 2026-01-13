@@ -9,72 +9,24 @@
 }
 
 /* ================================================
-   MOBILE AVATAR HEADER (Hidden on Desktop)
+   MOBILE AVATAR HEADER (Hidden - Using MobileHeader component instead)
    ================================================ */
 
-.mobile-avatar-header {
-  display: none;
-  /* Hidden by default (desktop) */
-}
-
-@media (max-width: 768px) {
-  .mobile-avatar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    background: rgba(10, 14, 26, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(100, 116, 139, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .mobile-logo {
-    font-size: 18px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    letter-spacing: -0.5px;
-  }
-
-  .logo-text {
-    background: linear-gradient(135deg, #06b6d4, #10b981);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .logo-icon {
-    font-size: 20px;
-    color: #fbbf24;
-    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
-  }
-
-  .avatar-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #10b981);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 16px;
-    color: white;
-    overflow: hidden;
-    border: 2px solid rgba(6, 182, 212, 0.3);
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
-  }
-
-  .avatar-circle img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+.mobile-avatar-header,
+.mobile-avatar-header *,
+div[class*="mobile-avatar"],
+div[class*="avatar-circle"],
+div[class*="mobile-logo"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
 }
 
 /* ================================================

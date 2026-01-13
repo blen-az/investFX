@@ -134,21 +134,6 @@ export default function Wallet() {
 
     return (
         <div className="wallet-page">
-            {/* User Header */}
-            <div className="mine-user-header">
-                <div className="user-avatar-main">
-                    {(user?.email || "U")[0].toUpperCase()}
-                </div>
-                <div className="user-info-text">
-                    <div className="user-email-row">
-                        <span className="user-name">{user?.displayName || "Trader"}</span>
-                        {getBadge()}
-                    </div>
-                    <div className="user-profile-id">ID: {user?.uid}</div>
-                    <div className="user-full-email">{user?.displayName && user?.displayName !== user?.email.split('@')[0] ? user?.email : ''}</div>
-                </div>
-            </div>
-
             {/* Balances Section */}
             <div className="mine-stats-grid balance-section">
                 <div className="mine-stat-card full-width">

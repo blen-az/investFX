@@ -138,33 +138,6 @@ export default function Home() {
 
   return (
     <div className="fx-home">
-      {/* HEADER - Updated to include Name and Badge */}
-      <div className="mobile-avatar-header" style={{ justifyContent: 'space-between', padding: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="avatar-circle">
-            {user?.photoURL ? (
-              <img src={user.photoURL} alt="Profile" />
-            ) : (
-              <span>{(user?.displayName || user?.email || 'U')[0].toUpperCase()}</span>
-            )}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '16px', fontWeight: '700', color: '#f1f5f9' }}>
-              {user?.displayName || "Trader"}
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: '2px' }}>
-              <span style={{ fontSize: '11px', color: '#94a3b8' }}>ID: {user?.uid?.slice(0, 8)}</span>
-              {getBadge()}
-            </div>
-          </div>
-        </div>
-
-        {/* Logo/Brand on right or hidden if minimal */}
-        <div className="mobile-logo" style={{ marginRight: 0 }}>
-          <span className="logo-icon">⚡</span>
-        </div>
-      </div>
-
       {/* BALANCE CARD */}
       <section className="fx-balance container">
         <h3 className="section-title">Total Assets</h3>
