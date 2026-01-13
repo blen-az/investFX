@@ -53,11 +53,46 @@ export const getReferredUsers = async (agentId) => {
         const q = query(usersRef, where("referredBy", "==", agentId));
         const snapshot = await getDocs(q);
 
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate()
-        }));
+        // Fetch wallet data for each user
+        const usersWithBalances = await Promise.all(
+            snapshot.docs.map(async (userDoc) => {
+                const userData = {
+                    id: userDoc.id,
+                    ...userDoc.data(),
+                    createdAt: userDoc.data().createdAt?.toDate()
+                };
+
+                // Fetch wallet balance
+                try {
+                    const walletRef = doc(db, "wallets", userDoc.id);
+                    const walletSnap = await getDoc(walletRef);
+
+                    if (walletSnap.exists()) {
+                        const walletData = walletSnap.data();
+                        // Calculate total balance
+                        const totalBalance =
+                            (walletData.mainBalance || 0) +
+                            (walletData.spotBalance || 0) +
+                            (walletData.tradingBalance || 0) +
+                            (walletData.earnBalance || 0) +
+                            (walletData.contractBalance || 0) +
+                            (walletData.fiatBalance || 0) +
+                            (walletData.commissionBalance || 0);
+
+                        userData.balance = totalBalance;
+                    } else {
+                        userData.balance = 0;
+                    }
+                } catch (walletError) {
+                    console.error(`Error fetching wallet for user ${userDoc.id}:`, walletError);
+                    userData.balance = 0;
+                }
+
+                return userData;
+            })
+        );
+
+        return usersWithBalances;
     } catch (error) {
         console.error("Error fetching referred users:", error);
         throw error;
