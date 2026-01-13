@@ -95,6 +95,64 @@
     box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
 }
 
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+.search-bar svg {
+    color: #64748b;
+}
+
+.search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f8fafc;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.search-input::placeholder {
+    color: #64748b;
+}
+
+.search-clear {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    color: #ef4444;
+    font-size: 16px;
+    font-weight: 600;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.search-clear:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.1);
+}
+
 .empty-state-card {
     padding: 64px 32px;
     text-align: center;
