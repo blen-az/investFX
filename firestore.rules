@@ -12,6 +12,11 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Helper function to check if user is an agent
+    function isAgent() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'agent';
+    }
 
     // Users collection
     match /users/{userId} {
@@ -38,21 +43,21 @@ service cloud.firestore {
 
     // Deposits collection
     match /deposits/{depositId} {
-       allow read: if resource.data.uid == request.auth.uid || isAdmin();
-       allow create: if request.resource.data.uid == request.auth.uid || isAdmin();
+       allow read, list: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin() || isAgent());
+       allow create: if request.auth != null && (request.resource.data.uid == request.auth.uid || isAdmin());
        allow update: if isAdmin();
     }
 
     // Withdrawals collection
     match /withdrawals/{withdrawalId} {
-       allow read: if resource.data.uid == request.auth.uid || isAdmin();
-       allow create: if request.resource.data.uid == request.auth.uid || isAdmin();
+       allow read, list: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin() || isAgent());
+       allow create: if request.auth != null && (request.resource.data.uid == request.auth.uid || isAdmin());
        allow update: if isAdmin();
     }
 
     // Trades collection
     match /trades/{tradeId} {
-       allow read: if resource.data.uid == request.auth.uid || isAdmin();
+       allow read, list: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin() || isAgent());
        allow create: if request.resource.data.uid == request.auth.uid || isAdmin();
        allow update: if resource.data.uid == request.auth.uid || isAdmin();
     }
