@@ -71,13 +71,21 @@ const AgentFinance = () => {
             )
         },
         {
-            header: "Method",
-            key: "method",
-            render: (value) => (
-                <span className="badge badge-info">
-                    {value || (isDeposit ? 'Bank Transfer' : 'Crypto')}
-                </span>
-            )
+            header: "Address Type",
+            key: "crypto",
+            render: (value, row) => {
+                // Map crypto symbols to address types
+                const addressType = value === 'USDT' ? 'TRC20' :
+                    value === 'ETH' ? 'ERC20' :
+                        value === 'BTC' ? 'BTC' :
+                            value || 'CRYPTO';
+
+                return (
+                    <span className="badge badge-info">
+                        {addressType}
+                    </span>
+                );
+            }
         },
         {
             header: "Status",
