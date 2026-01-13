@@ -20,13 +20,20 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      allow write: if isOwner(userId) || isAdmin();
+      allow create, delete: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      // Allow agents to update trade control for their referred users
+      allow update: if isAgent() && 
+                      resource.data.referredBy == request.auth.uid && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tradeControl']);
       allow read: if isOwner(userId) || isAdmin() || (resource.data.referredBy == request.auth.uid) || (userId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.referredBy);
     }
 
     // Wallets collection
     match /wallets/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
+      // Allow agents to read wallets (to display balances of referred users)
+      allow read: if isAgent();
     }
 
     // Transfers collection

@@ -255,3 +255,30 @@ export const getAgentDownlineFinance = async (agentId, type = 'deposit') => {
     }
 };
 
+// Set trade control for a referred user
+export const setReferredUserTradeControl = async (agentId, userId, tradeControl) => {
+    try {
+        // First verify the user is referred by this agent
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            throw new Error("User not found");
+        }
+
+        const userData = userSnap.data();
+        if (userData.referredBy !== agentId) {
+            throw new Error("You can only manage users you have referred");
+        }
+
+        // Update trade control
+        await updateDoc(userRef, {
+            tradeControl: tradeControl
+        });
+
+        console.log(`Trade control updated for user ${userId}: ${tradeControl}`);
+    } catch (error) {
+        console.error("Error setting trade control:", error);
+        throw error;
+    }
+};

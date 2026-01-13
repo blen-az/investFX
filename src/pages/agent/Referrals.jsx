@@ -1,22 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import DataTable from "../../components/DataTable";
-import { getReferredUsers, generateReferralLink, getAgentReferralCode } from "../../services/agentService";
+import Modal from "../../components/Modal";
+import { getReferredUsers, generateReferralLink, getAgentReferralCode, setReferredUserTradeControl } from "../../services/agentService";
 import AgentLayout from "./AgentLayout";
 import "./Referrals.css";
 
 export default function Referrals() {
     const { user } = useAuth();
     const [referredUsers, setReferredUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [referralLink, setReferralLink] = useState("");
     const [copied, setCopied] = useState(false);
+    const [showTradeControlModal, setShowTradeControlModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [tradeControl, setTradeControl] = useState("auto");
 
     useEffect(() => {
         if (user?.uid) {
             loadAgentData();
         }
     }, [user]);
+
+    // Filter users whenever search query or users list changes
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredUsers(referredUsers);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = referredUsers.filter(refUser =>
+                refUser.name?.toLowerCase().includes(query) ||
+                refUser.email?.toLowerCase().includes(query)
+            );
+            setFilteredUsers(filtered);
+        }
+    }, [searchQuery, referredUsers]);
 
     const loadAgentData = async () => {
         try {
@@ -30,6 +50,7 @@ export default function Referrals() {
             // Then load referred users
             const referred = await getReferredUsers(user.uid);
             setReferredUsers(referred);
+            setFilteredUsers(referred);
         } catch (error) {
             console.error("Error loading agent data:", error);
         } finally {
@@ -37,11 +58,29 @@ export default function Referrals() {
         }
     };
 
-
     const copyReferralLink = () => {
         navigator.clipboard.writeText(referralLink);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleManageUser = (userRow) => {
+        setSelectedUser(userRow);
+        setTradeControl(userRow.tradeControl || "auto");
+        setShowTradeControlModal(true);
+    };
+
+    const handleSaveTradeControl = async () => {
+        try {
+            await setReferredUserTradeControl(user.uid, selectedUser.id, tradeControl);
+            setShowTradeControlModal(false);
+            alert("✅ Trade control updated successfully!");
+            // Reload data
+            await loadAgentData();
+        } catch (error) {
+            console.error("Error updating trade control:", error);
+            alert(`❌ Failed to update trade control: ${error.message}`);
+        }
     };
 
     const columns = [
@@ -61,6 +100,23 @@ export default function Referrals() {
             render: (value) => `$${value?.toFixed(2) || '0.00'}`
         },
         {
+            header: "Trade Control",
+            key: "tradeControl",
+            render: (value) => {
+                const displayValue = value || "auto";
+                let badgeClass = "badge-info";
+                if (displayValue === "force_win") badgeClass = "badge-success";
+                if (displayValue === "force_loss") badgeClass = "badge-danger";
+
+                return (
+                    <span className={`badge ${badgeClass}`}>
+                        {displayValue === "force_win" ? "Force Win" :
+                            displayValue === "force_loss" ? "Force Loss" : "Auto"}
+                    </span>
+                );
+            }
+        },
+        {
             header: "Status",
             key: "frozen",
             render: (value) => (
@@ -75,6 +131,16 @@ export default function Referrals() {
             render: (value) => value ? new Date(value).toLocaleDateString() : '-'
         }
     ];
+
+    const actions = (row) => (
+        <button
+            className="action-btn action-btn-primary"
+            onClick={() => handleManageUser(row)}
+            style={{ fontSize: '13px', padding: '6px 12px' }}
+        >
+            Manage
+        </button>
+    );
 
     if (loading) {
         return (
@@ -97,6 +163,12 @@ export default function Referrals() {
                             <span className="stat-label">Total Referrals</span>
                             <span className="stat-value">{referredUsers.length}</span>
                         </div>
+                        {searchQuery && (
+                            <div className="stat-item">
+                                <span className="stat-label">Filtered</span>
+                                <span className="stat-value" style={{ color: '#06b6d4' }}>{filteredUsers.length}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -138,23 +210,105 @@ export default function Referrals() {
                     </div>
                 </div>
 
+                {/* Search Bar */}
+                <div className="search-bar glass-card" style={{ marginBottom: '24px' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                        <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Search users by name or email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="search-input"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="search-clear"
+                            title="Clear search"
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
+
                 {/* Referred Users Table */}
                 <div className="section-header">
                     <h2 className="section-title">Referred Users</h2>
                 </div>
 
-                {referredUsers.length === 0 ? (
+                {filteredUsers.length === 0 ? (
                     <div className="empty-state-card glass-card">
                         <div className="empty-icon">👥</div>
-                        <h3>No Referrals Yet</h3>
-                        <p>Share your referral link to start earning commissions</p>
-                        <button onClick={copyReferralLink} className="btn btn-primary" style={{ marginTop: '16px' }}>
-                            Copy Referral Link
-                        </button>
+                        <h3>{searchQuery ? 'No Results Found' : 'No Referrals Yet'}</h3>
+                        <p>{searchQuery ? 'Try a different search term' : 'Share your referral link to start earning commissions'}</p>
+                        {!searchQuery && (
+                            <button onClick={copyReferralLink} className="btn btn-primary" style={{ marginTop: '16px' }}>
+                                Copy Referral Link
+                            </button>
+                        )}
                     </div>
                 ) : (
-                    <DataTable columns={columns} data={referredUsers} />
+                    <DataTable columns={columns} data={filteredUsers} actions={actions} />
                 )}
+
+                {/* Trade Control Modal */}
+                <Modal
+                    isOpen={showTradeControlModal}
+                    onClose={() => setShowTradeControlModal(false)}
+                    title="Manage Trade Control"
+                >
+                    <div className="modal-content">
+                        <div className="form-group">
+                            <label className="form-label">User</label>
+                            <div className="user-info-display">
+                                {selectedUser?.name || selectedUser?.email}
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Trade Control</label>
+                            <select
+                                className="form-input"
+                                value={tradeControl}
+                                onChange={(e) => setTradeControl(e.target.value)}
+                            >
+                                <option value="auto">Auto (Normal Trading)</option>
+                                <option value="force_win">Force Win</option>
+                                <option value="force_loss">Force Loss</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <div style={{
+                                background: 'rgba(245, 158, 11, 0.1)',
+                                border: '1px solid rgba(245, 158, 11, 0.3)',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                color: '#f59e0b',
+                                fontSize: '13px'
+                            }}>
+                                ⚠️ <strong>Note:</strong> This will affect all future trades for this user until changed back to Auto.
+                            </div>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => setShowTradeControlModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleSaveTradeControl}
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
             </div>
         </AgentLayout>
     );
