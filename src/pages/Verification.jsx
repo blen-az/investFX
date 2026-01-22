@@ -19,13 +19,7 @@ export default function Verification() {
     const [frontPreview, setFrontPreview] = useState(null);
     const [backPreview, setBackPreview] = useState(null);
 
-    useEffect(() => {
-        if (user) {
-            loadVerificationStatus();
-        }
-    }, [user]);
-
-    const loadVerificationStatus = async () => {
+    const loadVerificationStatus = React.useCallback(async () => {
         try {
             setLoading(true);
             const status = await getVerificationStatus(user.uid);
@@ -35,7 +29,13 @@ export default function Verification() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        if (user) {
+            loadVerificationStatus();
+        }
+    }, [user, loadVerificationStatus]);
 
     const handleImageSelect = (e, type) => {
         const file = e.target.files[0];

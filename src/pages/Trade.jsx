@@ -35,7 +35,6 @@ export default function Trade() {
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
   const [leverage, setLeverage] = useState(1);
   const [tradeAmount, setTradeAmount] = useState(10);
-  const [fundingRate, setFundingRate] = useState(0.01);
   const [activeTrades, setActiveTrades] = useState([]);
 
   // Perpetual Specific State
@@ -209,13 +208,7 @@ export default function Trade() {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-  const formatDateTime = (date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const time = formatTime(date);
-    return `${year}-${month}-${day} ${time}`;
-  };
+
 
   return (
     <div className="trade-page binary-options-style">
@@ -437,6 +430,20 @@ export default function Trade() {
                 {/* Balance */}
                 <div className="perp-balance" style={{ marginTop: '10px' }}>
                   Balance: {tradingBalance.toFixed(4)} USDT
+                </div>
+
+                {/* Leverage Selector */}
+                <div className="perp-form-group" style={{ marginTop: '10px' }}>
+                  <label className="perp-label">Leverage</label>
+                  <select
+                    className="order-type-select"
+                    value={leverage}
+                    onChange={(e) => setLeverage(Number(e.target.value))}
+                  >
+                    {[1, 5, 10, 20, 50, 100].map(L => (
+                      <option key={L} value={L}>{L}x</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Action Button */}

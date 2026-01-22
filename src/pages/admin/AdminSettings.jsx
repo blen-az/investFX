@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { updatePassword, updateEmail, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { db, auth } from "../../firebase";
-import { getPlatformSettings, updatePlatformSettings } from "../../services/adminService";
+import { updatePlatformSettings } from "../../services/adminService";
 import "../Settings.css";
 
 // Password Strength Checker
@@ -72,9 +72,35 @@ export default function AdminSettings() {
         }
     });
 
+    const loadAdminData = React.useCallback(async () => {
+        try {
+            setLoading(true);
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                setProfileData({
+                    name: data.name || "",
+                    email: data.email || "",
+                    phone: data.phone || ""
+                });
+                setPreferences({
+                    emailNotifications: data.emailNotifications !== false,
+                    systemAlerts: data.systemAlerts !== false,
+                    securityAlerts: data.securityAlerts !== false,
+                    dashboardRefreshRate: data.dashboardRefreshRate || 30
+                });
+            }
+        } catch (error) {
+            console.error("Error loading admin data:", error);
+            showMessage("error", "Failed to load profile data");
+        } finally {
+            setLoading(false);
+        }
+    }, [user.uid]);
+
     useEffect(() => {
         loadAdminData();
-    }, [user]);
+    }, [loadAdminData]);
 
     // Real-time listener for platform settings
     useEffect(() => {
@@ -111,31 +137,7 @@ export default function AdminSettings() {
         setPasswordStrength(getPasswordStrength(passwordData.newPassword));
     }, [passwordData.newPassword]);
 
-    const loadAdminData = async () => {
-        try {
-            setLoading(true);
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                setProfileData({
-                    name: data.name || "",
-                    email: data.email || "",
-                    phone: data.phone || ""
-                });
-                setPreferences({
-                    emailNotifications: data.emailNotifications !== false,
-                    systemAlerts: data.systemAlerts !== false,
-                    securityAlerts: data.securityAlerts !== false,
-                    dashboardRefreshRate: data.dashboardRefreshRate || 30
-                });
-            }
-        } catch (error) {
-            console.error("Error loading admin data:", error);
-            showMessage("error", "Failed to load profile data");
-        } finally {
-            setLoading(false);
-        }
-    };
+
 
     const showMessage = (type, text) => {
         setMessage({ type, text });

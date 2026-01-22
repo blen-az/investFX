@@ -38,6 +38,23 @@ export default function Trades() {
         loadTrades();
     }, [loadTrades]);
 
+    // Filter trades whenever search query or trades list changes
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredTrades(trades);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = trades.filter(trade =>
+                (trade.userEmail?.toLowerCase() || "").includes(query) ||
+                (trade.userName?.toLowerCase() || "").includes(query) ||
+                (trade.asset?.toLowerCase() || "").includes(query) ||
+                (trade.uid?.toLowerCase() || "").includes(query) ||
+                (trade.id?.toLowerCase() || "").includes(query)
+            );
+            setFilteredTrades(filtered);
+        }
+    }, [searchQuery, trades]);
+
     const handleForceResult = async () => {
         try {
             await forceTradeResult(selectedTrade.id, forceResult, parseFloat(forcePnl));
@@ -134,7 +151,7 @@ export default function Trades() {
         <div className="users-page">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title gradient-text">Manage Trades</h1>
+                    <h1 className="page-title gradient-text">Manage Trades ({trades.length})</h1>
                     <p className="page-subtitle">View and force trade results</p>
                 </div>
             </div>

@@ -11,13 +11,7 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
 
-  useEffect(() => {
-    if (user?.uid) {
-      loadTransactions();
-    }
-  }, [user]);
-
-  const loadTransactions = async () => {
+  const loadTransactions = React.useCallback(async () => {
     try {
       setLoading(true);
       const data = await getUserTransactions(user.uid);
@@ -27,7 +21,13 @@ export default function Transactions() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.uid]);
+
+  useEffect(() => {
+    if (user?.uid) {
+      loadTransactions();
+    }
+  }, [user, loadTransactions]);
 
   const filteredData = filter === "All"
     ? transactions
