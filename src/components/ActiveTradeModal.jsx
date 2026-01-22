@@ -217,8 +217,8 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     </span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Number</span>
-                                    <span className="detail-value">{(trade.amount * (1 + (trade.profitPercent / 100))).toFixed(4)}</span>
+                                    <span className="detail-label">Amount</span>
+                                    <span className="detail-value">{trade.amount.toFixed(4)}</span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Opening price</span>
