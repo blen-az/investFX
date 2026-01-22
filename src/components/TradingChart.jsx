@@ -170,11 +170,11 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       clearTimeout(fallbackTimer);
       ws.close();
     };
-  }, [selectedCoin]);
+  }, [selectedCoin, onPrice]);
 
   useEffect(() => {
     if (coinId !== selectedCoin) setSelectedCoin(coinId);
-  }, [coinId]);
+  }, [coinId, selectedCoin]);
 
   return (
     <div className="w-full h-full flex flex-col bg-[#0d1117] rounded-lg overflow-hidden">

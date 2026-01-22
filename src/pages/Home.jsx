@@ -53,22 +53,6 @@ export default function Home() {
 
   // ... fetch effects ...
 
-  const getBadge = () => {
-    // Basic inline styles for simplicity since we want it to look good immediately without new CSS file
-    const baseStyle = { fontSize: '11px', padding: '3px 8px', borderRadius: '4px', marginLeft: '8px', fontWeight: '700', textDecoration: 'none' };
-
-    if (kycStatus === "verified")
-      return <span style={{ ...baseStyle, background: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }}>Verified</span>;
-    if (kycStatus === "pending")
-      return <span style={{ ...baseStyle, background: 'rgba(234, 179, 8, 0.2)', color: '#fbbf24' }}>In Review</span>;
-
-    // Unverified
-    return (
-      <Link to="/profile?tab=kyc" style={{ ...baseStyle, background: '#eab308', color: '#000' }}>
-        Verify Now
-      </Link>
-    );
-  };
 
   useEffect(() => {
     fetch("https://api.coingecko.com/api/v3/search/trending")

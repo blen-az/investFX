@@ -216,7 +216,8 @@ export default function Market() {
         arr = arr.slice().sort((a, b) => (b.total_volume || 0) - (a.total_volume || 0));
         break;
       default:
-        arr = arr;
+        // arr = arr (no-op, already sorted by market cap)
+        break;
     }
     return arr;
   }, [coins, search, sort]);

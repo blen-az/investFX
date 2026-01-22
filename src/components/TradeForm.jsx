@@ -29,7 +29,7 @@ export default function TradeForm({ coin = { id: "bitcoin", symbol: "btc", name:
   const amountRef = useRef(null);
 
   useEffect(() => localStorage.setItem(keyBalance, String(balance)), [balance]);
-  useEffect(() => localStorage.setItem(`demo_hold_${coin.id}`, String(holdings)), [holdings]);
+  useEffect(() => localStorage.setItem(`demo_hold_${coin.id}`, String(holdings)), [holdings, coin.id]);
   useEffect(() => localStorage.setItem(keyOrders, JSON.stringify(orders)), [orders]);
 
   // keyboard submit: Enter on amount triggers placeOrder
@@ -91,7 +91,7 @@ export default function TradeForm({ coin = { id: "bitcoin", symbol: "btc", name:
       const arr = JSON.parse(raw);
       arr.unshift(t);
       localStorage.setItem(histKey, JSON.stringify(arr.slice(0, 500)));
-    } catch {}
+    } catch { }
     setAmountUsd(""); setQuickPct(null);
     return true;
   }

@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Navbar() {
-  const { user, userRole, logout, isAdmin, isAgent } = useAuth();
+  const { user, logout, isAdmin, isAgent } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);

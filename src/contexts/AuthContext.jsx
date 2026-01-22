@@ -7,7 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc, onSnapshot, query, collection, where, getDocs, limit } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot, query, collection, where, getDocs, limit } from "firebase/firestore";
 import { ROLES } from "../constants/roles";
 import { sendOTP, verifyOTP } from "../services/authService";
 
@@ -20,23 +20,6 @@ export function AuthProvider({ children }) {
   const [emailVerified, setEmailVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user role from Firestore
-  const fetchUserRole = async (uid) => {
-    try {
-      console.log(`Fetching role for user: ${uid}`);
-      const userDoc = await getDoc(doc(db, "users", uid));
-      if (userDoc.exists()) {
-        const role = userDoc.data().role || ROLES.USER;
-        console.log(`User role: ${role}`);
-        return role;
-      }
-      console.log('User document does not exist, defaulting to USER role');
-      return ROLES.USER;
-    } catch (error) {
-      console.error("Error fetching user role:", error);
-      return ROLES.USER;
-    }
-  };
 
   // Listen for login/logout changes
   useEffect(() => {
