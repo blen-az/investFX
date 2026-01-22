@@ -6,7 +6,6 @@ import LoadingPage from "./components/LoadingPage";
 
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
-import RoleRedirect from "./components/RoleRedirect";
 
 import { AuthProvider } from "./contexts/AuthContext";
 import RequireAuth from "./components/RequireAuth";

@@ -16,7 +16,6 @@ export default function Home() {
   const [balanceHidden, setBalanceHidden] = useState(true);
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [kycStatus, setKycStatus] = useState("unverified");
 
   useEffect(() => {
     if (!user?.uid) {
@@ -37,17 +36,9 @@ export default function Home() {
       setLoading(false);
     });
 
-    // Subscribe to User for KYC Status
-    const unsubUser = onSnapshot(doc(db, "users", user.uid), (doc) => {
-      if (doc.exists()) {
-        const uData = doc.data();
-        setKycStatus(uData.verification?.status || uData.kycStatus || "unverified");
-      }
-    });
 
     return () => {
       unsubWallet();
-      unsubUser();
     };
   }, [user]);
 

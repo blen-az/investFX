@@ -18,7 +18,7 @@ import {
 import './MobileBottomNav.css';
 
 export default function MobileBottomNav() {
-    const { user, userRole, isAdmin, isAgent } = useAuth();
+    const { user, isAdmin, isAgent } = useAuth();
     const location = useLocation();
 
     // Don't show on login/signup pages

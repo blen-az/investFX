@@ -101,11 +101,6 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         return 60;
     }
 
-    const formatTime = (seconds) => {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return `${m}:${s < 10 ? "0" : ""}${s}`;
-    };
 
     const formatDateTime = (date) => {
         if (!date) return "";

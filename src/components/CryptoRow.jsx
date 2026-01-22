@@ -1,6 +1,5 @@
 // src/components/CryptoRow.jsx
 import React from "react";
-import { Link } from "react-router-dom";
 
 export default function CryptoRow({ c }) {
   const change = c.price_change_percentage_24h;

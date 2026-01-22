@@ -5,13 +5,12 @@ export default function MarketCard({ item, placeholder }) {
   if (placeholder) {
     return (
       <div className="market-card" style={{ background: "linear-gradient(90deg,#071017,#0b0f16)" }}>
-        <div style={{height:140, borderRadius:10}} />
+        <div style={{ height: 140, borderRadius: 10 }} />
       </div>
     );
   }
 
   const title = item?.title || item?.title || "Crypto News";
-  const img = item?.imageurl || "";
   const src = item?.source || item?.source_info?.name || "Source";
 
   return (
@@ -29,7 +28,7 @@ export default function MarketCard({ item, placeholder }) {
                 <span style={{ width: 20 }}>🔥</span>
                 <small>{src}</small>
               </div>
-              <small>{item.published_on ? `${Math.floor((Date.now()/1000 - item.published_on)/60)}m ago` : ""}</small>
+              <small>{item.published_on ? `${Math.floor((Date.now() / 1000 - item.published_on) / 60)}m ago` : ""}</small>
             </div>
           </div>
         </div>
