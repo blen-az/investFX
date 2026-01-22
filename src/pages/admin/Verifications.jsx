@@ -20,11 +20,7 @@ export default function Verifications() {
     const [rejectionReason, setRejectionReason] = useState("");
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        loadVerifications();
-    }, [filter]);
-
-    const loadVerifications = async () => {
+    const loadVerifications = React.useCallback(async () => {
         try {
             setLoading(true);
             let data;
@@ -41,7 +37,11 @@ export default function Verifications() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filter]);
+
+    useEffect(() => {
+        loadVerifications();
+    }, [loadVerifications]);
 
     const handleApprove = async (userId) => {
         if (!window.confirm("Are you sure you want to approve this verification?")) {

@@ -1,6 +1,5 @@
 // src/pages/agent/AgentDashboard.jsx
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import StatsCard from "../../components/StatsCard";
 import { generateReferralLink, getAgentStats, getAgentReferralCode } from "../../services/agentService";

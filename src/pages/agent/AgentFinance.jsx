@@ -18,13 +18,7 @@ const AgentFinance = () => {
     const subtitle = isDeposit ? "Monitor incoming deposits from referrals" : "Track withdrawal requests from referrals";
     const icon = isDeposit ? "💰" : "💸";
 
-    useEffect(() => {
-        if (user?.uid) {
-            loadData();
-        }
-    }, [user, isDeposit]);
-
-    const loadData = async () => {
+    const loadData = React.useCallback(async () => {
         try {
             setLoading(true);
 
@@ -46,7 +40,13 @@ const AgentFinance = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid, isDeposit]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadData();
+        }
+    }, [user, loadData]);
 
     const columns = [
         {

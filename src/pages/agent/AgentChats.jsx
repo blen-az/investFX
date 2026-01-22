@@ -75,7 +75,7 @@ export default function AgentChats() {
                 unsubscribeMessagesRef.current();
             }
         };
-    }, [currentUser]);
+    }, [currentUser, loading]);
 
     const handleSelectChat = (chat) => {
         setSelectedChat(chat);

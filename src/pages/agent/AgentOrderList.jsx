@@ -17,13 +17,7 @@ const AgentOrderList = () => {
     const title = isContract ? "Contract Orders" : "Delivery Orders";
     const subtitle = isContract ? "View downline perpetual contract positions" : "View downline delivery option trades";
 
-    useEffect(() => {
-        if (user?.uid) {
-            loadData();
-        }
-    }, [user, isContract]); // Reload when user or type changes
-
-    const loadData = async () => {
+    const loadData = React.useCallback(async () => {
         try {
             setLoading(true);
 
@@ -39,16 +33,6 @@ const AgentOrderList = () => {
             const allOrders = await getAgentDownlineOrders(user.uid);
 
             // 3. Filter by type (assuming 'type' field in trade distinguishes delivery/contract or we use another field)
-            // If the trade model distinguishes via 'isPerpetual' boolean or 'type' string:
-            // Assuming: 'contract' means perpetual, 'delivery' means standard binary options.
-            // Let's assume standard trades have type 'buy'/'sell' and maybe 'market'/'limit' for perpetual.
-            // Adjusting filter logic based on common patterns. If no clear distinction, show all for now.
-            // FIXME: Adjust filter logic once trade schema is confirmed. 
-            // For now, assuming isContract checks for 'leverage' field existence or similar? 
-            // Or maybe separate "positions" collection? 
-            // The service fetches from "trades" collection. 
-            // Let's filter by: isContract ? row.leverage > 0 : !row.leverage (just a guess, or show all for MVP)
-
             let filtered = allOrders;
             if (isContract) {
                 filtered = allOrders.filter(o => o.leverage); // Heuristic for now
@@ -63,7 +47,13 @@ const AgentOrderList = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid, isContract]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadData();
+        }
+    }, [user, loadData]);
 
     const columns = [
         {

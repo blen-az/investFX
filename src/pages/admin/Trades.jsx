@@ -16,28 +16,7 @@ export default function Trades() {
     const [forcePnl, setForcePnl] = useState("");
     const [activeTab, setActiveTab] = useState("active"); // "active" or "history"
 
-    useEffect(() => {
-        loadTrades();
-    }, [activeTab]);
-
-    // Filter trades whenever search query or trades list changes
-    useEffect(() => {
-        if (!searchQuery.trim()) {
-            setFilteredTrades(trades);
-        } else {
-            const query = searchQuery.toLowerCase();
-            const filtered = trades.filter(trade =>
-                (trade.userEmail?.toLowerCase() || "").includes(query) ||
-                (trade.userName?.toLowerCase() || "").includes(query) ||
-                (trade.asset?.toLowerCase() || "").includes(query) ||
-                (trade.uid?.toLowerCase() || "").includes(query) ||
-                (trade.id?.toLowerCase() || "").includes(query)
-            );
-            setFilteredTrades(filtered);
-        }
-    }, [searchQuery, trades]);
-
-    const loadTrades = async () => {
+    const loadTrades = React.useCallback(async () => {
         try {
             setLoading(true);
             let data;
@@ -53,7 +32,11 @@ export default function Trades() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeTab]);
+
+    useEffect(() => {
+        loadTrades();
+    }, [loadTrades]);
 
     const handleForceResult = async () => {
         try {
