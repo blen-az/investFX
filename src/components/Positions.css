@@ -16,9 +16,9 @@
     flex: 1;
     padding: 12px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    color: #64748b;
+    border: 1px solid var(--glass-border, rgba(100, 116, 139, 0.2));
+    background: var(--color-bg-secondary, #1a1f2e);
+    color: var(--color-text-secondary, #cbd5e1);
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -37,8 +37,8 @@
 }
 
 .pos-tab.completed {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: var(--color-bg-tertiary, #252b3d);
+    border-color: var(--glass-border, rgba(100, 116, 139, 0.2));
 }
 
 .pos-tab.completed.active {
@@ -93,13 +93,13 @@
 
 /* Trade Row */
 .trade-row {
-    background: #ffffff;
+    background: var(--color-bg-secondary, #1a1f2e);
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--glass-border, rgba(100, 116, 139, 0.2));
     margin-bottom: 12px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.3));
 }
 
 .trade-row.losing {
@@ -127,7 +127,7 @@
     align-items: center;
     gap: 8px;
     font-weight: 700;
-    color: #1e293b;
+    color: #ffffff;
     font-size: 14px;
 }
 
@@ -170,14 +170,14 @@
 
 .detail-col .label {
     font-size: 11px;
-    color: #64748b;
+    color: #cbd5e1;
     font-weight: 600;
 }
 
 .detail-col .value {
     font-size: 13px;
     font-weight: 700;
-    color: #1e293b;
+    color: #ffffff;
 }
 
 .detail-col .value.highlight {
@@ -202,7 +202,7 @@
 
 .progress-info {
     font-size: 11px;
-    color: #64748b;
+    color: #ffffff;
     margin-bottom: 4px;
     font-weight: 600;
 }
@@ -267,7 +267,7 @@
 
 .liq-price-mini {
     font-size: 11px;
-    color: #64748b;
+    color: #cbd5e1;
     font-weight: 600;
 }
 
@@ -326,9 +326,9 @@
 
 .close-pos-btn {
     width: 100%;
-    background: #f8fafc;
-    color: #1e293b;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-tertiary, #252b3d);
+    color: #ffffff;
+    border: 1px solid var(--glass-border, rgba(100, 116, 139, 0.2));
     padding: 10px;
     border-radius: 8px;
     font-size: 13px;

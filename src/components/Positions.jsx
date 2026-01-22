@@ -204,13 +204,17 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                                                         : `+${trade.profitPercent}%`}
                                                 </span>
                                             </div>
+                                            <div className="detail-col">
+                                                <span className="label">duration:</span>
+                                                <span className="value">{totalTime}</span>
+                                            </div>
                                         </div>
 
                                         {/* Progress Bar / Perpetual Info */}
                                         {trade.type === 'delivery' ? (
                                             <div className="trade-progress-container">
                                                 <div className="progress-info">
-                                                    <span>{timeLeft}s remaining</span>
+                                                    <span>{timeLeft} duration remaining</span>
                                                 </div>
                                                 <div className="progress-bar-bg">
                                                     <div
@@ -278,6 +282,10 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                                             <span className="value" style={{ fontSize: '10px' }}>
                                                 {trade.closedAt?.toLocaleString()}
                                             </span>
+                                        </div>
+                                        <div className="detail-col">
+                                            <span className="label">duration:</span>
+                                            <span className="value">{trade.duration ? parseInt(trade.duration) : '-'}</span>
                                         </div>
                                     </div>
                                 </div>

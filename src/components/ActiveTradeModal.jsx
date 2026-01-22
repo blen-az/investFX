@@ -154,6 +154,10 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                         <span className="label">Potential Profit</span>
                         <span className="value positive">{trade.profitPercent}%</span>
                     </div>
+                    <div className="detail-item">
+                        <span className="label">duration</span>
+                        <span className="value">{initialDuration}</span>
+                    </div>
                 </div>
 
                 <div className="live-pnl-section">
@@ -193,7 +197,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                         />
                     </svg>
                     <div className="timer-text">
-                        <div className="time-value">{timeLeft} second</div>
+                        <div className="time-value">{timeLeft} duration</div>
                         <div className="time-label">Remaining</div>
                     </div>
                 </div>
@@ -230,7 +234,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     <span className="detail-value">{completionInfo.exitPrice.toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">second</span>
+                                    <span className="detail-label">duration</span>
                                     <span className="detail-value">{initialDuration}</span>
                                 </div>
                                 <div className="detail-row">
