@@ -192,7 +192,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                         />
                     </svg>
                     <div className="timer-text">
-                        <div className="time-value">{timeLeft} duration</div>
+                        <div className="time-value">{timeLeft} second</div>
                         <div className="time-label">Remaining</div>
                     </div>
                 </div>
