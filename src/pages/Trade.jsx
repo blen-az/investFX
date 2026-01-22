@@ -25,6 +25,10 @@ export default function Trade() {
 
   const [contractType, setContractType] = useState("delivery"); // delivery (binary) | perpetual
   const [livePrice, setLivePrice] = useState(0);
+  const priceChange = 0;
+  const highPrice = 0;
+  const lowPrice = 0;
+  const volume24h = 0;
   const [activeTrade, setActiveTrade] = useState(null);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '' });
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
