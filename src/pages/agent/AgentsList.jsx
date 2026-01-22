@@ -10,13 +10,7 @@ const AgentsList = () => {
     const [agents, setAgents] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (user?.uid) {
-            loadAgents();
-        }
-    }, [user]);
-
-    const loadAgents = async () => {
+    const loadAgents = React.useCallback(async () => {
         try {
             setLoading(true);
             const data = await getSubAgents(user.uid);
@@ -26,7 +20,13 @@ const AgentsList = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadAgents();
+        }
+    }, [user, loadAgents]);
 
     const columns = [
         {

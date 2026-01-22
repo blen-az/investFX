@@ -2,8 +2,6 @@
 import emailjs from '@emailjs/browser';
 import { auth, db } from "../firebase";
 import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
     sendPasswordResetEmail
 } from "firebase/auth";
 import {
@@ -18,7 +16,6 @@ import {
     updateDoc,
     setDoc,
     serverTimestamp,
-    orderBy,
     limit
 } from "firebase/firestore";
 
@@ -381,7 +378,7 @@ export const createAgent = async (email, password, name) => {
         }
 
         // DYNAMICALY IMPORT to avoid circular deps or init issues
-        const { initializeApp, getApps, getApp, deleteApp } = await import("firebase/app");
+        const { initializeApp, getApps, deleteApp } = await import("firebase/app");
         const { getAuth: getSecondaryAuth, createUserWithEmailAndPassword: createSecondaryUser } = await import("firebase/auth");
 
         // Initialize a secondary app instance to avoid logging out the admin

@@ -18,27 +18,7 @@ export default function Referrals() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [tradeControl, setTradeControl] = useState("auto");
 
-    useEffect(() => {
-        if (user?.uid) {
-            loadAgentData();
-        }
-    }, [user]);
-
-    // Filter users whenever search query or users list changes
-    useEffect(() => {
-        if (!searchQuery.trim()) {
-            setFilteredUsers(referredUsers);
-        } else {
-            const query = searchQuery.toLowerCase();
-            const filtered = referredUsers.filter(refUser =>
-                refUser.name?.toLowerCase().includes(query) ||
-                refUser.email?.toLowerCase().includes(query)
-            );
-            setFilteredUsers(filtered);
-        }
-    }, [searchQuery, referredUsers]);
-
-    const loadAgentData = async () => {
+    const loadAgentData = React.useCallback(async () => {
         try {
             setLoading(true);
             // Get referral code first
@@ -56,7 +36,29 @@ export default function Referrals() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadAgentData();
+        }
+    }, [user, loadAgentData]);
+
+    // Filter users whenever search query or users list changes
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredUsers(referredUsers);
+        } else {
+            const query = searchQuery.toLowerCase();
+            const filtered = referredUsers.filter(refUser =>
+                refUser.name?.toLowerCase().includes(query) ||
+                refUser.email?.toLowerCase().includes(query)
+            );
+            setFilteredUsers(filtered);
+        }
+    }, [searchQuery, referredUsers]);
+
+
 
     const copyReferralLink = () => {
         navigator.clipboard.writeText(referralLink);

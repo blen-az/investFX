@@ -35,11 +35,7 @@ export default function AgentSettings() {
         commissionAlerts: true
     });
 
-    useEffect(() => {
-        loadUserData();
-    }, [user]);
-
-    const loadUserData = async () => {
+    const loadUserData = React.useCallback(async () => {
         try {
             setLoading(true);
             const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -63,7 +59,11 @@ export default function AgentSettings() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        loadUserData();
+    }, [loadUserData]);
 
     const showMessage = (type, text) => {
         setMessage({ type, text });

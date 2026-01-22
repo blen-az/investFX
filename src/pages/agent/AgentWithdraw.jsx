@@ -32,13 +32,7 @@ export default function AgentWithdraw() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    useEffect(() => {
-        if (user?.uid) {
-            loadData();
-        }
-    }, [user]);
-
-    const loadData = async () => {
+    const loadData = React.useCallback(async () => {
         try {
             setLoading(true);
 
@@ -62,7 +56,15 @@ export default function AgentWithdraw() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadData();
+        }
+    }, [user, loadData]);
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();

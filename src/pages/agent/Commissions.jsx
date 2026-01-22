@@ -15,13 +15,7 @@ export default function AgentCommissions() {
         totalDeposits: 0
     });
 
-    useEffect(() => {
-        if (user?.uid) {
-            loadCommissions();
-        }
-    }, [user]);
-
-    const loadCommissions = async () => {
+    const loadCommissions = React.useCallback(async () => {
         try {
             setLoading(true);
             const history = await getCommissionHistory(user.uid);
@@ -45,7 +39,13 @@ export default function AgentCommissions() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            loadCommissions();
+        }
+    }, [user, loadCommissions]);
 
     const columns = [
         {
