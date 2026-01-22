@@ -330,7 +330,7 @@ export default function Trade() {
                     className={`duration-btn ${selectedDuration === option.seconds ? 'active' : ''}`}
                     onClick={() => setSelectedDuration(option.seconds)}
                   >
-                    <div className="duration-time">{option.seconds}s</div>
+                    <div className="duration-time">{option.seconds} second</div>
                     <div className="duration-profit">{option.profitRate}%</div>
                   </button>
                 ))}

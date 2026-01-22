@@ -11,6 +11,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
     const [progress, setProgress] = useState(100);
     const [forcedOutcome, setForcedOutcome] = useState(null);
     const [tradeSettled, setTradeSettled] = useState(false);
+    const [completionInfo, setCompletionInfo] = useState(null);
 
     const initialDuration = parseDuration(trade.duration);
 
@@ -69,12 +70,26 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                 1
             ).then(result => {
                 setForcedOutcome(result.outcome);
+                setCompletionInfo({
+                    exitPrice: currentPrice,
+                    closedAt: new Date(),
+                    outcome: result.outcome,
+                    pnl: result.pnl
+                });
                 console.log("Trade settled:", result);
             }).catch(err => {
                 console.error("Error settling trade:", err);
                 // Fallback: still determine outcome for display
                 determineTradeOutcome(user.uid, trade.side, trade.entryPrice, currentPrice)
-                    .then(outcome => setForcedOutcome(outcome))
+                    .then(outcome => {
+                        setForcedOutcome(outcome);
+                        setCompletionInfo({
+                            exitPrice: currentPrice,
+                            closedAt: new Date(),
+                            outcome: outcome,
+                            pnl: outcome === 'win' ? trade.amount * (trade.profitPercent / 100) : -trade.amount
+                        });
+                    })
                     .catch(e => console.error("Error determining outcome:", e));
             });
         }
@@ -90,6 +105,18 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m}:${s < 10 ? "0" : ""}${s}`;
+    };
+
+    const formatDateTime = (date) => {
+        if (!date) return "";
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        const hours = d.getHours().toString().padStart(2, '0');
+        const minutes = d.getMinutes().toString().padStart(2, '0');
+        const seconds = d.getSeconds().toString().padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
     return (
@@ -166,24 +193,65 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                         />
                     </svg>
                     <div className="timer-text">
-                        <div className="time-value">{timeLeft}s</div>
+                        <div className="time-value">{timeLeft} second</div>
                         <div className="time-label">Remaining</div>
                     </div>
                 </div>
 
-                {timeLeft === 0 && (
+                {completionInfo && (
                     <div className="completion-overlay">
-                        <div className="completion-card">
-                            <div className="completion-icon">
-                                {pnl >= 0 ? "🏆" : "📉"}
+                        <div className="completion-card detailed-view">
+                            <div className="completion-header">
+                                <span className="symbol-title">{trade.coin.symbol}/USDT</span>
+                                <button className="close-icon-btn" onClick={onClose}>×</button>
                             </div>
-                            <h3>Trade Completed</h3>
-                            <div className={`final-pnl ${pnl >= 0 ? "positive" : "negative"}`}>
-                                {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
+
+                            <div className={`pnl-summary ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
+                                {completionInfo.pnl >= 0 ? "+" : ""}{completionInfo.pnl.toFixed(4)}
                             </div>
-                            <button className="close-completion-btn" onClick={onClose}>
-                                Close
-                            </button>
+
+                            <div className="trade-details-list">
+                                <div className="detail-row">
+                                    <span className="detail-label">Trading direction</span>
+                                    <span className={`detail-value ${trade.side === 'buy' ? 'up' : 'down'}`}>
+                                        {trade.side === 'buy' ? 'Buy' : 'Sell'}
+                                    </span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Number</span>
+                                    <span className="detail-value">{(trade.amount * (1 + (trade.profitPercent / 100))).toFixed(4)}</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Opening price</span>
+                                    <span className="detail-value">{trade.entryPrice.toFixed(6)}</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Closed Price</span>
+                                    <span className="detail-value">{completionInfo.exitPrice.toFixed(6)}</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">second</span>
+                                    <span className="detail-value">{initialDuration}</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">profit rate</span>
+                                    <span className="detail-value">{trade.profitPercent}%</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">P/L</span>
+                                    <span className={`detail-value ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
+                                        {completionInfo.pnl >= 0 ? "+" : ""}{completionInfo.pnl.toFixed(4)}
+                                    </span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">position opening time</span>
+                                    <span className="detail-value">{formatDateTime(trade.startTime)}</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Close time</span>
+                                    <span className="detail-value">{formatDateTime(completionInfo.closedAt)}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
