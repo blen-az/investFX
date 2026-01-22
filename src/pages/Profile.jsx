@@ -2,11 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import StatsCard from "../components/StatsCard";
 import DataTable from "../components/DataTable";
 import Toast from "../components/Toast";
 import FileUpload from "../components/FileUpload";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
 import { getUserTransactions } from "../services/transactionService";
 import {
@@ -21,7 +20,6 @@ export default function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("transactions");
-  const [balance, setBalance] = useState(0);
 
   // KYC State
   const [kycStatus, setKycStatus] = useState("unverified");
@@ -46,15 +44,22 @@ export default function Profile() {
     }
   }, [location]);
 
+  const loadTransactions = React.useCallback(async () => {
+    if (!user?.uid) return;
+    try {
+      setLoadingTransactions(true);
+      const data = await getUserTransactions(user.uid);
+      setTransactions(data || []);
+    } catch (error) {
+      console.error("Error loading transactions:", error);
+      setTransactions([]);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  }, [user.uid]);
+
   useEffect(() => {
     if (!user?.uid) return;
-
-    // Listen to wallet balance
-    const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
-      if (doc.exists()) {
-        setBalance(doc.data().balance || 0);
-      }
-    });
 
     // Listen to user profile for KYC status (Nested verification object)
     const unsubUser = onSnapshot(doc(db, "users", user.uid), (doc) => {
@@ -71,24 +76,9 @@ export default function Profile() {
     loadTransactions();
 
     return () => {
-      unsubWallet();
       unsubUser();
     };
-  }, [user]);
-
-  const loadTransactions = async () => {
-    if (!user?.uid) return;
-    try {
-      setLoadingTransactions(true);
-      const data = await getUserTransactions(user.uid);
-      setTransactions(data || []);
-    } catch (error) {
-      console.error("Error loading transactions:", error);
-      setTransactions([]);
-    } finally {
-      setLoadingTransactions(false);
-    }
-  };
+  }, [user, loadTransactions]);
 
   // Handle ID Upload
   const handleUploadID = async () => {

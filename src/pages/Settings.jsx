@@ -60,15 +60,7 @@ export default function Settings() {
         depositNotifications: true
     });
 
-    useEffect(() => {
-        loadUserData();
-    }, [user]);
-
-    useEffect(() => {
-        setPasswordStrength(getPasswordStrength(passwordData.newPassword));
-    }, [passwordData.newPassword]);
-
-    const loadUserData = async () => {
+    const loadUserData = React.useCallback(async () => {
         try {
             setLoading(true);
             const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -91,7 +83,15 @@ export default function Settings() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.uid]);
+
+    useEffect(() => {
+        loadUserData();
+    }, [user, loadUserData]);
+
+    useEffect(() => {
+        setPasswordStrength(getPasswordStrength(passwordData.newPassword));
+    }, [passwordData.newPassword]);
 
     const showMessage = (type, text) => {
         setMessage({ type, text });

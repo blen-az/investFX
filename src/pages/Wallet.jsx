@@ -17,7 +17,6 @@ export default function Wallet() {
         fiat: 0,
         commission: 0
     });
-    const [kycStatus, setKycStatus] = useState("unverified");
     const [balanceHidden, setBalanceHidden] = useState(false);
     const [stats, setStats] = useState({
         todayPL: 0,
@@ -45,14 +44,6 @@ export default function Wallet() {
             }
         });
 
-        // Subscribe to User Info
-        const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), (doc) => {
-            if (doc.exists()) {
-                const userData = doc.data();
-                const status = userData.verification?.status || userData.kycStatus || "unverified";
-                setKycStatus(status);
-            }
-        });
 
         // Subscribe to Trades for Stats
         const tradesQuery = query(
@@ -89,7 +80,6 @@ export default function Wallet() {
 
         return () => {
             unsubscribeWallet();
-            unsubscribeUser();
             unsubscribeTrades();
         };
     }, [user]);

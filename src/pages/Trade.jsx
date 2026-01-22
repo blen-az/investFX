@@ -25,11 +25,6 @@ export default function Trade() {
 
   const [contractType, setContractType] = useState("delivery"); // delivery (binary) | perpetual
   const [livePrice, setLivePrice] = useState(0);
-  const [highPrice, setHighPrice] = useState(0);
-  const [lowPrice, setLowPrice] = useState(0);
-  const [volume24h, setVolume24h] = useState(0);
-  const [priceChange, setPriceChange] = useState(0);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTrade, setActiveTrade] = useState(null);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '' });
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
@@ -98,12 +93,6 @@ export default function Trade() {
   }, [user, activeTrades]);
 
   // Update time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   // Trade duration options with profit rates
   const tradeDurations = [
@@ -201,12 +190,6 @@ export default function Trade() {
     setActiveTrade(null);
   };
 
-  const formatTime = (date) => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
-  };
 
 
 
