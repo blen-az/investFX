@@ -1,6 +1,6 @@
 // src/services/transactionService.js
 import { db } from "../firebase";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 /**
  * Fetch all transactions for a user (Deposits, Withdrawals, Trades)

@@ -1,6 +1,6 @@
 // src/services/tradeService.js
 import { db } from "../firebase";
-import { doc, getDoc, updateDoc, collection, addDoc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { doc, collection, runTransaction, serverTimestamp } from "firebase/firestore";
 import { determineTradeOutcome } from "./tradeSettingsService";
 
 /**

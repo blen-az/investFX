@@ -1,6 +1,6 @@
 // src/services/verificationService.js
 import { db } from "../firebase";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
 
 /**
  * Upload verification documents to Cloudinary

@@ -2,7 +2,7 @@
 import { db } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
-const SETTINGS_DOC = "tradeSettings/global";
+
 
 /**
  * Get global trade settings
