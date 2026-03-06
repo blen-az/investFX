@@ -209,9 +209,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                             <div className="trade-details-list">
                                 <div className="detail-row">
                                     <span className="detail-label">Trading direction</span>
-                                    <span className={`detail-value ${trade.side === 'buy' ? 'up' : 'down'}`}>
-                                        {trade.side === 'buy' ? 'Buy' : 'Sell'}
-                                    </span>
+                                    <span className="detail-value">{trade.side === 'buy' ? 'Buy' : 'Sell'}</span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Amount</span>

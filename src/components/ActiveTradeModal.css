@@ -301,10 +301,10 @@
 .completion-card.detailed-view {
     text-align: left;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.95);
+    background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    color: #1f2937;
+    color: #4b5563;
 }
 
 .completion-header {
@@ -313,35 +313,35 @@
     align-items: center;
     position: relative;
     margin-bottom: 24px;
-    border-bottom: 1px solid #e5e7eb;
     padding-bottom: 12px;
 }
 
 .symbol-title {
     font-size: 18px;
-    font-weight: 600;
-    color: #1f2937;
+    font-weight: 700;
+    color: #111827;
 }
 
 .close-icon-btn {
     position: absolute;
     right: 0;
+    top: 0;
     background: transparent;
     border: none;
     font-size: 20px;
-    color: #6b7280;
+    color: #9ca3af;
     cursor: pointer;
 }
 
 .pnl-summary {
-    font-size: 32px;
-    font-weight: 600;
+    font-size: 40px;
+    font-weight: 700;
     text-align: center;
     margin-bottom: 30px;
 }
 
 .pnl-summary.positive {
-    color: var(--color-positive, #10b981);
+    color: #10b981;
 }
 
 .pnl-summary.negative {
@@ -351,33 +351,26 @@
 .trade-details-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .detail-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .detail-label {
     color: #6b7280;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 .detail-value {
-    color: #1f2937;
-    font-weight: 500;
+    color: #111827;
+    font-weight: 600;
     text-align: right;
-}
-
-.detail-value.up {
-    color: #1f2937;
-}
-
-.detail-value.down {
-    color: #1f2937;
+    font-family: 'Inter', sans-serif;
 }
 
 .detail-value.positive {
