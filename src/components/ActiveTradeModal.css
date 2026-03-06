@@ -6,6 +6,7 @@
     left: 0;
     right: 0;
     bottom: 0;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
@@ -16,7 +17,7 @@
 }
 
 .active-trade-modal {
-    background: #ffffff;
+    background: #ffffff !important;
     width: 90%;
     max-width: 420px;
     border-radius: 0;
@@ -233,20 +234,8 @@
     color: #6b7280;
 }
 
-/* Completion Overlay */
-.completion-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: transparent;
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    padding: 24px;
+.completion-card-wrapper {
+    width: 100%;
     animation: fadeIn 0.3s ease;
 }
 

@@ -205,7 +205,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                         </div>
                     </>
                 ) : (
-                    <div className="completion-overlay">
+                    <div className="completion-card-wrapper">
                         <div className="completion-card detailed-view">
                             <div className="completion-header">
                                 <span className="symbol-title">{trade.coin.symbol}/USDT</span>
