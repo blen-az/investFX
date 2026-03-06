@@ -50,6 +50,14 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         return () => clearInterval(timer);
     }, []);
 
+    // Lock scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     useEffect(() => {
         setProgress((timeLeft / initialDuration) * 100);
 

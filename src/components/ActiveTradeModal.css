@@ -12,6 +12,7 @@
     justify-content: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
+    touch-action: none;
 }
 
 .active-trade-modal {
