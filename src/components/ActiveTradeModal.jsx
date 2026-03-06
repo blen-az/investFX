@@ -205,7 +205,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                             </div>
 
                             <div className={`pnl-summary ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
-                                {completionInfo.pnl >= 0 ? "+" : ""}{completionInfo.pnl.toFixed(4)}
+                                {completionInfo.pnl >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl).toFixed(4)}
                             </div>
 
                             <div className="trade-details-list">
@@ -236,7 +236,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                 <div className="detail-row">
                                     <span className="detail-label">P/L</span>
                                     <span className={`detail-value ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
-                                        {completionInfo.pnl >= 0 ? "+" : ""}{completionInfo.pnl.toFixed(4)}
+                                        {completionInfo.pnl >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl).toFixed(4)}
                                     </span>
                                 </div>
                                 <div className="detail-row">

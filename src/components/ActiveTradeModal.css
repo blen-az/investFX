@@ -315,37 +315,40 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .symbol-title {
     font-size: 18px;
     font-weight: 700;
     color: #111827;
+    margin-top: 4px;
 }
 
 .close-icon-btn {
     position: absolute;
     right: 0;
-    top: 0;
+    top: 4px;
     background: transparent;
     border: none;
     font-size: 20px;
-    color: #9ca3af;
+    color: #94a3b8;
     cursor: pointer;
 }
 
 .pnl-summary {
-    font-size: 40px;
-    font-weight: 700;
+    font-size: 38px;
+    font-weight: 600;
     text-align: center;
     margin-bottom: 30px;
     font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
 }
 
 .pnl-summary.positive {
-    color: #10b981;
+    color: #58bd7d;
 }
 
 .pnl-summary.negative {
@@ -355,7 +358,7 @@
 .trade-details-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
 }
 
 .detail-row {
@@ -363,23 +366,24 @@
     justify-content: space-between;
     align-items: center;
     font-size: 15px;
+    line-height: 1.2;
 }
 
 .detail-label {
-    color: #6b7280;
-    font-weight: 500;
+    color: #64748b;
+    font-weight: 400;
 }
 
 .detail-value {
-    color: #111827;
-    font-weight: 600;
+    color: #0f172a;
+    font-weight: 500;
     text-align: right;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
     font-variant-numeric: tabular-nums;
 }
 
 .detail-value.positive {
-    color: #10b981;
+    color: #58bd7d;
 }
 
 .detail-value.negative {
