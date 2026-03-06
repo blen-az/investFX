@@ -17,9 +17,7 @@
 }
 
 .active-trade-modal {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: #ffffff;
     width: 84%;
     max-width: 400px;
     border-radius: 20px;
@@ -27,8 +25,8 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
     animation: slideUp 0.3s ease;
-    color: #1f2937;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #111827;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 @keyframes fadeIn {
@@ -156,7 +154,8 @@
 .detail-item .value {
     font-size: 14px;
     font-weight: 700;
-    color: #1f2937;
+    color: #111827;
+    font-variant-numeric: tabular-nums;
 }
 
 .detail-item .value.positive {
@@ -187,8 +186,11 @@
 }
 
 .pnl-value {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    min-width: 140px;
+    text-align: right;
 }
 
 .pnl-value.positive {
@@ -223,7 +225,8 @@
 .time-value {
     font-size: 24px;
     font-weight: 800;
-    color: #1f2937;
+    color: #111827;
+    font-variant-numeric: tabular-nums;
 }
 
 .time-label {
@@ -338,6 +341,7 @@
     font-weight: 700;
     text-align: center;
     margin-bottom: 30px;
+    font-variant-numeric: tabular-nums;
 }
 
 .pnl-summary.positive {
@@ -371,6 +375,7 @@
     font-weight: 600;
     text-align: right;
     font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
 }
 
 .detail-value.positive {
