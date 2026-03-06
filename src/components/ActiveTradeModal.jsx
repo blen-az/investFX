@@ -160,9 +160,6 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                     <div className={`pnl-value ${pnl >= 0 ? "positive" : "negative"}`}>
                         {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
                     </div>
-                    <div className={`pnl-status ${pnl >= 0 ? "winning" : "losing"}`}>
-                        {pnl >= 0 ? "Winning" : "Losing"}
-                    </div>
                 </div>
 
                 <div className="timer-section">

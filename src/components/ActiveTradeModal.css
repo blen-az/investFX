@@ -195,21 +195,6 @@
     color: #ef4444;
 }
 
-.pnl-status {
-    font-size: 12px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.pnl-status.winning {
-    color: #10b981;
-}
-
-.pnl-status.losing {
-    color: #ef4444;
-}
 
 /* Timer */
 .timer-section {
