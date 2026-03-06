@@ -238,7 +238,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: transparent;
+    background: #ffffff;
     border-radius: 20px;
     display: flex;
     align-items: center;
