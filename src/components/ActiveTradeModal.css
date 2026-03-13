@@ -355,11 +355,8 @@
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
-<<<<<<< HEAD
     padding: 2px 0;
-=======
     line-height: 1.2;
->>>>>>> 6ad4000b4deefd42342a6746737c969a6dd2bf69
 }
 
 .detail-label {
@@ -368,26 +365,12 @@
 }
 
 .detail-value {
-<<<<<<< HEAD
-    color: #1f2937;
+    color: #0f172a;
     font-weight: 600;
     text-align: right;
     min-width: 120px;
-}
-
-.detail-value.up {
-    color: #1f2937;
-}
-
-.detail-value.down {
-    color: #1f2937;
-=======
-    color: #0f172a;
-    font-weight: 500;
-    text-align: right;
     font-family: 'Inter', -apple-system, sans-serif;
     font-variant-numeric: tabular-nums;
->>>>>>> 6ad4000b4deefd42342a6746737c969a6dd2bf69
 }
 
 .detail-value.positive {
