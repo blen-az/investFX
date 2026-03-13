@@ -218,7 +218,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
 
                             <div className="trade-details-list">
                                 <div className="detail-row">
-                                    <span className="detail-label">Trading direction</span>
+                                    <span className="detail-label">Trading Direction</span>
                                     <span className="detail-value">{trade.side === 'buy' ? 'Buy' : 'Sell'}</span>
                                 </div>
                                 <div className="detail-row">
@@ -226,11 +226,11 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     <span className="detail-value">{trade.amount.toFixed(4)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Opening price</span>
+                                    <span className="detail-label">Opening Price</span>
                                     <span className="detail-value">{trade.entryPrice.toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Closing price</span>
+                                    <span className="detail-label">Closing Price</span>
                                     <span className="detail-value">{completionInfo.exitPrice.toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
@@ -238,7 +238,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     <span className="detail-value">{initialDuration}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Profit rate</span>
+                                    <span className="detail-label">Profit Rate</span>
                                     <span className="detail-value">{trade.profitPercent}%</span>
                                 </div>
                                 <div className="detail-row">
@@ -248,11 +248,11 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     </span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Position opening time</span>
+                                    <span className="detail-label">Opening Time</span>
                                     <span className="detail-value">{formatDateTime(trade.startTime)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Closing time</span>
+                                    <span className="detail-label">Closing Time</span>
                                     <span className="detail-value">{formatDateTime(completionInfo.closedAt)}</span>
                                 </div>
                             </div>
