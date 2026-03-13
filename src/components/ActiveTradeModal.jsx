@@ -225,15 +225,15 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     <span className="detail-value">{trade.entryPrice.toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Closed Price</span>
+                                    <span className="detail-label">Closing price</span>
                                     <span className="detail-value">{completionInfo.exitPrice.toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">duration</span>
+                                    <span className="detail-label">Duration</span>
                                     <span className="detail-value">{initialDuration}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">profit rate</span>
+                                    <span className="detail-label">Profit rate</span>
                                     <span className="detail-value">{trade.profitPercent}%</span>
                                 </div>
                                 <div className="detail-row">
@@ -243,11 +243,11 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                     </span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">position opening time</span>
+                                    <span className="detail-label">Position opening time</span>
                                     <span className="detail-value">{formatDateTime(trade.startTime)}</span>
                                 </div>
                                 <div className="detail-row">
-                                    <span className="detail-label">Close time</span>
+                                    <span className="detail-label">Closing time</span>
                                     <span className="detail-value">{formatDateTime(completionInfo.closedAt)}</span>
                                 </div>
                             </div>

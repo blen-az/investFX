@@ -369,6 +369,7 @@
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
+    padding: 2px 0;
 }
 
 .detail-label {
@@ -378,8 +379,9 @@
 
 .detail-value {
     color: #1f2937;
-    font-weight: 500;
+    font-weight: 600;
     text-align: right;
+    min-width: 120px;
 }
 
 .detail-value.up {
