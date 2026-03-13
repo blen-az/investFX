@@ -50,6 +50,14 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         return () => clearInterval(timer);
     }, []);
 
+    // Lock scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     useEffect(() => {
         setProgress((timeLeft / initialDuration) * 100);
 
@@ -117,88 +125,87 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
     return (
         <div className="active-trade-overlay">
             <div className="active-trade-modal">
-                <div className="modal-header">
-                    <div className="trade-info">
-                        <span className="coin-icon-modal">₿</span>
-                        <span className="trade-title">
-                            {trade.side.toUpperCase()} {trade.coin.symbol.toUpperCase()}/USDT
-                        </span>
-                    </div>
-                    <button className="close-btn" onClick={onClose}>×</button>
-                </div>
+                {!completionInfo ? (
+                    <>
+                        <div className="modal-header">
+                            <div className="trade-info">
+                                <span className="coin-icon-modal">₿</span>
+                                <span className="trade-title">
+                                    {trade.side.toUpperCase()} {trade.coin.symbol.toUpperCase()}/USDT
+                                </span>
+                            </div>
+                            <button className="close-btn" onClick={onClose}>×</button>
+                        </div>
 
-                <div className="status-bar">
-                    <div className="status-indicator pulse"></div>
-                    <span>Trade Active</span>
-                </div>
+                        <div className="status-bar">
+                            <div className="status-indicator pulse"></div>
+                            <span>Trade Active</span>
+                        </div>
 
-                <div className="trade-grid-details">
-                    <div className="detail-item">
-                        <span className="label">Investment</span>
-                        <span className="value">${trade.amount}</span>
-                    </div>
-                    <div className="detail-item">
-                        <span className="label">Entry Price</span>
-                        <span className="value">${trade.entryPrice.toLocaleString()}</span>
-                    </div>
-                    <div className="detail-item">
-                        <span className="label">Current Price</span>
-                        <span className="value">${currentPrice.toLocaleString()}</span>
-                    </div>
-                    <div className="detail-item">
-                        <span className="label">Potential Profit</span>
-                        <span className="value positive">{trade.profitPercent}%</span>
-                    </div>
-                    <div className="detail-item">
-                        <span className="label">duration</span>
-                        <span className="value">{initialDuration}</span>
-                    </div>
-                </div>
+                        <div className="trade-grid-details">
+                            <div className="detail-item">
+                                <span className="label">Investment</span>
+                                <span className="value">${trade.amount}</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="label">Entry Price</span>
+                                <span className="value">${trade.entryPrice.toLocaleString()}</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="label">Current Price</span>
+                                <span className="value">${currentPrice.toLocaleString()}</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="label">Potential Profit</span>
+                                <span className="value positive">{trade.profitPercent}%</span>
+                            </div>
+                            <div className="detail-item">
+                                <span className="label">duration</span>
+                                <span className="value">{initialDuration}</span>
+                            </div>
+                        </div>
 
-                <div className="live-pnl-section">
-                    <div className="pnl-label">Live P&L</div>
-                    <div className={`pnl-value ${pnl >= 0 ? "positive" : "negative"}`}>
-                        {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
-                    </div>
-                    <div className={`pnl-status ${pnl >= 0 ? "winning" : "losing"}`}>
-                        {pnl >= 0 ? "Winning" : "Losing"}
-                    </div>
-                </div>
+                        <div className="live-pnl-section">
+                            <div className="pnl-label">Live P&L</div>
+                            <div className={`pnl-value ${pnl >= 0 ? "positive" : "negative"}`}>
+                                {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
+                            </div>
+                        </div>
 
-                <div className="timer-section">
-                    <svg className="progress-ring" width="120" height="120">
-                        <circle
-                            className="progress-ring__circle-bg"
-                            stroke="rgba(0,0,0,0.05)"
-                            strokeWidth="8"
-                            fill="transparent"
-                            r="52"
-                            cx="60"
-                            cy="60"
-                        />
-                        <circle
-                            className="progress-ring__circle"
-                            stroke={pnl >= 0 ? "#10b981" : "#ef4444"}
-                            strokeWidth="8"
-                            fill="transparent"
-                            r="52"
-                            cx="60"
-                            cy="60"
-                            style={{
-                                strokeDasharray: `${2 * Math.PI * 52} ${2 * Math.PI * 52}`,
-                                strokeDashoffset: `${2 * Math.PI * 52 * (1 - progress / 100)}`,
-                                transition: "stroke-dashoffset 1s linear"
-                            }}
-                        />
-                    </svg>
-                    <div className="timer-text">
-                        <div className="time-value">{timeLeft} second</div>
-                        <div className="time-label">Remaining</div>
-                    </div>
-                </div>
-
-                {completionInfo && (
-                    <div className="completion-overlay">
+                        <div className="timer-section">
+                            <svg className="progress-ring" width="120" height="120">
+                                <circle
+                                    className="progress-ring__circle-bg"
+                                    stroke="rgba(0,0,0,0.05)"
+                                    strokeWidth="8"
+                                    fill="transparent"
+                                    r="52"
+                                    cx="60"
+                                    cy="60"
+                                />
+                                <circle
+                                    className="progress-ring__circle"
+                                    stroke={pnl >= 0 ? "#10b981" : "#ef4444"}
+                                    strokeWidth="8"
+                                    fill="transparent"
+                                    r="52"
+                                    cx="60"
+                                    cy="60"
+                                    style={{
+                                        strokeDasharray: `${2 * Math.PI * 52} ${2 * Math.PI * 52}`,
+                                        strokeDashoffset: `${2 * Math.PI * 52 * (1 - progress / 100)}`,
+                                        transition: "stroke-dashoffset 1s linear"
+                                    }}
+                                />
+                            </svg>
+                            <div className="timer-text">
+                                <div className="time-value">{timeLeft} second</div>
+                                <div className="time-label">Remaining</div>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <div className="completion-card-wrapper">
                         <div className="completion-card detailed-view">
                             <div className="completion-header">
                                 <span className="symbol-title">{trade.coin.symbol}/USDT</span>
@@ -206,15 +213,13 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                             </div>
 
                             <div className={`pnl-summary ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
-                                {completionInfo.pnl >= 0 ? "+" : ""}{completionInfo.pnl.toFixed(4)}
+                                {completionInfo.pnl >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl).toFixed(4)}
                             </div>
 
                             <div className="trade-details-list">
                                 <div className="detail-row">
                                     <span className="detail-label">Trading direction</span>
-                                    <span className={`detail-value ${trade.side === 'buy' ? 'up' : 'down'}`}>
-                                        {trade.side === 'buy' ? 'Buy' : 'Sell'}
-                                    </span>
+                                    <span className="detail-value">{trade.side === 'buy' ? 'Buy' : 'Sell'}</span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Amount</span>
@@ -239,7 +244,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                 <div className="detail-row">
                                     <span className="detail-label">P/L</span>
                                     <span className={`detail-value ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
-                                        {completionInfo.pnl >= 0 ? "+" : ""}{completionInfo.pnl.toFixed(4)}
+                                        {completionInfo.pnl >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl).toFixed(4)}
                                     </span>
                                 </div>
                                 <div className="detail-row">

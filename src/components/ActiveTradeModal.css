@@ -6,25 +6,27 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
+    touch-action: none;
 }
 
 .active-trade-modal {
-    background: #ffffff;
+    background: #ffffff !important;
     width: 90%;
     max-width: 420px;
-    border-radius: 20px;
+    border-radius: 0;
     padding: 24px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     position: relative;
     animation: slideUp 0.3s ease;
-    color: #1f2937;
+    color: #111827;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 @keyframes fadeIn {
@@ -100,7 +102,7 @@
     background: rgba(16, 185, 129, 0.1);
     color: #10b981;
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -136,7 +138,7 @@
 .detail-item {
     background: #f3f4f6;
     padding: 12px;
-    border-radius: 8px;
+    border-radius: 0;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -152,7 +154,8 @@
 .detail-item .value {
     font-size: 14px;
     font-weight: 700;
-    color: #1f2937;
+    color: #111827;
+    font-variant-numeric: tabular-nums;
 }
 
 .detail-item .value.positive {
@@ -162,7 +165,7 @@
 /* Live P&L */
 .live-pnl-section {
     background: #f9fafb;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 20px;
     margin-bottom: 24px;
     display: flex;
@@ -183,8 +186,11 @@
 }
 
 .pnl-value {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    min-width: 140px;
+    text-align: right;
 }
 
 .pnl-value.positive {
@@ -195,21 +201,6 @@
     color: #ef4444;
 }
 
-.pnl-status {
-    font-size: 12px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.pnl-status.winning {
-    color: #10b981;
-}
-
-.pnl-status.losing {
-    color: #ef4444;
-}
 
 /* Timer */
 .timer-section {
@@ -234,7 +225,8 @@
 .time-value {
     font-size: 24px;
     font-weight: 800;
-    color: #1f2937;
+    color: #111827;
+    font-variant-numeric: tabular-nums;
 }
 
 .time-label {
@@ -242,19 +234,8 @@
     color: #6b7280;
 }
 
-/* Completion Overlay */
-.completion-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #ffffff;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
+.completion-card-wrapper {
+    width: 100%;
     animation: fadeIn 0.3s ease;
 }
 
@@ -294,7 +275,7 @@
     color: white;
     border: none;
     padding: 14px 40px;
-    border-radius: 12px;
+    border-radius: 0;
     font-weight: 600;
     cursor: pointer;
     font-size: 16px;
@@ -310,11 +291,12 @@
 /* Detailed Completion View */
 .completion-card.detailed-view {
     text-align: left;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    color: #1f2937;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    color: #4b5563;
+    width: 100%;
 }
 
 .completion-header {
@@ -322,24 +304,26 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    margin-bottom: 24px;
-    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 20px;
     padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .symbol-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1f2937;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 4px;
 }
 
 .close-icon-btn {
     position: absolute;
     right: 0;
+    top: 4px;
     background: transparent;
     border: none;
     font-size: 20px;
-    color: #6b7280;
+    color: #94a3b8;
     cursor: pointer;
 }
 
@@ -347,11 +331,13 @@
     font-size: 32px;
     font-weight: 600;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
 }
 
 .pnl-summary.positive {
-    color: var(--color-positive, #10b981);
+    color: #58bd7d;
 }
 
 .pnl-summary.negative {
@@ -369,15 +355,20 @@
     justify-content: space-between;
     align-items: center;
     font-size: 14px;
+<<<<<<< HEAD
     padding: 2px 0;
+=======
+    line-height: 1.2;
+>>>>>>> 6ad4000b4deefd42342a6746737c969a6dd2bf69
 }
 
 .detail-label {
-    color: #6b7280;
+    color: #64748b;
     font-weight: 400;
 }
 
 .detail-value {
+<<<<<<< HEAD
     color: #1f2937;
     font-weight: 600;
     text-align: right;
@@ -390,10 +381,17 @@
 
 .detail-value.down {
     color: #1f2937;
+=======
+    color: #0f172a;
+    font-weight: 500;
+    text-align: right;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+>>>>>>> 6ad4000b4deefd42342a6746737c969a6dd2bf69
 }
 
 .detail-value.positive {
-    color: #10b981;
+    color: #58bd7d;
 }
 
 .detail-value.negative {

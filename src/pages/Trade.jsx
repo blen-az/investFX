@@ -121,7 +121,7 @@ export default function Trade() {
           type: 'delivery',
           coin: coinMeta,
           entryPrice: livePrice,
-          amount: tradeAmount,
+          amount: Number(tradeAmount),
           side: direction === 'up' ? 'buy' : 'sell',
           duration: duration + 's',
           profitPercent: durationOption.profitRate,
@@ -130,11 +130,12 @@ export default function Trade() {
         // Perpetual Logic
         // Unlike delivery which passes explicit direction argument, perp uses the state `perpSide`
         const side = perpSide;
+        const amount = Number(tradeAmount);
 
-        if (tradeAmount <= 0) {
+        if (amount <= 0) {
           throw new Error("Amount must be greater than 0");
         }
-        if (tradeAmount > tradingBalance) {
+        if (amount > tradingBalance) {
           throw new Error("Insufficient balance");
         }
 
@@ -142,7 +143,7 @@ export default function Trade() {
           type: 'perpetual',
           coin: coinMeta,
           entryPrice: livePrice,
-          amount: tradeAmount,
+          amount: amount,
           side: side,
           leverage: leverage,
         };
@@ -297,9 +298,13 @@ export default function Trade() {
                 <input
                   type="number"
                   value={tradeAmount}
-                  onChange={(e) => setTradeAmount(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setTradeAmount(val === "" ? "" : Number(val));
+                  }}
                   className="trade-input-field"
                   min="1"
+                  placeholder="0"
                 />
               </div>
 
@@ -394,9 +399,12 @@ export default function Trade() {
                     <input
                       type="number"
                       value={tradeAmount}
-                      onChange={(e) => setTradeAmount(Number(e.target.value))}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setTradeAmount(val === "" ? "" : Number(val));
+                      }}
                       className="perp-input"
-                      placeholder="Amount"
+                      placeholder="0"
                     />
                   </div>
                 </div>
