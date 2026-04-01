@@ -49,12 +49,13 @@ export default function Market() {
   const CACHE_KEY = "market_cache_v1";
 
   // ----- util: fetch with timeout -----
-  async function fetchWithTimeout(url, ms = 2000) {
+  async function fetchWithTimeout(url, ms = 8000) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), ms);
     try {
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeout);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       return res;
     } catch (e) {
       clearTimeout(timeout);
@@ -90,7 +91,7 @@ export default function Market() {
 
     try {
       // try main API quickly
-      const res = await fetchWithTimeout(MAIN_API(p, per), 2200);
+      const res = await fetchWithTimeout(MAIN_API(p, per), 8000);
       const data = await res.json();
       if (Array.isArray(data) && data.length >= 0) {
         // If page==1 replace, else append
@@ -109,7 +110,7 @@ export default function Market() {
       // fallback to CoinCap (convert)
       try {
         const offset = (p - 1) * per;
-        const res2 = await fetchWithTimeout(BACKUP_API(per, offset), 2200);
+        const res2 = await fetchWithTimeout(BACKUP_API(per, offset), 8000);
         const json = await res2.json();
         if (json?.data && Array.isArray(json.data)) {
           const converted = json.data.map((a) => ({
@@ -341,7 +342,7 @@ export default function Market() {
             <div ref={sentinelRef} style={{ height: 8 }} />
 
             {/* load more / status */}
-            <div style={{ marginTop: 14, display: "flex", gap: 8, alignItems: "center" }}>
+            <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
               {loading && coins.length > 0 ? <div className="sub">Updating…</div> : null}
               {!loading && hasMore ? (
                 <button
@@ -353,7 +354,13 @@ export default function Market() {
                   Load more
                 </button>
               ) : null}
-              {!hasMore && <div className="sub">End of list</div>}
+              {!hasMore && coins.length === 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div className="sub" style={{ color: '#f87171' }}>Failed to load market data (Rate limit or network error).</div>
+                  <button className="btn" onClick={() => loadPage(1, PER_PAGE, false)}>Retry</button>
+                </div>
+              )}
+              {!hasMore && coins.length > 0 && <div className="sub">End of list</div>}
             </div>
           </>
         )}
