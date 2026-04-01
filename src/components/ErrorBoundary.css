@@ -20,42 +20,27 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.error-icon {
-    font-size: 64px;
-    margin-bottom: 24px;
-    animation: pulse 2s ease-in-out infinite;
+.boundary-icon {
+    font-size: 32px;
+    color: #64748b;
+    margin-bottom: 20px;
+    opacity: 0.8;
 }
 
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.8;
-        transform: scale(1.05);
-    }
+.boundary-title {
+    font-size: 22px;
+    font-weight: 500;
+    color: #e2e8f0;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
 }
 
-.error-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #f8fafc;
-    margin: 0 0 16px 0;
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.error-message {
-    font-size: 16px;
+.boundary-message {
+    font-size: 15px;
     color: #94a3b8;
-    margin: 0 0 32px 0;
+    margin: 0 auto 32px auto;
     line-height: 1.6;
+    max-width: 400px;
 }
 
 .error-details {
@@ -125,23 +110,26 @@
 }
 
 .error-actions .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 500;
 }
 
 .error-actions .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .error-actions .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid transparent;
+    font-weight: 500;
 }
 
 .error-actions .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .error-help {
