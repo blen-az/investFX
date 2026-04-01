@@ -95,6 +95,11 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
     };
   }, [selectedCoin]);
 
+  const onPriceRef = useRef(onPrice);
+  useEffect(() => {
+    onPriceRef.current = onPrice;
+  }, [onPrice]);
+
   useEffect(() => {
     const streams = {
       bitcoin: "btcusdt",
@@ -131,7 +136,7 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
         const data = await response.json();
         const price = data[coinIds[selectedCoin]]?.usd;
         if (price) {
-          onPrice(price);
+          onPriceRef.current(price);
         }
       } catch (error) {
         console.error("Error fetching fallback price:", error);
@@ -149,7 +154,7 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       const d = JSON.parse(e.data);
       if (d?.c) {
         priceReceived = true;
-        onPrice(parseFloat(d.c));
+        onPriceRef.current(parseFloat(d.c));
       }
     };
 
@@ -170,7 +175,7 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       clearTimeout(fallbackTimer);
       ws.close();
     };
-  }, [selectedCoin, onPrice]);
+  }, [selectedCoin]);
 
   useEffect(() => {
     if (coinId !== selectedCoin) setSelectedCoin(coinId);
