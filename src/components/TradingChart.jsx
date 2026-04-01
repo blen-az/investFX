@@ -182,9 +182,9 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
   }, [coinId, selectedCoin]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#0d1117] rounded-lg overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-[#0d1117] rounded-lg overflow-hidden relative">
 
-      <div className="flex gap-2 px-3 py-2 border-b border-gray-800">
+      <div className="flex gap-2 px-3 py-2 border-b border-gray-800 overflow-x-auto scrollbar-hide flex-shrink-0 z-10 w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
         {COINS.map((c) => (
           <button
             key={c.id}
