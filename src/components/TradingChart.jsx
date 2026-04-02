@@ -15,7 +15,7 @@ const COINS = [
 
 let tvScriptLoadingPromise = null;
 
-export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
+export default function TradingChart({ coinId, interval = "60", onPrice, onTickerData, onChangeCoin }) {
   const containerRef = useRef();
   const tvWidgetRef = useRef(null);
   const [selectedCoin, setSelectedCoin] = useState(coinId);
@@ -48,12 +48,12 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
     return tvScriptLoadingPromise;
   }
 
-  function createWidget(symbol) {
+  function createWidget(symbol, currentInterval) {
     if (!window.TradingView) return;
 
     tvWidgetRef.current = new window.TradingView.widget({
       symbol,
-      interval: "60",
+      interval: currentInterval,
       autosize: true,
       theme: "dark",
       style: "1",
@@ -79,7 +79,7 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
           console.warn("Chart cleanup warning:", e);
         }
       }
-      createWidget(toTVSymbol(selectedCoin));
+      createWidget(toTVSymbol(selectedCoin), interval);
     });
 
     return () => {
@@ -93,12 +93,14 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
         tvWidgetRef.current = null;
       }
     };
-  }, [selectedCoin]);
+  }, [selectedCoin, interval]);
 
   const onPriceRef = useRef(onPrice);
+  const onTickerDataRef = useRef(onTickerData);
   useEffect(() => {
     onPriceRef.current = onPrice;
-  }, [onPrice]);
+    onTickerDataRef.current = onTickerData;
+  }, [onPrice, onTickerData]);
 
   useEffect(() => {
     const streams = {
@@ -131,12 +133,21 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
     const fetchPriceFallback = async () => {
       try {
         const response = await fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds[selectedCoin]}&vs_currencies=usd`
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds[selectedCoin]}`
         );
         const data = await response.json();
-        const price = data[coinIds[selectedCoin]]?.usd;
-        if (price) {
-          onPriceRef.current(price);
+        const coinData = data[0]; // markets endpoint returns an array
+        if (coinData?.current_price) {
+          onPriceRef.current(coinData.current_price);
+          if (onTickerDataRef.current) {
+            onTickerDataRef.current({
+              price: coinData.current_price,
+              high: coinData.high_24h || coinData.current_price,
+              low: coinData.low_24h || coinData.current_price,
+              volume: coinData.total_volume || 0,
+              change: coinData.price_change_percentage_24h || 0
+            });
+          }
         }
       } catch (error) {
         console.error("Error fetching fallback price:", error);
@@ -155,6 +166,15 @@ export default function TradingChart({ coinId, onPrice, onChangeCoin }) {
       if (d?.c) {
         priceReceived = true;
         onPriceRef.current(parseFloat(d.c));
+        if (onTickerDataRef.current) {
+          onTickerDataRef.current({
+            price: parseFloat(d.c),
+            high: parseFloat(d.h || d.c),
+            low: parseFloat(d.l || d.c),
+            volume: parseFloat(d.v || 0),
+            change: parseFloat(d.P || 0)
+          });
+        }
       }
     };
 

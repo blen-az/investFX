@@ -25,13 +25,21 @@ export default function Trade() {
 
   const [contractType, setContractType] = useState("delivery"); // delivery (binary) | perpetual
   const [livePrice, setLivePrice] = useState(0);
-  const priceChange = 0;
-  const highPrice = 0;
-  const lowPrice = 0;
-  const volume24h = 0;
+  const [tickerStats, setTickerStats] = useState({
+    change: 0,
+    high: 0,
+    low: 0,
+    volume: 0
+  });
+
+  const priceChange = tickerStats.change;
+  const highPrice = tickerStats.high || livePrice;
+  const lowPrice = tickerStats.low || livePrice;
+  const volume24h = tickerStats.volume;
   const [activeTrade, setActiveTrade] = useState(null);
   const [alertModal, setAlertModal] = useState({ isOpen: false, message: '' });
   const [selectedDuration, setSelectedDuration] = useState(60); // seconds
+  const [chartInterval, setChartInterval] = useState("60"); // 60 min default
   const [leverage, setLeverage] = useState(1);
   const [tradeAmount, setTradeAmount] = useState(10);
   const [activeTrades, setActiveTrades] = useState([]);
@@ -268,19 +276,21 @@ export default function Trade() {
 
             {/* Timeframe Selector */}
             <div className="timeframe-selector">
-              <button className="timeframe-btn">Time</button>
-              <button className="timeframe-btn active">1min</button>
-              <button className="timeframe-btn">5min</button>
-              <button className="timeframe-btn">30min</button>
-              <button className="timeframe-btn">1hour</button>
-              <button className="timeframe-btn">1day</button>
+              <button className="timeframe-btn" style={{ pointerEvents: 'none' }}>Time</button>
+              <button className={`timeframe-btn ${chartInterval === '1' ? 'active' : ''}`} onClick={() => setChartInterval('1')}>1min</button>
+              <button className={`timeframe-btn ${chartInterval === '5' ? 'active' : ''}`} onClick={() => setChartInterval('5')}>5min</button>
+              <button className={`timeframe-btn ${chartInterval === '30' ? 'active' : ''}`} onClick={() => setChartInterval('30')}>30min</button>
+              <button className={`timeframe-btn ${chartInterval === '60' ? 'active' : ''}`} onClick={() => setChartInterval('60')}>1hour</button>
+              <button className={`timeframe-btn ${chartInterval === '1D' ? 'active' : ''}`} onClick={() => setChartInterval('1D')}>1day</button>
             </div>
 
             {/* Chart Section */}
             <div className="trade-chart-section">
               <TradingChart
                 coinId={coinMeta.id}
+                interval={chartInterval}
                 onPrice={(price) => setLivePrice(price)}
+                onTickerData={(stats) => setTickerStats(stats)}
                 onChangeCoin={(id) => {
                   setCoinMeta({
                     id,
@@ -509,7 +519,9 @@ export default function Trade() {
         <div style={{ display: 'none' }}>
           <TradingChart
             coinId={coinMeta.id}
+            interval={chartInterval}
             onPrice={(price) => setLivePrice(price)}
+            onTickerData={(stats) => setTickerStats(stats)}
             onChangeCoin={(id) => {
               setCoinMeta({
                 id,

@@ -3,20 +3,31 @@ import NewsCard from "../components/NewsCard";
 
 export default function News() {
   const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      setLoading(true);
       try {
-        // Using CryptoCompare News API (Free, no key needed usually for basic endpoints)
-        const res = await fetch("https://min-api.cryptocompare.com/data/v2/news/?lang=EN");
+        // Using RSS to JSON proxy to pull live news from CoinTelegraph
+        const res = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fcointelegraph.com%2Frss");
         const d = await res.json();
-        if (!cancelled && d.Data) {
-          setNews(d.Data.slice(0, 50));
+        if (!cancelled && d.status === "ok" && d.items) {
+          const formattedNews = d.items.map((item) => ({
+            title: item.title,
+            body: item.description ? item.description.replace(/<[^>]+>/g, '') : '',
+            source: "Cointelegraph",
+            url: item.link,
+            imageurl: item.thumbnail || (item.enclosure && item.enclosure.link) || "",
+            published_on: new Date(item.pubDate).getTime() / 1000
+          }));
+          setNews(formattedNews);
         }
       } catch (e) {
         console.error("News fetch error:", e);
-        setNews([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     load();
@@ -33,7 +44,13 @@ export default function News() {
       </div>
 
       <div className="news-grid">
-        {news.length === 0 ? <div className="card">No news available</div> : news.map((n, i) => <NewsCard key={i} item={n} />)}
+        {loading ? (
+             <div className="sub" style={{ padding: '20px 0' }}>Loading latest news...</div>
+        ) : news.length === 0 ? (
+             <div className="card">No news available. Please check your connection.</div>
+        ) : (
+             news.map((n, i) => <NewsCard key={i} item={n} />)
+        )}
       </div>
     </div>
   );

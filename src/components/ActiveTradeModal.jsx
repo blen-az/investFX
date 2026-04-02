@@ -79,7 +79,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
             ).then(result => {
                 setForcedOutcome(result.outcome);
                 setCompletionInfo({
-                    exitPrice: currentPrice,
+                    exitPrice: result.exitPrice || currentPrice,
                     closedAt: new Date(),
                     outcome: result.outcome,
                     pnl: result.pnl
