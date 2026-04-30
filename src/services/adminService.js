@@ -11,8 +11,32 @@ import {
     addDoc,
     where,
     orderBy,
-    limit
+    limit,
+    serverTimestamp
 } from "firebase/firestore";
+
+/**
+ * Internal helper: log a balance change event to balanceHistory collection.
+ */
+const logBalanceChange = async ({ userId, userName, userEmail, operation, target, amount, newBalance, performedBy, performedByRole }) => {
+    try {
+        await addDoc(collection(db, "balanceHistory"), {
+            userId,
+            userName: userName || null,
+            userEmail: userEmail || null,
+            operation,   // "set" | "add" | "subtract"
+            target,      // e.g. "funding", "trading", "commission"
+            amount,
+            newBalance: newBalance ?? null,
+            performedBy: performedBy || "admin",
+            performedByRole: performedByRole || "admin",
+            createdAt: serverTimestamp()
+        });
+    } catch (err) {
+        // Non-fatal – log but don't rethrow
+        console.warn("Failed to write balanceHistory record:", err);
+    }
+};
 
 // Get all users
 export const getAllUsers = async (filters = {}) => {
@@ -56,7 +80,7 @@ export const getAllUsers = async (filters = {}) => {
 };
 
 // Set user balance
-export const setUserBalance = async (userId, amount, operation = "set", target = "main") => {
+export const setUserBalance = async (userId, amount, operation = "set", target = "main", performedBy = null, performedByRole = "admin") => {
     try {
         const walletRef = doc(db, "wallets", userId);
         const walletSnap = await getDoc(walletRef);
@@ -142,6 +166,24 @@ export const setUserBalance = async (userId, amount, operation = "set", target =
         }
 
         await updateDoc(walletRef, updates);
+
+        // --- log the change ---
+        // Re-fetch user name/email for the log (best-effort)
+        try {
+            const userSnap2 = await getDoc(doc(db, "users", userId));
+            const ud = userSnap2.data() || {};
+            await logBalanceChange({
+                userId,
+                userName: ud.name || null,
+                userEmail: ud.email || null,
+                operation,
+                target,
+                amount,
+                newBalance,
+                performedBy,
+                performedByRole
+            });
+        } catch (_) { /* non-fatal */ }
 
         return { success: true };
     } catch (error) {
@@ -960,6 +1002,81 @@ export const getPlatformSettings = async () => {
         throw error;
     }
 };
+
+/**
+ * Get balance history log (all admin/agent balance changes)
+ */
+export const getBalanceHistory = async ({ limitCount = 200 } = {}) => {
+    try {
+        const histRef = collection(db, "balanceHistory");
+        const q = query(histRef, orderBy("createdAt", "desc"), limit(limitCount));
+        const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(d => ({
+            id: d.id,
+            ...d.data(),
+            createdAt: d.data().createdAt?.toDate()
+        }));
+    } catch (error) {
+        console.error("Error fetching balance history:", error);
+        throw error;
+    }
+};
+
+/**
+ * Set a custom deposit wallet address for a specific user.
+ * Stored at wallets/{userId}.customDepositAddresses.{crypto}
+ * The Deposit page will prioritise these over platform-wide defaults.
+ */
+export const setUserWalletAddress = async (userId, crypto, address, network = null) => {
+    try {
+        const walletRef = doc(db, "wallets", userId);
+        const walletSnap = await getDoc(walletRef);
+
+        const field = `customDepositAddresses.${crypto.toUpperCase()}`;
+        const entry = { address, network: network || crypto, updatedAt: new Date() };
+
+        if (!walletSnap.exists()) {
+            // Create the wallet document with just the custom address
+            await setDoc(walletRef, {
+                uid: userId,
+                mainBalance: 0,
+                tradingBalance: 0,
+                customDepositAddresses: { [crypto.toUpperCase()]: entry },
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+        } else {
+            await updateDoc(walletRef, {
+                [field]: entry,
+                updatedAt: new Date()
+            });
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error setting user wallet address:", error);
+        throw error;
+    }
+};
+
+/**
+ * Get a user's custom deposit addresses (returns null if none set)
+ */
+export const getUserWalletAddresses = async (userId) => {
+    try {
+        const walletRef = doc(db, "wallets", userId);
+        const walletSnap = await getDoc(walletRef);
+
+        if (!walletSnap.exists()) return null;
+        return walletSnap.data().customDepositAddresses || null;
+    } catch (error) {
+        console.error("Error fetching user wallet addresses:", error);
+        return null;
+    }
+};
+
+
 
 /**
  * Update platform settings

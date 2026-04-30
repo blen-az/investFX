@@ -13,7 +13,8 @@ import {
     User,
     Lock,
     Wallet,
-    Coins
+    Coins,
+    ClipboardList
 } from 'lucide-react';
 import './MobileBottomNav.css';
 
@@ -40,7 +41,7 @@ export default function MobileBottomNav() {
                 { path: '/admin/dashboard', icon: <LayoutDashboard size={24} />, label: 'Dashboard' },
                 { path: '/admin/users', icon: <Users size={24} />, label: 'Users' },
                 { path: '/admin/deposits', icon: <ArrowDownCircle size={24} />, label: 'Deposits' },
-                { path: '/admin/trades', icon: <BarChart2 size={24} />, label: 'Trades' },
+                { path: '/admin/balance-history', icon: <ClipboardList size={24} />, label: 'Bal. Log' },
                 { path: '/admin/settings', icon: <Settings size={24} />, label: 'Settings' }
             ];
         }

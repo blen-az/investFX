@@ -101,7 +101,13 @@ service cloud.firestore {
         // All authenticated users can read platform settings (for deposit addresses)
         allow read: if request.auth != null && settingId == 'platform';
     }
-    
+
+    // Balance History collection - audit log of admin/agent balance adjustments
+    // Only admins can read or write this collection
+    match /balanceHistory/{recordId} {
+        allow read, write: if isAdmin();
+    }
+
     // Catch-all: Deny everything else by default
     match /{document=**} {
       allow read, write: if false;

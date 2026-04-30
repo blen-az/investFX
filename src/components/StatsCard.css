@@ -7,6 +7,9 @@
     gap: 20px;
     transition: all 0.3s ease;
     border: 1px solid rgba(100, 116, 139, 0.2);
+    overflow: hidden;      /* stop icon/content bleeding outside */
+    min-width: 0;          /* allow flex children to shrink below content size */
+    box-sizing: border-box;
 }
 
 .stats-card:hover {
@@ -50,6 +53,8 @@
 
 .stats-content {
     flex: 1;
+    min-width: 0;   /* allow text to truncate */
+    overflow: hidden;
 }
 
 .stats-label {
@@ -62,7 +67,7 @@
 }
 
 .stats-value {
-    font-size: 2rem;
+    font-size: 1.65rem;
     font-weight: 900;
     font-family: 'JetBrains Mono', monospace;
     background: linear-gradient(135deg, #06b6d4, #10b981);
@@ -70,6 +75,9 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stats-trend {

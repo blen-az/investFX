@@ -221,6 +221,12 @@ export default function AdminDashboard() {
                         <div className="action-desc">Review user documents</div>
                     </Link>
 
+                    <Link to="/admin/balance-history" className="action-card glass-card">
+                        <div className="action-icon">📝</div>
+                        <div className="action-title">Balance History</div>
+                        <div className="action-desc">Audit log of balance changes</div>
+                    </Link>
+
                     <Link to="/admin/settings" className="action-card glass-card">
                         <div className="action-icon">⚙️</div>
                         <div className="action-title">Settings</div>

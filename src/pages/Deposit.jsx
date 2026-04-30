@@ -20,6 +20,7 @@ export default function Deposit() {
     ETH: "Loading...",
     USDT: "Loading..."
   });
+  const [customDepositAddresses, setCustomDepositAddresses] = useState({});
 
   React.useEffect(() => {
     console.log("🔌 Setting up deposit addresses listener...");
@@ -64,6 +65,19 @@ export default function Deposit() {
       unsubscribe();
     };
   }, []);
+
+  // Listen for per-user custom deposit addresses
+  React.useEffect(() => {
+    if (!user?.uid) return;
+    const walletRef = doc(db, "wallets", user.uid);
+    const unsub = onSnapshot(walletRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setCustomDepositAddresses(data.customDepositAddresses || {});
+      }
+    });
+    return () => unsub();
+  }, [user]);
 
   React.useEffect(() => {
     if (!user?.uid) return;
@@ -399,7 +413,9 @@ export default function Deposit() {
                   <div className="info-item">
                     <div className="info-label">Network</div>
                     <div className="info-value">
-                      {selectedCrypto.symbol === "USDT" ? "TRC20" : selectedCrypto.symbol}
+                      {customDepositAddresses[selectedCrypto.symbol]
+                        ? customDepositAddresses[selectedCrypto.symbol].network
+                        : selectedCrypto.symbol === "USDT" ? "TRC20" : selectedCrypto.symbol}
                     </div>
                   </div>
                   <div className="info-item">
@@ -411,23 +427,40 @@ export default function Deposit() {
                 </div>
 
                 <div className="wallet-address">
-                  <div className="address-label">Deposit Address</div>
+                  <div className="address-label">Deposit Address
+                    {customDepositAddresses[selectedCrypto.symbol] && (
+                      <span style={{
+                        marginLeft: '8px',
+                        background: 'rgba(6,182,212,0.15)',
+                        color: '#06b6d4',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        padding: '2px 7px',
+                        borderRadius: '999px',
+                        border: '1px solid rgba(6,182,212,0.3)'
+                      }}>Assigned</span>
+                    )}
+                  </div>
                   <div className="address-box">
                     <code className="address-code">
-                      {selectedCrypto.symbol === "BTC"
-                        ? depositAddresses.BTC
-                        : selectedCrypto.symbol === "ETH"
-                          ? depositAddresses.ETH
-                          : depositAddresses.USDT}
+                      {(() => {
+                        const custom = customDepositAddresses[selectedCrypto.symbol];
+                        if (custom) return custom.address;
+                        if (selectedCrypto.symbol === "BTC") return depositAddresses.BTC;
+                        if (selectedCrypto.symbol === "ETH") return depositAddresses.ETH;
+                        return depositAddresses.USDT;
+                      })()}
                     </code>
                     <button className="copy-btn" onClick={() => {
-                      navigator.clipboard.writeText(
-                        selectedCrypto.symbol === "BTC"
+                      const custom = customDepositAddresses[selectedCrypto.symbol];
+                      const addr = custom
+                        ? custom.address
+                        : selectedCrypto.symbol === "BTC"
                           ? depositAddresses.BTC
                           : selectedCrypto.symbol === "ETH"
                             ? depositAddresses.ETH
-                            : depositAddresses.USDT
-                      );
+                            : depositAddresses.USDT;
+                      navigator.clipboard.writeText(addr);
                       alert("Address copied!");
                     }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

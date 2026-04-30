@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../../components/DataTable";
 import Modal from "../../components/Modal";
-import { getAllUsers, setUserBalance, freezeUser, assignUserToAgent, getAllAgents } from "../../services/adminService";
+import { useAuth } from "../../contexts/AuthContext";
+import { getAllUsers, setUserBalance, freezeUser, assignUserToAgent, getAllAgents, setUserWalletAddress, getUserWalletAddresses } from "../../services/adminService";
 import { setUserTradeControl } from "../../services/tradeSettingsService";
 import "./Users.css";
 
 
 export default function Users() {
+    const { user: adminUser } = useAuth();
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -22,6 +24,15 @@ export default function Users() {
     const [agents, setAgents] = useState([]);
     const [selectedAgent, setSelectedAgent] = useState("");
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+    // --- Wallet address state ---
+    const [showWalletAddressModal, setShowWalletAddressModal] = useState(false);
+    const [walletAddressCrypto, setWalletAddressCrypto] = useState("USDT");
+    const [walletAddressNetwork, setWalletAddressNetwork] = useState("TRC20");
+    const [walletAddressValue, setWalletAddressValue] = useState("");
+    const [existingWalletAddresses, setExistingWalletAddresses] = useState(null);
+    const [walletAddressSaving, setWalletAddressSaving] = useState(false);
+    const [walletAddressSuccess, setWalletAddressSuccess] = useState(false);
 
     useEffect(() => {
         loadUsers();
@@ -72,7 +83,14 @@ export default function Users() {
                 return;
             }
 
-            await setUserBalance(selectedUser.id, amount, balanceOperation, balanceTarget);
+            await setUserBalance(
+                selectedUser.id,
+                amount,
+                balanceOperation,
+                balanceTarget,
+                adminUser?.email || adminUser?.uid || "admin",
+                "admin"
+            );
             setShowBalanceModal(false);
             setBalanceAmount("");
             await loadUsers();
@@ -128,6 +146,54 @@ export default function Users() {
                 alert(`❌ Failed to load agents list: ${error.message}`);
             }
         }
+    };
+
+    const openWalletAddressModal = async (user) => {
+        setSelectedUser(user);
+        setWalletAddressValue("");
+        setWalletAddressCrypto("USDT");
+        setWalletAddressNetwork("TRC20");
+        setWalletAddressSuccess(false);
+        try {
+            const existing = await getUserWalletAddresses(user.id);
+            setExistingWalletAddresses(existing);
+        } catch (_) {
+            setExistingWalletAddresses(null);
+        }
+        setShowWalletAddressModal(true);
+    };
+
+    const handleSetWalletAddress = async () => {
+        if (!walletAddressValue.trim()) {
+            alert("Please enter a wallet address.");
+            return;
+        }
+        try {
+            setWalletAddressSaving(true);
+            await setUserWalletAddress(
+                selectedUser.id,
+                walletAddressCrypto,
+                walletAddressValue.trim(),
+                walletAddressNetwork
+            );
+            // Refresh existing addresses
+            const updated = await getUserWalletAddresses(selectedUser.id);
+            setExistingWalletAddresses(updated);
+            setWalletAddressValue("");
+            setWalletAddressSuccess(true);
+        } catch (err) {
+            alert(`❌ Failed to save address: ${err.message}`);
+        } finally {
+            setWalletAddressSaving(false);
+        }
+    };
+
+    // Auto-set default network label when crypto changes
+    const handleCryptoChange = (crypto) => {
+        setWalletAddressCrypto(crypto);
+        setWalletAddressSuccess(false);
+        const defaults = { USDT: "TRC20", BTC: "Bitcoin", ETH: "ERC20", SOL: "Solana" };
+        setWalletAddressNetwork(defaults[crypto] || crypto);
     };
 
     const columns = [
@@ -200,6 +266,13 @@ export default function Users() {
                 }}
             >
                 Set Balance
+            </button>
+            <button
+                className="action-btn"
+                style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.3)' }}
+                onClick={() => openWalletAddressModal(row)}
+            >
+                Wallet Address
             </button>
             <button
                 className="action-btn"
@@ -598,6 +671,115 @@ export default function Users() {
                             onClick={() => setShowDetailsModal(false)}
                         >
                             Close
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+            {/* Wallet Address Modal */}
+            <Modal
+                isOpen={showWalletAddressModal}
+                onClose={() => { setShowWalletAddressModal(false); setWalletAddressSuccess(false); }}
+                title="Set User Wallet Address"
+            >
+                <div className="modal-content">
+                    <div className="form-group">
+                        <label className="form-label">User</label>
+                        <div className="user-info-display">
+                            {selectedUser?.name || selectedUser?.email}
+                        </div>
+                    </div>
+
+                    {/* Show existing custom addresses */}
+                    {existingWalletAddresses && Object.keys(existingWalletAddresses).length > 0 && (
+                        <div className="form-group">
+                            <label className="form-label">Current Custom Addresses</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {Object.entries(existingWalletAddresses).map(([crypto, info]) => (
+                                    <div key={crypto} style={{
+                                        background: 'rgba(6, 182, 212, 0.08)',
+                                        border: '1px solid rgba(6, 182, 212, 0.2)',
+                                        borderRadius: '8px',
+                                        padding: '10px 14px',
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                            <span style={{ color: '#06b6d4', fontWeight: 600, fontSize: '13px' }}>{crypto}</span>
+                                            <span style={{ color: '#94a3b8', fontSize: '11px' }}>{info.network}</span>
+                                        </div>
+                                        <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#e2e8f0', wordBreak: 'break-all' }}>
+                                            {info.address}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-group">
+                        <label className="form-label">Cryptocurrency</label>
+                        <select
+                            className="form-input"
+                            value={walletAddressCrypto}
+                            onChange={(e) => handleCryptoChange(e.target.value)}
+                        >
+                            <option value="USDT">USDT (Tether)</option>
+                            <option value="BTC">BTC (Bitcoin)</option>
+                            <option value="ETH">ETH (Ethereum)</option>
+                            <option value="SOL">SOL (Solana)</option>
+                            <option value="BNB">BNB (Binance)</option>
+                            <option value="XRP">XRP (Ripple)</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Network</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g. TRC20, ERC20, Bitcoin"
+                            value={walletAddressNetwork}
+                            onChange={(e) => setWalletAddressNetwork(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Wallet Address</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Paste the wallet address here"
+                            value={walletAddressValue}
+                            onChange={(e) => { setWalletAddressValue(e.target.value); setWalletAddressSuccess(false); }}
+                            style={{ fontFamily: 'monospace', fontSize: '13px' }}
+                        />
+                    </div>
+
+                    {walletAddressSuccess && (
+                        <div style={{
+                            padding: '12px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            borderRadius: '8px',
+                            color: '#10b981',
+                            fontSize: '13px',
+                            marginBottom: '8px'
+                        }}>
+                            ✅ Address saved! The user will now see this address on their deposit page.
+                        </div>
+                    )}
+
+                    <div className="modal-actions">
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => { setShowWalletAddressModal(false); setWalletAddressSuccess(false); }}
+                        >
+                            Close
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleSetWalletAddress}
+                            disabled={!walletAddressValue.trim() || walletAddressSaving}
+                        >
+                            {walletAddressSaving ? 'Saving…' : 'Save Address'}
                         </button>
                     </div>
                 </div>

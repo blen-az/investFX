@@ -57,6 +57,7 @@ const TradeSettings = lazy(() => import("./pages/admin/TradeSettings"));
 const AdminCommissions = lazy(() => import("./pages/admin/Commissions"));
 const Verifications = lazy(() => import("./pages/admin/Verifications"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const BalanceHistory = lazy(() => import("./pages/admin/BalanceHistory"));
 
 // Agent Pages (Lazy Loaded)
 const AgentDashboard = lazy(() => import("./pages/agent/AgentDashboard"));
@@ -342,6 +343,14 @@ export default function App() {
                   element={
                     <ProtectedRoute requiredRole={ROLES.ADMIN}>
                       <AdminSettings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/balance-history"
+                  element={
+                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                      <BalanceHistory />
                     </ProtectedRoute>
                   }
                 />
