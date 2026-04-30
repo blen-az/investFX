@@ -169,7 +169,6 @@ export default function BalanceHistory() {
         }
     ];
 
-    const uniqueTargets = [...new Set(records.map(r => r.target?.toLowerCase()).filter(Boolean))];
 
     return (
         <div className="users-page">
