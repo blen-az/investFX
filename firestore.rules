@@ -94,12 +94,17 @@ service cloud.firestore {
         allow read, write: if request.auth != null;
     }
     
+        // Helper function to check if user is verified (KYC)
+    function isVerified(userId) {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(userId)).data.verification?.status == 'verified';
+    }
+
     // Settings collection (platform-wide settings like deposit addresses)
     match /settings/{settingId} {
         // Admins can read and write all settings
         allow read, write: if isAdmin();
-        // All authenticated users can read platform settings (for deposit addresses)
-        allow read: if request.auth != null && settingId == 'platform';
+        // Only verified users can read platform settings (for deposit addresses)
+        allow read: if isVerified(request.auth.uid) && settingId == 'platform';
     }
 
     // Balance History collection - audit log of admin/agent balance adjustments

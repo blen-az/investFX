@@ -426,59 +426,76 @@ export default function Deposit() {
                   </div>
                 </div>
 
-                <div className="wallet-address">
-                  <div className="address-label">Deposit Address
-                    {customDepositAddresses[selectedCrypto.symbol] && (
-                      <span style={{
-                        marginLeft: '8px',
-                        background: 'rgba(6,182,212,0.15)',
-                        color: '#06b6d4',
-                        fontSize: '10px',
-                        fontWeight: 600,
-                        padding: '2px 7px',
-                        borderRadius: '999px',
-                        border: '1px solid rgba(6,182,212,0.3)'
-                      }}>Assigned</span>
-                    )}
-                  </div>
-                  <div className="address-box">
-                    <code className="address-code">
-                      {(() => {
+                {kycStatus === 'verified' ? (
+                  <div className="wallet-address">
+                    <div className="address-label">Deposit Address
+                      {customDepositAddresses[selectedCrypto.symbol] && (
+                        <span style={{
+                          marginLeft: '8px',
+                          background: 'rgba(6,182,212,0.15)',
+                          color: '#06b6d4',
+                          fontSize: '10px',
+                          fontWeight: 600,
+                          padding: '2px 7px',
+                          borderRadius: '999px',
+                          border: '1px solid rgba(6,182,212,0.3)'
+                        }}>Assigned</span>
+                      )}
+                    </div>
+                    <div className="address-box">
+                      <code className="address-code">
+                        {(() => {
+                          const custom = customDepositAddresses[selectedCrypto.symbol];
+                          if (custom) return custom.address;
+                          if (selectedCrypto.symbol === "BTC") return depositAddresses.BTC;
+                          if (selectedCrypto.symbol === "ETH") return depositAddresses.ETH;
+                          return depositAddresses.USDT;
+                        })()}
+                      </code>
+                      <button className="copy-btn" onClick={() => {
                         const custom = customDepositAddresses[selectedCrypto.symbol];
-                        if (custom) return custom.address;
-                        if (selectedCrypto.symbol === "BTC") return depositAddresses.BTC;
-                        if (selectedCrypto.symbol === "ETH") return depositAddresses.ETH;
-                        return depositAddresses.USDT;
-                      })()}
-                    </code>
-                    <button className="copy-btn" onClick={() => {
-                      const custom = customDepositAddresses[selectedCrypto.symbol];
-                      const addr = custom
-                        ? custom.address
-                        : selectedCrypto.symbol === "BTC"
-                          ? depositAddresses.BTC
-                          : selectedCrypto.symbol === "ETH"
-                            ? depositAddresses.ETH
-                            : depositAddresses.USDT;
-                      navigator.clipboard.writeText(addr);
-                      alert("Address copied!");
-                    }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24162C20 6.7034 19.7831 6.18789 19.3982 5.81161L16.6018 3.08839C16.2171 2.71211 15.7016 2.5 15.1634 2.5H10C8.89543 2.5 8 3.39543 8 4.5V4Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V9C4 7.89543 4.89543 7 6 7H8"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                      Copy
-                    </button>
+                        const addr = custom
+                          ? custom.address
+                          : selectedCrypto.symbol === "BTC"
+                            ? depositAddresses.BTC
+                            : selectedCrypto.symbol === "ETH"
+                              ? depositAddresses.ETH
+                              : depositAddresses.USDT;
+                        navigator.clipboard.writeText(addr);
+                        alert("Address copied!");
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24162C20 6.7034 19.7831 6.18789 19.3982 5.81161L16.6018 3.08839C16.2171 2.71211 15.7016 2.5 15.1634 2.5H10C8.89543 2.5 8 3.39543 8 4.5V4Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                          <path
+                            d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V9C4 7.89543 4.89543 7 6 7H8"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+                        </svg>
+                        Copy
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="kyc-notice glass-card" style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: 'rgba(239, 68, 68, 0.2)'
+                  }}>
+                    <div className="kyc-icon">🛑</div>
+                    <div className="kyc-content">
+                      <div className="kyc-title" style={{ color: '#ef4444' }}>
+                        Deposit Address Hidden
+                      </div>
+                      <div className="kyc-text">
+                        You must complete identity verification to view deposit addresses.
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="deposit-form">
                   <div className="form-group">
