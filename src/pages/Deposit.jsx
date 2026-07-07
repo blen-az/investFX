@@ -15,6 +15,7 @@ export default function Deposit() {
   const [proofFile, setProofFile] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [kycStatus, setKycStatus] = useState("unverified");
+  const [isFrozen, setIsFrozen] = useState(false);
   const [depositAddresses, setDepositAddresses] = useState({
     BTC: "Loading...",
     ETH: "Loading...",
@@ -87,6 +88,7 @@ export default function Deposit() {
         // Priority: New verification object -> Legacy kycStatus field -> Default to unverified
         const status = userData.verification?.status || userData.kycStatus || "unverified";
         setKycStatus(status);
+        setIsFrozen(userData.frozen || false);
       }
     });
     return () => unsub();
@@ -94,6 +96,10 @@ export default function Deposit() {
 
 
   const handleDepositSubmit = async () => {
+    if (isFrozen) {
+      alert("Your account is frozen. Deposits are disabled.");
+      return;
+    }
     if (!depositAmount || !proofFile) {
       alert("Please enter amount and upload proof of payment.");
       return;
@@ -197,7 +203,30 @@ export default function Deposit() {
         </div>
 
         {/* KYC Verification Notice */}
-        {kycStatus !== 'verified' && (
+        {isFrozen ? (
+          <div className="kyc-notice glass-card" style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            borderColor: 'rgba(239, 68, 68, 0.2)'
+          }}>
+            <div className="kyc-icon">🛑</div>
+            <div className="kyc-content">
+              <div className="kyc-title" style={{ color: '#ef4444' }}>
+                Account Frozen
+              </div>
+              <div className="kyc-text">
+                Your account is currently frozen. Deposits and other actions are temporarily disabled. Please contact customer support for assistance.
+              </div>
+            </div>
+            <div className="kyc-status">
+              <span className="status-badge" style={{
+                color: '#ef4444',
+                background: 'rgba(239, 68, 68, 0.2)'
+              }}>
+                Frozen
+              </span>
+            </div>
+          </div>
+        ) : kycStatus !== 'verified' && (
           <div className="kyc-notice glass-card" style={{
             background: kycStatus === 'unverified' ? 'rgba(239, 68, 68, 0.1)' : undefined,
             borderColor: kycStatus === 'unverified' ? 'rgba(239, 68, 68, 0.2)' : undefined
@@ -426,7 +455,22 @@ export default function Deposit() {
                   </div>
                 </div>
 
-                {kycStatus === 'verified' ? (
+                {isFrozen ? (
+                  <div className="kyc-notice glass-card" style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: 'rgba(239, 68, 68, 0.2)'
+                  }}>
+                    <div className="kyc-icon">🛑</div>
+                    <div className="kyc-content">
+                      <div className="kyc-title" style={{ color: '#ef4444' }}>
+                        Account Frozen
+                      </div>
+                      <div className="kyc-text">
+                        Your account is frozen. Deposits are disabled. Please contact customer support.
+                      </div>
+                    </div>
+                  </div>
+                ) : kycStatus === 'verified' ? (
                   <div className="wallet-address">
                     <div className="address-label">Deposit Address
                       {customDepositAddresses[selectedCrypto.symbol] && (
@@ -497,45 +541,47 @@ export default function Deposit() {
                   </div>
                 )}
 
-                <div className="deposit-form">
-                  <div className="form-group">
-                    <label className="form-label">Amount Deposited ({selectedCrypto.symbol})</label>
-                    <input
-                      type="number"
-                      className="form-input"
-                      placeholder="0.00"
-                      value={depositAmount}
-                      onChange={(e) => setDepositAmount(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Proof of Payment (Screenshot)</label>
-                    <div className="file-upload-box">
+                {!isFrozen && (
+                  <div className="deposit-form">
+                    <div className="form-group">
+                      <label className="form-label">Amount Deposited ({selectedCrypto.symbol})</label>
                       <input
-                        type="file"
-                        id="proof-upload"
-                        className="file-input"
-                        accept="image/*"
-                        onChange={(e) => setProofFile(e.target.files[0])}
+                        type="number"
+                        className="form-input"
+                        placeholder="0.00"
+                        value={depositAmount}
+                        onChange={(e) => setDepositAmount(e.target.value)}
                       />
-                      <label htmlFor="proof-upload" className="file-label">
-                        {proofFile ? (
-                          <span className="file-name">{proofFile.name}</span>
-                        ) : (
-                          <>
-                            <span className="upload-icon">📁</span>
-                            <span>Click to upload screenshot</span>
-                          </>
-                        )}
-                      </label>
                     </div>
-                  </div>
 
-                  <button className="submit-deposit-btn" onClick={handleDepositSubmit}>
-                    Submit Deposit Request
-                  </button>
-                </div>
+                    <div className="form-group">
+                      <label className="form-label">Proof of Payment (Screenshot)</label>
+                      <div className="file-upload-box">
+                        <input
+                          type="file"
+                          id="proof-upload"
+                          className="file-input"
+                          accept="image/*"
+                          onChange={(e) => setProofFile(e.target.files[0])}
+                        />
+                        <label htmlFor="proof-upload" className="file-label">
+                          {proofFile ? (
+                            <span className="file-name">{proofFile.name}</span>
+                          ) : (
+                            <>
+                              <span className="upload-icon">📁</span>
+                              <span>Click to upload screenshot</span>
+                            </>
+                          )}
+                        </label>
+                      </div>
+                    </div>
+
+                    <button className="submit-deposit-btn" onClick={handleDepositSubmit}>
+                      Submit Deposit Request
+                    </button>
+                  </div>
+                )}
 
                 <div className="deposit-warning">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
