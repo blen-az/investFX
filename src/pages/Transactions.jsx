@@ -43,8 +43,6 @@ function TxRow({ tx }) {
   const isDeposit = tx.type === "Deposit";
   const isWithdraw = tx.type === "Withdrawal";
   const isWin = tx.status === "Win";
-  const isLoss = tx.status === "Loss";
-
   const icon = isDeposit
     ? <ArrowDownLeft size={16} />
     : isWithdraw

@@ -1,6 +1,6 @@
 // src/pages/Market.jsx
 import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import MiniSpark from "../components/MiniSpark";
 import { Search, Star, TrendingUp, TrendingDown, ChevronRight, RotateCcw } from "lucide-react";
 import "./Market.css";
@@ -41,9 +41,7 @@ export default function Market() {
   // modal chart
   const [showChartFor, setShowChartFor] = useState(null);
 
-  // XAU (Gold) live price
   const [xauPrice, setXauPrice] = useState(null);
-  const [xauChange, setXauChange] = useState(0);
 
   useEffect(() => {
     async function fetchXauPrice() {

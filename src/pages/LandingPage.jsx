@@ -13,17 +13,8 @@ import {
   Users,
   CheckCircle2,
   Lock,
-  TrendingUp,
-  TrendingDown,
-  Layers,
-  ChevronRight,
   Menu,
-  X,
-  Sparkles,
-  Cpu,
-  RefreshCw,
-  Sliders,
-  DollarSign
+  X
 } from "lucide-react";
 import "./LandingPage.css";
 

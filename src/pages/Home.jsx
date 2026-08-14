@@ -122,7 +122,6 @@ export default function Home() {
   // ── State ──────────────────────────────────────────────────────
   const [balance, setBalance] = useState(0);
   const [mainBalance, setMainBalance] = useState(0);
-  const [tradingBalance, setTradingBalance] = useState(0);
   const [balanceHidden, setBalanceHidden] = useState(false);
   const [walletLoading, setWalletLoading] = useState(true);
 
@@ -163,7 +162,6 @@ export default function Home() {
         const main = d.mainBalance !== undefined ? d.mainBalance : (d.balance || 0);
         const trading = d.tradingBalance !== undefined ? d.tradingBalance : 0;
         setMainBalance(main);
-        setTradingBalance(trading);
         setBalance(main + trading);
       }
       setWalletLoading(false);
