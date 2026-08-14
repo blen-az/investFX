@@ -1,16 +1,15 @@
 // src/pages/Home.jsx
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
-import { getUserTransactions } from "../services/transactionService";
 import { openTrade } from "../services/tradeService";
 import {
-  ArrowDownLeft, ArrowUpRight, RefreshCw, Send,
+  ArrowDownLeft, ArrowUpRight, RefreshCw,
   Eye, EyeOff, TrendingUp, TrendingDown,
-  ChevronRight, Plus, Minus, ArrowRightLeft,
-  ChevronDown, Search, X, Check, AlertCircle
+  Plus, Minus,
+  ChevronDown, Search, X, AlertCircle
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
@@ -18,7 +17,6 @@ import {
 } from "recharts";
 import MiniSpark from "../components/MiniSpark";
 import Toast from "../components/Toast";
-import coinList from "../data/coinList";
 import "./Home.css";
 
 // ── Greeting ─────────────────────────────────────────────────────

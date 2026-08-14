@@ -196,7 +196,7 @@ function DesktopSidebar() {
 
 // ── Desktop Top Bar ──────────────────────────────────────────────
 function DesktopTopBar() {
-  const { user, isAdmin, isAgent } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);

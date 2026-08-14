@@ -68,6 +68,7 @@ export default function LoadingPage({
       clearInterval(interval);
       if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [realProgress, statusMessage]);
 
   const handleFinish = () => {

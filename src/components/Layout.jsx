@@ -3,11 +3,9 @@ import { useLocation } from "react-router-dom";
 import { DesktopSidebar, DesktopTopBar } from "./Navbar";
 import MobileBottomNav from "./MobileBottomNav";
 import MobileHeader from "./MobileHeader";
-import { useAuth } from "../contexts/AuthContext";
 
 export default function Layout({ children }) {
   const location = useLocation();
-  const { user, isAdmin, isAgent } = useAuth();
 
   const isTradePage = location.pathname === "/trade";
   const isAgentPage = location.pathname.startsWith("/agent");
