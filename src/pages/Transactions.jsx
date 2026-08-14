@@ -1,139 +1,201 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Transactions.jsx
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getUserTransactions } from "../services/transactionService";
-import ParticleBackground from "../components/ParticleBackground";
-import DataTable from "../components/DataTable";
+import { Link } from "react-router-dom";
+import {
+  ArrowDownLeft, ArrowUpRight, RefreshCw,
+  Activity, RotateCcw
+} from "lucide-react";
 import "./Transactions.css";
+
+function groupByDate(txs) {
+  const groups = {};
+  txs.forEach((tx) => {
+    const d = tx.date ? new Date(tx.date) : null;
+    const label = d
+      ? isToday(d) ? "Today"
+        : isYesterday(d) ? "Yesterday"
+          : d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+      : "Unknown";
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(tx);
+  });
+  return groups;
+}
+
+function isToday(d) {
+  const n = new Date();
+  return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+}
+function isYesterday(d) {
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  return d.getDate() === y.getDate() && d.getMonth() === y.getMonth() && d.getFullYear() === y.getFullYear();
+}
+
+function formatTime(date) {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+}
+
+function TxRow({ tx }) {
+  const isDeposit = tx.type === "Deposit";
+  const isWithdraw = tx.type === "Withdrawal";
+  const isWin = tx.status === "Win";
+  const isLoss = tx.status === "Loss";
+
+  const icon = isDeposit
+    ? <ArrowDownLeft size={16} />
+    : isWithdraw
+      ? <ArrowUpRight size={16} />
+      : <RefreshCw size={15} />;
+
+  const iconBg = isDeposit ? "var(--wm-positive-s)"
+    : isWithdraw ? "var(--wm-negative-s)"
+      : "var(--wm-accent-s)";
+
+  const iconColor = isDeposit ? "var(--wm-positive)"
+    : isWithdraw ? "var(--wm-negative)"
+      : "var(--wm-accent)";
+
+  const amt = typeof tx.amount === "number" ? tx.amount : parseFloat(tx.amount) || 0;
+  const prefix = isDeposit || isWin ? "+" : "-";
+  const amtColor = isDeposit || isWin ? "var(--wm-positive)" : "var(--wm-negative)";
+
+  const statusColor = {
+    approved: "var(--wm-positive)", completed: "var(--wm-positive)",
+    pending: "var(--wm-warning)", processing: "var(--wm-warning)",
+    Win: "var(--wm-positive)", Loss: "var(--wm-negative)",
+    rejected: "var(--wm-negative)"
+  }[tx.status] || "var(--wm-text-3)";
+
+  return (
+    <div className="tx-row">
+      <div className="tx-icon" style={{ background: iconBg, color: iconColor }}>{icon}</div>
+      <div className="tx-info">
+        <span className="tx-type">{tx.type}</span>
+        <div className="tx-meta-row">
+          {tx.asset && <span className="tx-asset">{tx.asset}</span>}
+          {tx.details && <span className="tx-details">{tx.details}</span>}
+        </div>
+      </div>
+      <div className="tx-right">
+        <span className="tx-amount" style={{ color: amtColor }}>
+          {prefix}${Math.abs(amt).toFixed(2)}
+        </span>
+        <div className="tx-status-row">
+          <span className="tx-status" style={{ color: statusColor }}>{tx.status}</span>
+          <span className="tx-time">{formatTime(tx.date)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const FILTERS = ["All", "Deposit", "Withdrawal", "Trade"];
 
 export default function Transactions() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
+  const [error, setError] = useState(null);
 
-  const loadTransactions = React.useCallback(async () => {
+  const load = useCallback(async () => {
+    if (!user?.uid) return;
     try {
       setLoading(true);
+      setError(null);
       const data = await getUserTransactions(user.uid);
       setTransactions(data);
-    } catch (error) {
-      console.error("Error loading transactions:", error);
+    } catch (e) {
+      console.error(e);
+      setError("Failed to load transactions.");
     } finally {
       setLoading(false);
     }
-  }, [user.uid]);
+  }, [user?.uid]);
 
-  useEffect(() => {
-    if (user?.uid) {
-      loadTransactions();
-    }
-  }, [user, loadTransactions]);
+  useEffect(() => { load(); }, [load]);
 
-  const filteredData = filter === "All"
+  const filtered = filter === "All"
     ? transactions
     : transactions.filter(t => t.type === filter);
 
-  const columns = [
-    {
-      header: "Type",
-      key: "type",
-      render: (value) => (
-        <span className={`badge ${value === 'Deposit' ? 'badge-success' :
-          value === 'Withdrawal' ? 'badge-danger' :
-            'badge-warning'
-          }`}>
-          {value}
-        </span>
-      )
-    },
-    {
-      header: "Asset",
-      key: "asset",
-      render: (value) => <span className="font-mono text-gray-300">{value}</span>
-    },
-    {
-      header: "Amount",
-      key: "amount",
-      render: (value, row) => {
-        const isPositive = value > 0;
-
-        return (
-          <span style={{
-            color: isPositive ? '#10b981' : '#ef4444',
-            fontWeight: 600
-          }}>
-            {isPositive ? '+' : ''}${Math.abs(value).toFixed(2)}
-          </span>
-        );
-      }
-    },
-    {
-      header: "Status",
-      key: "status",
-      render: (value) => (
-        <span style={{
-          textTransform: 'capitalize',
-          color: value === 'approved' || value === 'Win' ? '#10b981' :
-            value === 'rejected' || value === 'Loss' ? '#ef4444' : '#f59e0b'
-        }}>
-          {value}
-        </span>
-      )
-    },
-    {
-      header: "Details",
-      key: "details",
-      render: (value) => <span className="text-xs text-gray-400">{value}</span>
-    },
-    {
-      header: "Date",
-      key: "date",
-      render: (value) => value ? new Date(value).toLocaleString() : '-'
-    }
-  ];
+  const groups = groupByDate(filtered);
 
   return (
-    <div className="transactions-page">
-      <ParticleBackground />
+    <div className="tx-page">
 
-      <div className="transactions-container">
-        <div className="transactions-header">
-          <div className="t-title">
-            <h1>Transaction History</h1>
-            <p className="t-desc">View all your deposits, withdrawals, and trades</p>
-          </div>
-
-          {/* Filters */}
-          <div className="transactions-filters">
-            {["All", "Deposit", "Withdrawal", "Trade"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`filter-btn ${filter === f ? "active" : ""}`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+      {/* Header */}
+      <div className="tx-page-header anim-fade-up">
+        <div>
+          <h1 className="tx-page-title">Activity</h1>
+          <p className="tx-page-sub">Track all account activity</p>
         </div>
-
-        {loading ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-          </div>
-        ) : (
-          <div className="transactions-content">
-            {filteredData.length > 0 ? (
-              <DataTable columns={columns} data={filteredData} />
-            ) : (
-              <div className="empty-state-tx">
-                <div className="empty-icon">📝</div>
-                <p>No transactions found for this filter.</p>
-              </div>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Filter tabs */}
+      <div className="wm-filter-tabs anim-fade-up delay-1">
+        {FILTERS.map(f => (
+          <button
+            key={f}
+            className={`wm-filter-tab${filter === f ? " active" : ""}`}
+            onClick={() => setFilter(f)}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="tx-list-card anim-fade-up delay-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="tx-row">
+              <div className="skeleton" style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0 }} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                <div className="skeleton skeleton-text" style={{ width: 100 }} />
+                <div className="skeleton skeleton-text" style={{ width: 70 }} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+                <div className="skeleton skeleton-text" style={{ width: 80 }} />
+                <div className="skeleton skeleton-text" style={{ width: 60 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="wm-empty anim-fade-up delay-2">
+          <div className="wm-empty-icon"><Activity size={24} /></div>
+          <p className="wm-empty-title">Something went wrong</p>
+          <p className="wm-empty-desc">{error}</p>
+          <button className="btn-primary" onClick={load} style={{ marginTop: 8 }}>
+            <RotateCcw size={14} /> Try Again
+          </button>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="wm-empty anim-fade-up delay-2">
+          <div className="wm-empty-icon"><Activity size={24} /></div>
+          <p className="wm-empty-title">No transactions yet</p>
+          <p className="wm-empty-desc">Deposits, withdrawals and trades will appear here.</p>
+          <Link to="/deposit" className="btn-primary" style={{ marginTop: 8 }}>
+            Make a Deposit
+          </Link>
+        </div>
+      ) : (
+        <div className="tx-groups anim-fade-up delay-2">
+          {Object.entries(groups).map(([label, txs]) => (
+            <div key={label} className="tx-group">
+              <div className="tx-group-label">{label}</div>
+              <div className="tx-list-card">
+                {txs.map((tx, i) => <TxRow key={i} tx={tx} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

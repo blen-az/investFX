@@ -1,0 +1,373 @@
+/* ================================================================
+   GLASS NEBULA LOADING SCREEN — WayMore Futuristic Fintech
+   ================================================================ */
+
+.nebula-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(30px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+  overflow: hidden;
+  user-select: none;
+  font-family: var(--font, 'Inter', -apple-system, sans-serif);
+  
+  /* Luminous blue/cyan/violet nebula background */
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 194, 199, 0.32), transparent 40%),
+    radial-gradient(circle at 80% 25%, rgba(59, 130, 246, 0.30), transparent 45%),
+    radial-gradient(circle at 70% 80%, rgba(124, 92, 252, 0.32), transparent 50%),
+    linear-gradient(145deg, #dff7ff 0%, #dce8ff 45%, #e8ddff 100%);
+  background-size: 130% 130%;
+  animation: nebulaDrift 14s ease-in-out infinite alternate;
+  transition: opacity 400ms ease, filter 400ms ease, transform 400ms ease;
+}
+
+.nebula-loading-screen.exiting {
+  opacity: 0;
+  filter: blur(12px) saturate(80%);
+  transform: scale(1.02);
+  pointer-events: none;
+}
+
+/* ── Nebula Background Drift Motion ───────────────────────────── */
+
+@keyframes nebulaDrift {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 50% 100%;
+  }
+}
+
+/* ── Pure CSS Particles ───────────────────────────────────────── */
+
+.nebula-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 10px rgba(0, 194, 199, 0.5);
+  animation: floatParticle 6s ease-in-out infinite alternate;
+}
+
+.particle:nth-child(1) { top: 18%; left: 22%; width: 4px; height: 4px; animation-delay: 0s; }
+.particle:nth-child(2) { top: 32%; left: 78%; width: 6px; height: 6px; animation-delay: 1.2s; }
+.particle:nth-child(3) { top: 65%; left: 15%; width: 5px; height: 5px; animation-delay: 2.4s; }
+.particle:nth-child(4) { top: 75%; left: 82%; width: 4px; height: 4px; animation-delay: 0.8s; }
+.particle:nth-child(5) { top: 45%; left: 50%; width: 3px; height: 3px; animation-delay: 3.1s; }
+.particle:nth-child(6) { top: 85%; left: 40%; width: 5px; height: 5px; animation-delay: 1.8s; }
+
+@keyframes floatParticle {
+  0% { transform: translateY(0px) scale(0.9); opacity: 0.3; }
+  50% { opacity: 0.9; }
+  100% { transform: translateY(-6px) scale(1.1); opacity: 0.4; }
+}
+
+/* ── Center Content Column ────────────────────────────────────── */
+
+.nebula-center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  max-width: 440px;
+  margin: auto 0;
+  z-index: 2;
+}
+
+/* ── Glass Logo Tile ─────────────────────────────────────────── */
+
+.glass-logo-tile {
+  width: 120px;
+  height: 120px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 20px 60px rgba(41, 70, 130, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 24px;
+  animation: tileEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.4s ease;
+}
+
+.glass-logo-tile.ready {
+  transform: translateY(-4px) scale(1.02);
+}
+
+@keyframes tileEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.90);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Reflected glass sweep highlight */
+.glass-logo-tile::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 58%
+  );
+  animation: glassSweep 2.5s ease-in-out forwards;
+  pointer-events: none;
+}
+
+@keyframes glassSweep {
+  0% { transform: translate(-100%, -100%); }
+  40%, 100% { transform: translate(100%, 100%); }
+}
+
+.lightning-icon {
+  width: 54px;
+  height: 54px;
+  color: #00C2C7;
+  filter: drop-shadow(0 8px 20px rgba(0, 194, 199, 0.35));
+  z-index: 2;
+}
+
+/* ── Brand Typography ────────────────────────────────────────── */
+
+.nebula-brand-wordmark {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  color: #0B1220;
+}
+
+.wordmark-way {
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(15, 23, 42, 0.15);
+}
+
+.wordmark-more {
+  background: linear-gradient(135deg, #00C2C7, #3B82F6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nebula-tagline {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(11, 18, 32, 0.72);
+  letter-spacing: 0.02em;
+  margin-bottom: 40px;
+}
+
+/* ── Horizontal Progress Bar ──────────────────────────────────── */
+
+.nebula-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 16px;
+}
+
+.nebula-progress-track {
+  flex: 1;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.40);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.nebula-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7CF8FF, #00C2C7, #3B82F6);
+  box-shadow: 0 0 12px rgba(0, 194, 199, 0.6);
+  transition: width 250ms ease-out;
+}
+
+.nebula-progress-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0B1220;
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ── Contextual Loading Status Text ───────────────────────────── */
+
+.nebula-status-box {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nebula-status-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(11, 18, 32, 0.68);
+  transition: opacity 150ms ease;
+}
+
+/* ── Glass Feature Strip (Bottom) ─────────────────────────────── */
+
+.nebula-feature-strip {
+  width: 100%;
+  max-width: 480px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 15px 40px rgba(40, 65, 120, 0.10);
+  border-radius: 20px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 2;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0B1220;
+}
+
+.feature-icon {
+  color: #00C2C7;
+  flex-shrink: 0;
+}
+
+.feature-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(11, 18, 32, 0.12);
+}
+
+/* ── Error State Card ─────────────────────────────────────────── */
+
+.nebula-error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  max-width: 320px;
+  margin-top: 10px;
+}
+
+.error-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #EF4444;
+}
+
+.error-desc {
+  font-size: 13px;
+  color: rgba(11, 18, 32, 0.7);
+  text-align: center;
+}
+
+.retry-btn {
+  padding: 9px 20px;
+  border-radius: 10px;
+  background: #00C2C7;
+  color: #ffffff;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 194, 199, 0.3);
+  transition: transform 0.15s ease;
+}
+.retry-btn:active { transform: scale(0.96); }
+
+/* ================================================================
+   RESPONSIVE DESIGN & REDUCED MOTION
+   ================================================================ */
+
+@media (min-width: 768px) {
+  .glass-logo-tile {
+    width: 140px;
+    height: 140px;
+    border-radius: 36px;
+    margin-bottom: 28px;
+  }
+  .lightning-icon {
+    width: 64px;
+    height: 64px;
+  }
+  .nebula-brand-wordmark {
+    font-size: 48px;
+  }
+  .nebula-tagline {
+    font-size: 16px;
+    margin-bottom: 44px;
+  }
+  .nebula-progress-row {
+    max-width: 360px;
+  }
+  .feature-item {
+    font-size: 13px;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula-loading-screen {
+    animation: none;
+  }
+  .particle {
+    animation: none;
+  }
+  .glass-logo-tile {
+    animation: none;
+  }
+  .glass-logo-tile::after {
+    animation: none;
+  }
+}

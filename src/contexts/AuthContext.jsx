@@ -10,6 +10,7 @@ import {
 import { doc, getDoc, setDoc, onSnapshot, query, collection, where, getDocs, limit } from "firebase/firestore";
 import { ROLES } from "../constants/roles";
 import { sendOTP, verifyOTP } from "../services/authService";
+import LoadingPage from "../components/LoadingPage";
 
 const AuthContext = React.createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -286,7 +287,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? <LoadingPage /> : children}
     </AuthContext.Provider>
   );
 }

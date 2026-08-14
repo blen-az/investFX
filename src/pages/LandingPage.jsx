@@ -1,245 +1,689 @@
-// src/pages/LandingPage.jsx - Modern Redesign with Animations
-import React, { useEffect, useRef } from "react";
+// src/pages/LandingPage.jsx - Bright, High-Tech, Production-Ready Public Landing Page
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { getCryptoPrices } from "../services/priceService";
+import {
+  Zap,
+  ShieldCheck,
+  BarChart3,
+  Headphones,
+  ArrowRight,
+  Globe,
+  Users,
+  CheckCircle2,
+  Lock,
+  TrendingUp,
+  TrendingDown,
+  Layers,
+  ChevronRight,
+  Menu,
+  X,
+  Sparkles,
+  Cpu,
+  RefreshCw,
+  Sliders,
+  DollarSign
+} from "lucide-react";
+import "./LandingPage.css";
 
 export default function LandingPage() {
-  const observerRef = useRef(null);
+  const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [prices, setPrices] = useState({
+    BTC: 63842.10,
+    ETH: 3142.88,
+    SOL: 142.56,
+    BNB: 584.32,
+    XRP: 0.5234,
+    XAU: 2400.00
+  });
 
+  // Fetch real market prices
   useEffect(() => {
-    // Intersection Observer for scroll animations
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    // Observe all elements with 'fade-in-section' class
-    document.querySelectorAll('.fade-in-section').forEach((el) => {
-      observerRef.current.observe(el);
-    });
-
-    return () => observerRef.current?.disconnect();
+    let isMounted = true;
+    async function loadPrices() {
+      try {
+        const liveData = await getCryptoPrices();
+        if (isMounted && liveData) {
+          setPrices((prev) => ({ ...prev, ...liveData }));
+        }
+      } catch (err) {
+        console.error("Error loading landing prices:", err);
+      }
+    }
+    loadPrices();
+    const timer = setInterval(loadPrices, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+    <div className="landing-page">
+      
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <header className="landing-header">
+        <div className="landing-container landing-header-inner">
+          
+          {/* Logo */}
+          <Link to="/" className="landing-logo">
+            <Zap className="logo-bolt" size={24} fill="currentColor" />
+            <span>
+              <span className="logo-way">Way</span>
+              <span className="logo-more">More</span>
+            </span>
+          </Link>
 
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden">
-        {/* Animated Background Gradients */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-cyan-500/20 to-transparent rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-emerald-500/20 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-          {/* Floating orbs */}
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl animate-float"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }}></div>
+          {/* Center Navigation */}
+          <nav className="landing-nav">
+            <Link to="/market" className="nav-link">Markets</Link>
+            <Link to="/trade" className="nav-link">Trade</Link>
+            <Link to="/market" className="nav-link">Futures</Link>
+            <Link to="/news" className="nav-link">Earn</Link>
+            <Link to="/news" className="nav-link">Learn</Link>
+            <Link to="/regulatory-info" className="nav-link">Company</Link>
+          </nav>
+
+          {/* Auth Actions */}
+          <div className="landing-auth-actions">
+            {user ? (
+              <Link to="/home" className="btn-signup">
+                Go to Dashboard <ArrowRight size={15} />
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="btn-login">Log In</Link>
+                <Link to="/signup" className="btn-signup">
+                  Sign Up <ArrowRight size={15} />
+                </Link>
+              </>
+            )}
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
-          <div className="text-center">
-            {/* Main Headline with staggered animation */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 animate-fade-up">
-              <span className="block text-white mb-2" style={{ animationDelay: '0.1s' }}>Your Gateway to</span>
-              <span className="block bg-gradient-to-r from-cyan-400 via-emerald-400 to-blue-500 bg-clip-text text-transparent animate-gradient" style={{ animationDelay: '0.3s' }}>
-                Crypto Trading
-              </span>
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="mobile-nav-drawer">
+            <Link to="/market" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Markets</Link>
+            <Link to="/trade" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Trade</Link>
+            <Link to="/news" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Earn & Learn</Link>
+            <Link to="/regulatory-info" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Company</Link>
+            <div style={{ paddingTop: 10, display: "flex", gap: 10 }}>
+              {user ? (
+                <Link to="/home" className="btn-signup" style={{ width: "100%", justifyContent: "center" }}>
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login" className="btn-login" style={{ flex: 1, textAlign: "center" }}>Log In</Link>
+                  <Link to="/signup" className="btn-signup" style={{ flex: 1, justifyContent: "center" }}>Sign Up</Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* ── HERO SECTION ───────────────────────────────────────────── */}
+      <section className="hero-section">
+        <div className="hero-glow-cyan" />
+        <div className="hero-glow-blue" />
+
+        <div className="landing-container hero-grid">
+          
+          {/* Left Column: Hero Text & CTAs */}
+          <div className="hero-content">
+            <div className="hero-trust-badge">
+              <Users size={13} className="trust-badge-icon" />
+              <span>TRUSTED BY 120,000+ TRADERS WORLDWIDE</span>
+            </div>
+
+            <h1 className="hero-headline">
+              Your Gateway to <br />
+              <span className="hero-gradient-text">Crypto Trading</span>
             </h1>
 
-            {/* Subtitle */}
-            <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-300 mb-10 animate-fade-up" style={{ animationDelay: '0.5s' }}>
-              Trade Bitcoin, Ethereum, and 500+ cryptocurrencies with confidence.
-              Join 120,000+ traders using professional tools and bank-level security.
+            <p className="hero-subcopy">
+              Trade Bitcoin, Ethereum, Gold, and 500+ cryptocurrencies with confidence. Join thousands of traders using professional tools and bank-level security.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-up" style={{ animationDelay: '0.7s' }}>
-              <Link
-                to="/signup"
-                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 hover:scale-105 hover:-translate-y-1"
-              >
-                Start Trading Now →
-              </Link>
-              <Link
-                to="/login"
-                className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
-              >
-                Sign In
-              </Link>
+            {/* CTAs */}
+            <div className="hero-cta-group">
+              {user ? (
+                <Link to="/home" className="btn-hero-primary">
+                  Go to Dashboard <ArrowRight size={16} className="arrow-icon" />
+                </Link>
+              ) : (
+                <>
+                  <Link to="/signup" className="btn-hero-primary">
+                    Start Trading Now <ArrowRight size={16} className="arrow-icon" />
+                  </Link>
+                  <Link to="/login" className="btn-hero-secondary">
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
 
-            {/* Trust Badges with stagger */}
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {[
-                { icon: "⚡", label: "Lightning Fast", desc: "Instant execution" },
-                { icon: "🔒", label: "Bank-Level Security", desc: "Your assets protected" },
-                { icon: "📊", label: "Advanced Charts", desc: "Professional tools" },
-                { icon: "🌍", label: "24/7 Support", desc: "Always here for you" }
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="text-center transform hover:scale-110 transition-all duration-300 animate-fade-up"
-                  style={{ animationDelay: `${0.9 + i * 0.1}s` }}
-                >
-                  <div className="text-4xl mb-2 animate-bounce" style={{ animationDuration: '2s', animationDelay: `${i * 0.2}s` }}>{item.icon}</div>
-                  <div className="text-white font-semibold">{item.label}</div>
-                  <div className="text-slate-400 text-sm">{item.desc}</div>
+            {/* Hero Metrics Strip */}
+            <div className="hero-metrics-grid">
+              <div className="metric-card">
+                <div className="metric-icon-wrap">
+                  <Users size={18} />
                 </div>
-              ))}
+                <div>
+                  <div className="metric-val">120,000+</div>
+                  <div className="metric-lbl">Active Traders</div>
+                </div>
+              </div>
+
+              <div className="metric-card">
+                <div className="metric-icon-wrap">
+                  <BarChart3 size={18} />
+                </div>
+                <div>
+                  <div className="metric-val">500+</div>
+                  <div className="metric-lbl">Cryptocurrencies</div>
+                </div>
+              </div>
+
+              <div className="metric-card">
+                <div className="metric-icon-wrap">
+                  <ShieldCheck size={18} />
+                </div>
+                <div>
+                  <div className="metric-val">99.9%</div>
+                  <div className="metric-lbl">Uptime Guarantee</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Interactive Light Trading Terminal & Mobile Mockups */}
+          <div className="hero-visual-col">
+            <div className="mockup-wrapper">
+              
+              {/* Glowing Pedestal Base */}
+              <div className="mockup-pedestal-glow" />
+
+              {/* Desktop Trading Terminal Shell */}
+              <div className="desktop-mockup">
+                <div className="mockup-browser-header">
+                  <div className="browser-dots">
+                    <div className="browser-dot dot-red" />
+                    <div className="browser-dot dot-yellow" />
+                    <div className="browser-dot dot-green" />
+                  </div>
+                  <span className="browser-url-bar">waymore.com/trade/btc-usdt</span>
+                  <span style={{ fontSize: 11, color: "#94A3B8" }}>PRO TERMINAL</span>
+                </div>
+
+                <div className="desktop-ui-grid">
+                  
+                  {/* Chart Area */}
+                  <div className="chart-area">
+                    <div className="chart-header">
+                      <div className="chart-pair">
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#F7931A", display: "inline-block" }} />
+                        BTC / USDT
+                        <span className="chart-change">+2.35%</span>
+                      </div>
+                      <span className="chart-price">${prices.BTC.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    </div>
+
+                    {/* SVG Candlestick Mockup */}
+                    <svg className="candlestick-svg" viewBox="0 0 320 180">
+                      <line x1="0" y1="40" x2="320" y2="40" stroke="#F1F5F9" strokeDasharray="3 3" />
+                      <line x1="0" y1="90" x2="320" y2="90" stroke="#F1F5F9" strokeDasharray="3 3" />
+                      <line x1="0" y1="140" x2="320" y2="140" stroke="#F1F5F9" strokeDasharray="3 3" />
+
+                      {/* Candles */}
+                      <line x1="30" y1="110" x2="30" y2="150" stroke="#F04452" strokeWidth="1.5" />
+                      <rect x="25" y="120" width="10" height="20" fill="#F04452" rx="1" />
+
+                      <line x1="60" y1="90" x2="60" y2="135" stroke="#00B67A" strokeWidth="1.5" />
+                      <rect x="55" y="95" width="10" height="30" fill="#00B67A" rx="1" />
+
+                      <line x1="90" y1="70" x2="90" y2="115" stroke="#00B67A" strokeWidth="1.5" />
+                      <rect x="85" y="75" width="10" height="30" fill="#00B67A" rx="1" />
+
+                      <line x1="120" y1="80" x2="120" y2="110" stroke="#F04452" strokeWidth="1.5" />
+                      <rect x="115" y="85" width="10" height="18" fill="#F04452" rx="1" />
+
+                      <line x1="150" y1="50" x2="150" y2="95" stroke="#00B67A" strokeWidth="1.5" />
+                      <rect x="145" y="55" width="10" height="35" fill="#00B67A" rx="1" />
+
+                      <line x1="180" y1="35" x2="180" y2="70" stroke="#00B67A" strokeWidth="1.5" />
+                      <rect x="175" y="40" width="10" height="25" fill="#00B67A" rx="1" />
+
+                      <line x1="210" y1="45" x2="210" y2="85" stroke="#F04452" strokeWidth="1.5" />
+                      <rect x="205" y="50" width="10" height="25" fill="#F04452" rx="1" />
+
+                      <line x1="240" y1="20" x2="240" y2="60" stroke="#00B67A" strokeWidth="1.5" />
+                      <rect x="235" y="25" width="10" height="30" fill="#00B67A" rx="1" />
+
+                      <line x1="270" y1="15" x2="270" y2="50" stroke="#00B67A" strokeWidth="1.5" />
+                      <rect x="265" y="18" width="10" height="26" fill="#00B67A" rx="1" />
+
+                      {/* Cyan Trendline Curve */}
+                      <path d="M 25 130 Q 80 110 145 70 T 270 30" fill="none" stroke="#00C2C7" strokeWidth="2.5" />
+                    </svg>
+                  </div>
+
+                  {/* Order Panel Mock */}
+                  <div className="order-panel-mock">
+                    <div className="mock-tab-row">
+                      <span className="mock-tab active">Trade</span>
+                      <span className="mock-tab">Spot</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#64748B" }}>Order Book</div>
+                    <div style={{ fontSize: 11, display: "flex", justifyContent: "space-between", color: "#F04452" }}>
+                      <span>63,843.90</span>
+                      <span>0.2300</span>
+                    </div>
+                    <div style={{ fontSize: 11, display: "flex", justifyContent: "space-between", color: "#F04452" }}>
+                      <span>63,842.50</span>
+                      <span>0.1520</span>
+                    </div>
+                    <div style={{ fontSize: 11, display: "flex", justifyContent: "space-between", color: "#00B67A" }}>
+                      <span>63,840.90</span>
+                      <span>0.1200</span>
+                    </div>
+                    <div style={{ fontSize: 11, display: "flex", justifyContent: "space-between", color: "#00B67A" }}>
+                      <span>63,840.50</span>
+                      <span>0.1800</span>
+                    </div>
+                    <button className="mock-buy-btn">Buy BTC</button>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Front-Left Mobile Phone Frame */}
+              <div className="mobile-mockup">
+                <div className="mobile-inner">
+                  <span className="mobile-balance-title">Total Portfolio</span>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                    <span className="mobile-balance-val">$24,568.00</span>
+                    <span className="mobile-balance-pct">+12.35%</span>
+                  </div>
+
+                  {/* Mini Area Chart SVG */}
+                  <svg viewBox="0 0 160 50" style={{ width: "100%", height: 40 }}>
+                    <defs>
+                      <linearGradient id="mobGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#00C2C7" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#00C2C7" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M 0 40 Q 40 10 80 30 T 160 10 L 160 50 L 0 50 Z" fill="url(#mobGrad)" />
+                    <path d="M 0 40 Q 40 10 80 30 T 160 10" fill="none" stroke="#00C2C7" strokeWidth="2" />
+                  </svg>
+
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#08162B" }}>Watchlist</div>
+                  <div style={{ fontSize: 10, display: "flex", justifyContent: "space-between", color: "#475569" }}>
+                    <span>BTC Bitcoin</span>
+                    <span style={{ fontWeight: 700, color: "#08162B" }}>${prices.BTC.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── BENEFITS STRIP ─────────────────────────────────────────── */}
+      <section className="benefits-section">
+        <div className="landing-container">
+          <div className="benefits-grid">
+            
+            <div className="benefit-card">
+              <div className="benefit-icon-box">
+                <Zap size={22} />
+              </div>
+              <div>
+                <div className="benefit-title">Lightning Fast</div>
+                <div className="benefit-desc">Instant execution with ultra-low latency order processing.</div>
+              </div>
+            </div>
+
+            <div className="benefit-card">
+              <div className="benefit-icon-box">
+                <ShieldCheck size={22} />
+              </div>
+              <div>
+                <div className="benefit-title">Bank-Level Security</div>
+                <div className="benefit-desc">Multi-layer encryption & cold storage asset protection.</div>
+              </div>
+            </div>
+
+            <div className="benefit-card">
+              <div className="benefit-icon-box">
+                <BarChart3 size={22} />
+              </div>
+              <div>
+                <div className="benefit-title">Advanced Charts</div>
+                <div className="benefit-desc">Professional technical indicators and real-time drawing tools.</div>
+              </div>
+            </div>
+
+            <div className="benefit-card">
+              <div className="benefit-icon-box">
+                <Headphones size={22} />
+              </div>
+              <div>
+                <div className="benefit-title">24/7 Support</div>
+                <div className="benefit-desc">Real humans. Real support. Anytime you need us.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── LIVE MARKET STRIP ──────────────────────────────────────── */}
+      <section className="market-strip-section">
+        <div className="landing-container">
+          <div className="market-strip-title">
+            <div className="live-dot-indicator" />
+            <span>LIVE MARKETS OVERVIEW</span>
+          </div>
+
+          <div className="market-ticker-track">
+            
+            {/* BTC */}
+            <Link to="/market" className="ticker-card">
+              <div className="ticker-top">
+                <span className="ticker-sym">BTC / USDT</span>
+                <span className="ticker-change pos">+2.35%</span>
+              </div>
+              <div className="ticker-price">${prices.BTC.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </Link>
+
+            {/* ETH */}
+            <Link to="/market" className="ticker-card">
+              <div className="ticker-top">
+                <span className="ticker-sym">ETH / USDT</span>
+                <span className="ticker-change pos">+1.12%</span>
+              </div>
+              <div className="ticker-price">${prices.ETH.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </Link>
+
+            {/* SOL */}
+            <Link to="/market" className="ticker-card">
+              <div className="ticker-top">
+                <span className="ticker-sym">SOL / USDT</span>
+                <span className="ticker-change neg">-0.45%</span>
+              </div>
+              <div className="ticker-price">${prices.SOL.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </Link>
+
+            {/* BNB */}
+            <Link to="/market" className="ticker-card">
+              <div className="ticker-top">
+                <span className="ticker-sym">BNB / USDT</span>
+                <span className="ticker-change pos">+1.78%</span>
+              </div>
+              <div className="ticker-price">${prices.BNB.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </Link>
+
+            {/* XRP */}
+            <Link to="/market" className="ticker-card">
+              <div className="ticker-top">
+                <span className="ticker-sym">XRP / USDT</span>
+                <span className="ticker-change pos">+0.68%</span>
+              </div>
+              <div className="ticker-price">${prices.XRP.toFixed(4)}</div>
+            </Link>
+
+            {/* Gold */}
+            <Link to="/market" className="ticker-card">
+              <div className="ticker-top">
+                <span className="ticker-sym">⚜ XAU / USD (Gold)</span>
+                <span className="ticker-change pos">+0.85%</span>
+              </div>
+              <div className="ticker-price">${prices.XAU.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </Link>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLATFORM EXPERIENCE SECTION ───────────────────────────── */}
+      <section className="experience-section">
+        <div className="landing-container">
+          <div className="section-header-center">
+            <span className="section-badge">PLATFORM EXPERIENCE</span>
+            <h2 className="section-title">Everything you need to trade with confidence</h2>
+            <p className="section-subtitle">Professional tools without unnecessary complexity.</p>
+          </div>
+
+          <div className="experience-grid">
+            
+            {/* Feature 1 */}
+            <div className="exp-card">
+              <div>
+                <h3 className="exp-card-title">Professional Trading Terminal</h3>
+                <p className="exp-card-desc">
+                  Access live order books, real-time depth charts, flexible order types (Market, Limit, Stop), and technical drawing indicators built for active traders.
+                </p>
+              </div>
+              <div style={{ background: "#F1F5F9", borderRadius: 16, padding: 20, border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: "#08162B", marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
+                  <span>BTC / USDT Order Depth</span>
+                  <span style={{ color: "#00C2C7" }}>LIVE</span>
+                </div>
+                <div style={{ height: 60, background: "linear-gradient(90deg, rgba(0,182,122,0.15) 50%, rgba(240,68,82,0.15) 50%)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#64748B" }}>
+                  Equal Buy/Sell Order Liquidity
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="exp-card">
+              <div>
+                <h3 className="exp-card-title">Portfolio & Asset Management</h3>
+                <p className="exp-card-desc">
+                  Track total portfolio balance, net earnings, transaction timelines, and asset allocations in one unified clean interface.
+                </p>
+              </div>
+              <div style={{ background: "#F1F5F9", borderRadius: 16, padding: 20, border: "1px solid #E2E8F0" }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: "#08162B" }}>Total Portfolio Balance</div>
+                <div style={{ fontSize: 24, fontStyle: "normal", fontWeight: 900, color: "#08162B", marginTop: 4 }}>$24,568.00</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHY WAYMORE SECTION ───────────────────────────────────── */}
+      <section className="why-section">
+        <div className="landing-container">
+          <div className="section-header-center">
+            <span className="section-badge">WHY WAYMORE</span>
+            <h2 className="section-title">Built for speed, security, and global accessibility</h2>
+          </div>
+
+          <div className="why-grid">
+            
+            <div className="why-card">
+              <div className="why-icon">
+                <Zap size={24} />
+              </div>
+              <h3 className="why-title">Ultra-Low Latency</h3>
+              <p className="why-desc">Engineered for sub-second execution speeds, ensuring your market orders enter the ledger instantly.</p>
+            </div>
+
+            <div className="why-card">
+              <div className="why-icon">
+                <Lock size={24} />
+              </div>
+              <h3 className="why-title">Institutional Security</h3>
+              <p className="why-desc">Multi-signature cold storage vaults, end-to-end encrypted sessions, and automated anomaly prevention.</p>
+            </div>
+
+            <div className="why-card">
+              <div className="why-icon">
+                <Globe size={24} />
+              </div>
+              <h3 className="why-title">Global Markets</h3>
+              <p className="why-desc">Trade crypto assets and gold (XAU) worldwide with seamless instant currency conversion.</p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECURITY SECTION ──────────────────────────────────────── */}
+      <section className="security-section">
+        <div className="landing-container">
+          <div className="security-box">
+            
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#00C2C7", letterSpacing: "0.06em", textTransform: "uppercase" }}>SECURITY FIRST</span>
+              <h2 className="security-title">Built with security at the core</h2>
+              <p className="security-desc">
+                WayMore employs bank-grade security protocols, robust identity verification, and multi-factor authentication to protect your funds and personal privacy.
+              </p>
+              {user ? (
+                <Link to="/home" className="btn-hero-primary">
+                  Go to Dashboard <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <Link to="/signup" className="btn-hero-primary">
+                  Create Free Account <ArrowRight size={16} />
+                </Link>
+              )}
+            </div>
+
+            <div className="security-list">
+              <div className="sec-item">
+                <CheckCircle2 size={18} className="sec-check-icon" />
+                <span>Multi-Layer Session Encryption</span>
+              </div>
+              <div className="sec-item">
+                <CheckCircle2 size={18} className="sec-check-icon" />
+                <span>Cold Storage Vault Protection</span>
+              </div>
+              <div className="sec-item">
+                <CheckCircle2 size={18} className="sec-check-icon" />
+                <span>Automated Real-Time Risk Engine</span>
+              </div>
+              <div className="sec-item">
+                <CheckCircle2 size={18} className="sec-check-icon" />
+                <span>Strict Withdrawal Safeguards</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA SECTION ─────────────────────────────────────── */}
+      <section className="final-cta-section">
+        <div className="landing-container">
+          <div className="cta-banner">
+            <h2 className="cta-title">Ready to trade smarter?</h2>
+            <p className="cta-desc">Join thousands of traders accessing modern professional tools designed for today's financial markets.</p>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+              {user ? (
+                <Link to="/home" className="btn-hero-primary">
+                  Go to Dashboard <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <>
+                  <Link to="/signup" className="btn-hero-primary">
+                    Start Trading Now <ArrowRight size={16} />
+                  </Link>
+                  <Link to="/login" className="btn-hero-secondary">
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* FEATURES SECTION */}
-      <section className="py-20 bg-slate-900/50 fade-in-section opacity-0 transition-all duration-1000">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
-              Why Choose WayMore Trading?
-            </h2>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              Everything you need to trade crypto confidently
-            </p>
-          </div>
+      {/* ── FOOTER ─────────────────────────────────────────────────── */}
+      <footer className="landing-footer">
+        <div className="landing-container">
+          <div className="footer-grid">
+            
+            <div className="footer-brand-col">
+              <Link to="/" className="landing-logo">
+                <Zap className="logo-bolt" size={22} fill="currentColor" />
+                <span>
+                  <span className="logo-way">Way</span>
+                  <span className="logo-more">More</span>
+                </span>
+              </Link>
+              <p style={{ marginTop: 8, color: "#64748B", fontSize: 13, lineHeight: 1.6 }}>
+                Next-generation financial operating system for crypto trading and global asset management.
+              </p>
+            </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Real-Time Trading",
-                desc: "Execute trades instantly with live market data and professional-grade charts",
-                gradient: "from-cyan-500/10 to-blue-500/10",
-                icon: "⚡"
-              },
-              {
-                title: "Secure & Compliant",
-                desc: "Bank-level encryption and regulatory compliance to keep your funds safe",
-                gradient: "from-emerald-500/10 to-cyan-500/10",
-                icon: "🔒"
-              },
-              {
-                title: "Low Fees",
-                desc: "Competitive trading fees with no hidden charges. Trade more, pay less",
-                gradient: "from-blue-500/10 to-purple-500/10",
-                icon: "💎"
-              }
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className={`p-8 rounded-2xl bg-gradient-to-br ${feature.gradient} backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 cursor-pointer group`}
-              >
-                <div className="text-5xl mb-4 transform group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300">{feature.icon}</div>
-                <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
-                <p className="text-slate-300 leading-relaxed">{feature.desc}</p>
+            <div>
+              <div className="footer-col-title">Markets</div>
+              <div className="footer-links">
+                <Link to="/market" className="footer-link">Bitcoin (BTC)</Link>
+                <Link to="/market" className="footer-link">Ethereum (ETH)</Link>
+                <Link to="/market" className="footer-link">Solana (SOL)</Link>
+                <Link to="/market" className="footer-link">Gold (XAU)</Link>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
 
-      {/* STATS SECTION */}
-      <section className="py-20 fade-in-section opacity-0 transition-all duration-1000">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: "120K+", label: "Active Traders" },
-              { value: "$2.5B+", label: "Trading Volume" },
-              { value: "500+", label: "Cryptocurrencies" },
-              { value: "99.9%", label: "Uptime" }
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="p-6 transform hover:scale-110 transition-all duration-300"
-              >
-                <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-slate-400 font-medium">{stat.label}</div>
+            <div>
+              <div className="footer-col-title">Platform</div>
+              <div className="footer-links">
+                <Link to="/trade" className="footer-link">Spot Trading</Link>
+                <Link to="/trade" className="footer-link">Quick Trade</Link>
+                <Link to="/market" className="footer-link">Live Ticker</Link>
+                <Link to="/news" className="footer-link">Market News</Link>
               </div>
-            ))}
+            </div>
+
+            <div>
+              <div className="footer-col-title">Account</div>
+              <div className="footer-links">
+                <Link to="/login" className="footer-link">Sign In</Link>
+                <Link to="/signup" className="footer-link">Create Account</Link>
+                <Link to="/verification" className="footer-link">Verification</Link>
+                <Link to="/settings" className="footer-link">Security Center</Link>
+              </div>
+            </div>
+
+            <div>
+              <div className="footer-col-title">Company</div>
+              <div className="footer-links">
+                <Link to="/regulatory-info" className="footer-link">Regulatory Info</Link>
+                <Link to="/live-chat" className="footer-link">Support</Link>
+                <Link to="/regulatory-info" className="footer-link">Privacy Policy</Link>
+                <Link to="/regulatory-info" className="footer-link">Terms of Service</Link>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="footer-bottom">
+            <span>© {new Date().getFullYear()} WayMore Trading. All rights reserved.</span>
+            <span>Built with precision for serious traders.</span>
           </div>
         </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="py-24 bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 fade-in-section opacity-0 transition-all duration-1000">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-6">
-            Ready to Start Trading?
-          </h2>
-          <p className="text-slate-300 text-lg mb-10">
-            Join thousands of traders making smarter crypto investments
-          </p>
-          <Link
-            to="/signup"
-            className="inline-block px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold text-lg rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-2xl hover:shadow-cyan-500/50 hover:scale-110 hover:-translate-y-2"
-          >
-            Create Free Account →
-          </Link>
-        </div>
-      </section>
-
-      {/* Custom animations */}
-      <style>{`
-        @keyframes fade-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-
-        .animate-fade-up {
-          animation: fade-up 0.8s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-
-        .fade-in-section.animate-in {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-        }
-
-        .fade-in-section {
-          transform: translateY(50px);
-        }
-      `}</style>
+      </footer>
 
     </div>
   );

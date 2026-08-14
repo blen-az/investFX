@@ -39,6 +39,10 @@ const coinList = {
     symbol: "LINK",
     name: "Chainlink",
   },
+  gold: {
+    symbol: "XAU",
+    name: "Gold",
+  },
 };
 
 export default coinList;

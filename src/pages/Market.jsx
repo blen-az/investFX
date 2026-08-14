@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import MiniSpark from "../components/MiniSpark";
+import { Search, Star, TrendingUp, TrendingDown, ChevronRight, RotateCcw } from "lucide-react";
 import "./Market.css";
 
 // Primary API (CoinGecko)
@@ -39,6 +40,29 @@ export default function Market() {
 
   // modal chart
   const [showChartFor, setShowChartFor] = useState(null);
+
+  // XAU (Gold) live price
+  const [xauPrice, setXauPrice] = useState(null);
+  const [xauChange, setXauChange] = useState(0);
+
+  useEffect(() => {
+    async function fetchXauPrice() {
+      try {
+        const res = await fetch("https://api.exchangerate.host/convert?from=XAU&to=USD&amount=1");
+        if (res.ok) {
+          const data = await res.json();
+          setXauPrice(data?.result || 2400);
+        } else {
+          setXauPrice(2400);
+        }
+      } catch {
+        setXauPrice(2400);
+      }
+    }
+    fetchXauPrice();
+    const xauInterval = setInterval(fetchXauPrice, 30000);
+    return () => clearInterval(xauInterval);
+  }, []);
 
   // infinite scroll observer
   const sentinelRef = useRef(null);
@@ -234,215 +258,189 @@ export default function Market() {
   }
 
   return (
-    <div className="page-wrap market-page">
-      <div className="container">
-        <div className="header market-header-row">
-          <div>
-            <h1 className="h1">Market</h1>
-            <div className="sub">Live crypto prices — fast, professional</div>
-          </div>
+    <div className="market-page">
 
-          <div className="market-filters">
-            {[
-              { id: "marketcap", label: "Top" },
-              { id: "gainers", label: "Gainers" },
-              { id: "losers", label: "Losers" },
-              { id: "volume", label: "Volume" },
-            ].map((b) => (
-              <button key={b.id} className="btn" style={{ background: sort === b.id ? "var(--accent)" : "#122433" }} onClick={() => setSort(b.id)}>
-                {b.label}
-              </button>
-            ))}
-          </div>
+      {/* Page Header */}
+      <div className="market-page-header anim-fade-up">
+        <div>
+          <h1 className="market-title">Market</h1>
+          <p className="market-subtitle">Discover and track live crypto prices</p>
         </div>
+      </div>
 
-        <div style={{ marginTop: 12 }}>
+      {/* Search + Filter Row */}
+      <div className="market-toolbar anim-fade-up delay-1">
+        <div className="market-search-wrap">
+          <Search size={16} className="market-search-icon" />
           <input
-            placeholder="Search coin (BTC, ETH, etc)"
+            className="market-search"
+            placeholder="Search BTC, ETH, SOL..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input"
-            style={{ padding: 12, width: "100%", fontSize: 15 }}
           />
         </div>
-
-        {/* skeleton + shimmer when first loading and no cached data */}
-        {loading && coins.length === 0 ? (
-          <div className="market-grid">
-            {Array.from({ length: PER_PAGE }).map((_, i) => (
-              <div key={i} className="card market-card">
-                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                  <div style={{ width: 42, height: 42, borderRadius: 10, background: "#0f2030", animation: "shimmer 1.4s infinite" }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ height: 14, width: "55%", background: "#0f2030", borderRadius: 6, marginBottom: 6, animation: "shimmer 1.4s infinite" }} />
-                    <div style={{ height: 12, width: "35%", background: "#0f2030", borderRadius: 6, animation: "shimmer 1.4s infinite" }} />
-                  </div>
-                </div>
-                <div style={{ height: 32, width: "100%", marginTop: 10, background: "#0f2030", borderRadius: 6, animation: "shimmer 1.4s infinite" }} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="market-grid">
-              {filtered.map((c) => (
-                <div key={c.id} className="card market-card">
-                  {/* header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                      <img src={c.image || FALLBACK_IMG} alt={c.name} width="36" height="36" style={{ borderRadius: 8 }} onError={handleImgError} />
-                      <div>
-                        <Link to={`/coin/${c.id}`} style={{ color: "var(--accent)", fontWeight: 800, fontSize: 16, textDecoration: "none" }}>
-                          {c.name}
-                        </Link>
-                        <div className="sub" style={{ fontSize: 12 }}>
-                          {c.symbol?.toUpperCase()}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button onClick={() => toggleFavorite(c.id)} style={{ background: "transparent", border: "none", cursor: "pointer", fontSize: 20, color: favorites.includes(c.id) ? "var(--accent)" : "var(--muted)" }}>
-                      ★
-                    </button>
-                  </div>
-
-                  {/* price + sparkline */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: "var(--accent)" }}>${Number(c.current_price).toLocaleString()}</div>
-                      <div style={{ fontSize: 13, color: c.price_change_percentage_24h >= 0 ? "var(--positive)" : "var(--negative)" }}>
-                        {c.price_change_percentage_24h?.toFixed(2)}%
-                      </div>
-                    </div>
-
-                    <div style={{ width: 120 }}>
-                      <MiniSpark prices={(c.sparkline_in_7d?.price || []).slice(-36)} up={c.price_change_percentage_24h >= 0} />
-                    </div>
-                  </div>
-
-                  {/* actions */}
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn btn-buy" onClick={() => openTrade({ id: c.id, name: c.name, symbol: c.symbol })}>
-                      Trade
-                    </button>
-
-                    <button className="btn" style={{ background: "#0d2235" }} onClick={() => setShowChartFor(c.id)}>
-                      Chart
-                    </button>
-
-                    <Link to={`/coin/${c.id}`} className="btn" style={{ background: "#122433", textDecoration: "none" }}>
-                      Details
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* sentinel for infinite scroll */}
-            <div ref={sentinelRef} style={{ height: 8 }} />
-
-            {/* load more / status */}
-            <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              {loading && coins.length > 0 ? <div className="sub">Updating…</div> : null}
-              {!loading && hasMore ? (
-                <button
-                  className="btn"
-                  onClick={() => {
-                    setPage((p) => p + 1);
-                  }}
-                >
-                  Load more
-                </button>
-              ) : null}
-              {!hasMore && coins.length === 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div className="sub" style={{ color: '#f87171' }}>Failed to load market data (Rate limit or network error).</div>
-                  <button className="btn" onClick={() => loadPage(1, PER_PAGE, false)}>Retry</button>
-                </div>
-              )}
-              {!hasMore && coins.length > 0 && <div className="sub">End of list</div>}
-            </div>
-          </>
-        )}
-
-        {/* Watchlist quick view */}
-        {favorites.length > 0 && (
-          <div style={{ marginTop: 18 }}>
-            <div className="card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontWeight: 800, color: "var(--accent)" }}>Watchlist</div>
-                <div className="sub">Quick access</div>
-              </div>
-              <div style={{ display: "flex", gap: 8, marginTop: 12, overflowX: "auto" }}>
-                {favorites.map((id) => {
-                  const coin = coins.find((c) => c.id === id);
-                  if (!coin) return null;
-                  return (
-                    <div key={id} style={{ minWidth: 160, background: "#071426", padding: 8, borderRadius: 10 }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          <img src={coin.image || FALLBACK_IMG} alt="" width={28} onError={handleImgError} />
-                          <div>
-                            <div style={{ fontWeight: 700 }}>{coin.symbol?.toUpperCase()}</div>
-                            <div className="sub" style={{ fontSize: 12 }}>
-                              ${Number(coin.current_price).toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
-                        <button onClick={() => toggleFavorite(id)} className="btn" style={{ padding: 6 }}>
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TradingChart modal (lazy loaded) */}
-        {showChartFor && (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-              padding: 20,
-            }}
-            onClick={() => setShowChartFor(null)}
-          >
-            <div style={{ width: "100%", maxWidth: 1000, background: "var(--panel)", borderRadius: 12, padding: 16 }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ fontWeight: 800, color: "var(--accent)" }}>{showChartFor}</div>
-                <button className="btn" onClick={() => setShowChartFor(null)}>
-                  Close
-                </button>
-              </div>
-
-              <div style={{ height: 360 }}>
-                <Suspense fallback={<div className="sub">Loading chart…</div>}>
-                  {/* TradingChart expects prop coinId in earlier code */}
-                  <TradingChartLazy coinId={showChartFor} />
-                </Suspense>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* styles for shimmer */}
-        <style>{`
-          @keyframes shimmer {
-            0% { transform: translateX(-8%); opacity: 0.6 }
-            50% { transform: translateX(8%); opacity: 1 }
-            100% { transform: translateX(-8%); opacity: 0.6 }
-          }
-        `}</style>
+        <div className="wm-filter-tabs">
+          {[
+            { id: "marketcap", label: "Top" },
+            { id: "gainers",   label: "Top Gainers" },
+            { id: "losers",    label: "Top Losers" },
+            { id: "volume",    label: "Volume" },
+          ].map((b) => (
+            <button
+              key={b.id}
+              className={`wm-filter-tab${sort === b.id ? " active" : ""}`}
+              onClick={() => setSort(b.id)}
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Coin List */}
+      {loading && coins.length === 0 ? (
+        <div className="market-list anim-fade-up delay-2">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="market-coin-row skeleton-row">
+              <div className="skeleton" style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0 }} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                <div className="skeleton skeleton-text" style={{ width: 80 }} />
+                <div className="skeleton skeleton-text" style={{ width: 55 }} />
+              </div>
+              <div className="skeleton" style={{ width: 80, height: 36, borderRadius: 8 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+                <div className="skeleton skeleton-text" style={{ width: 80 }} />
+                <div className="skeleton skeleton-text" style={{ width: 55 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="market-list anim-fade-up delay-2">
+            {/* XAU pinned row */}
+            {sort === "marketcap" && (
+              <div
+                className="market-coin-row xau-row"
+                onClick={() => navigate("/trade", { state: { coin: { id: 'gold', name: 'Gold', symbol: 'XAU' } } })}
+              >
+                <div className="market-coin-icon xau-icon">⚜</div>
+                <div className="market-coin-meta">
+                  <span className="market-coin-name">Gold</span>
+                  <span className="market-coin-sym">XAU/USD</span>
+                </div>
+                <div className="market-sparkline" />
+                <div className="market-coin-right">
+                  <span className="market-coin-price">
+                    {xauPrice
+                      ? `$${Number(xauPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : "—"}
+                  </span>
+                  <span className="market-coin-tag">Commodity</span>
+                </div>
+                <ChevronRight size={16} className="market-row-arrow" />
+              </div>
+            )}
+
+            {filtered.map((c) => {
+              const isUp = c.price_change_percentage_24h >= 0;
+              const pct = c.price_change_percentage_24h?.toFixed(2) ?? "0.00";
+              const isFav = favorites.includes(c.id);
+              return (
+                <div key={c.id} className="market-coin-row">
+                  <img
+                    className="market-coin-img"
+                    src={c.image || FALLBACK_IMG}
+                    alt={c.name}
+                    onError={handleImgError}
+                  />
+                  <div className="market-coin-meta">
+                    <span className="market-coin-name">
+                      {c.symbol?.toUpperCase()}
+                      <button
+                        className={`star-btn${isFav ? " starred" : ""}`}
+                        onClick={(e) => { e.stopPropagation(); toggleFavorite(c.id); }}
+                        aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <Star size={11} fill={isFav ? "currentColor" : "none"} />
+                      </button>
+                    </span>
+                    <span className="market-coin-sym">{c.name}</span>
+                  </div>
+                  <div className="market-sparkline">
+                    <MiniSpark
+                      prices={(c.sparkline_in_7d?.price || []).slice(-36)}
+                      up={isUp}
+                    />
+                  </div>
+                  <div className="market-coin-right">
+                    <span className="market-coin-price">
+                      ${Number(c.current_price).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className={`market-coin-change${isUp ? " positive" : " negative"}`}>
+                      {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                      {Math.abs(pct)}%
+                    </span>
+                  </div>
+                  <button
+                    className="market-trade-btn"
+                    onClick={() => openTrade({ id: c.id, name: c.name, symbol: c.symbol })}
+                  >
+                    Trade
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelRef} style={{ height: 8 }} />
+
+          {/* Status row */}
+          <div className="market-status-row">
+            {loading && coins.length > 0 && (
+              <span className="market-status-text">Updating…</span>
+            )}
+            {!loading && hasMore && (
+              <button className="btn-secondary" onClick={() => setPage(p => p + 1)}>
+                Load more
+              </button>
+            )}
+            {!hasMore && coins.length === 0 && (
+              <div className="market-error">
+                <p>Couldn't load market data. Rate limit or network issue.</p>
+                <button className="btn-primary" onClick={() => loadPage(1, PER_PAGE, false)}>
+                  <RotateCcw size={14} /> Retry
+                </button>
+              </div>
+            )}
+            {!hasMore && coins.length > 0 && (
+              <span className="market-status-text">All {coins.length} assets loaded</span>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* TradingChart modal (lazy loaded) */}
+      {showChartFor && (
+        <div className="wm-overlay" onClick={() => setShowChartFor(null)}>
+          <div
+            className="glass-card"
+            style={{ width: "90%", maxWidth: 960, margin: "60px auto", padding: 20 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <span style={{ fontWeight: 700, color: "var(--wm-text)" }}>{showChartFor.toUpperCase()} / USD</span>
+              <button className="btn-ghost" onClick={() => setShowChartFor(null)}>Close</button>
+            </div>
+            <div style={{ height: 360 }}>
+              <Suspense fallback={<div style={{ color: "var(--wm-text-3)", padding: 20 }}>Loading chart…</div>}>
+                <TradingChartLazy coinId={showChartFor} />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

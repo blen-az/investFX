@@ -11,6 +11,7 @@ const COINS = [
   { id: "polkadot", label: "DOT / USD" },
   { id: "litecoin", label: "LTC / USD" },
   { id: "chainlink", label: "LINK / USD" },
+  { id: "gold", label: "XAU / USD" },
 ];
 
 let tvScriptLoadingPromise = null;
@@ -32,6 +33,7 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
       case "polkadot": return "BINANCE:DOTUSDT";
       case "litecoin": return "BINANCE:LTCUSDT";
       case "chainlink": return "BINANCE:LINKUSDT";
+      case "gold": return "OANDA:XAUUSD";
       default: return "BINANCE:BTCUSDT";
     }
   };
@@ -114,6 +116,7 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
       polkadot: "dotusdt",
       litecoin: "ltcusdt",
       chainlink: "linkusdt",
+      gold: null, // XAU has no Binance spot stream — uses REST poll
     };
 
     const coinIds = {
@@ -127,34 +130,68 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
       polkadot: "polkadot",
       litecoin: "litecoin",
       chainlink: "chainlink",
+      gold: null, // XAU fetched via metals REST API
     };
 
     // Fallback: Fetch price from API if WebSocket doesn't connect quickly
     const fetchPriceFallback = async () => {
       try {
-        const response = await fetch(
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds[selectedCoin]}`
-        );
-        const data = await response.json();
-        const coinData = data[0]; // markets endpoint returns an array
-        if (coinData?.current_price) {
-          onPriceRef.current(coinData.current_price);
+        if (selectedCoin === "gold") {
+          // XAU/USD: use exchangerate.host (free, no key needed)
+          const res = await fetch(
+            "https://api.exchangerate.host/convert?from=XAU&to=USD&amount=1"
+          );
+          const data = await res.json();
+          const price = data?.result || 2400;
+          onPriceRef.current(price);
           if (onTickerDataRef.current) {
             onTickerDataRef.current({
-              price: coinData.current_price,
-              high: coinData.high_24h || coinData.current_price,
-              low: coinData.low_24h || coinData.current_price,
-              volume: coinData.total_volume || 0,
-              change: coinData.price_change_percentage_24h || 0
+              price,
+              high: price * 1.005,
+              low: price * 0.995,
+              volume: 0,
+              change: 0,
             });
+          }
+        } else {
+          const response = await fetch(
+            `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds[selectedCoin]}`
+          );
+          const data = await response.json();
+          const coinData = data[0];
+          if (coinData?.current_price) {
+            onPriceRef.current(coinData.current_price);
+            if (onTickerDataRef.current) {
+              onTickerDataRef.current({
+                price: coinData.current_price,
+                high: coinData.high_24h || coinData.current_price,
+                low: coinData.low_24h || coinData.current_price,
+                volume: coinData.total_volume || 0,
+                change: coinData.price_change_percentage_24h || 0
+              });
+            }
           }
         }
       } catch (error) {
         console.error("Error fetching fallback price:", error);
+        // If all else fails for gold, use a static fallback
+        if (selectedCoin === "gold") {
+          onPriceRef.current(2400);
+          if (onTickerDataRef.current) {
+            onTickerDataRef.current({ price: 2400, high: 2412, low: 2388, volume: 0, change: 0 });
+          }
+        }
       }
     };
 
-    // Try WebSocket first
+    // XAU has no Binance WebSocket — poll via REST every 10s
+    if (selectedCoin === "gold") {
+      fetchPriceFallback();
+      const goldPollInterval = setInterval(fetchPriceFallback, 10000);
+      return () => clearInterval(goldPollInterval);
+    }
+
+    // Try WebSocket first (for all other crypto assets)
     const ws = new WebSocket(
       "wss://stream.binance.com:9443/ws/" + streams[selectedCoin] + "@ticker"
     );

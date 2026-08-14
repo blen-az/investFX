@@ -163,6 +163,14 @@ export default function Deposit() {
       color: "#627EEA",
       balance: "0.00000000",
     },
+    {
+      id: "gold",
+      name: "Gold",
+      symbol: "XAU",
+      icon: "⚜",
+      color: "#D4A017",
+      balance: "0.000",
+    },
   ];
 
   const filteredCryptos = cryptocurrencies.filter(

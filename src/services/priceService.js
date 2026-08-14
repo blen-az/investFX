@@ -11,11 +11,13 @@ let priceCache = {
 };
 
 // Primary API (CoinGecko)
-// Primary API (CoinGecko)
 const COINGECKO_API = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,solana,binancecoin,ripple,cardano,dogecoin,polkadot,litecoin,chainlink&vs_currencies=usd";
 
 // Backup API (CoinCap)
 const COINCAP_API = "https://api.coincap.io/v2/assets?ids=bitcoin,ethereum,tether,solana,binancecoin,ripple,cardano,dogecoin,polkadot,litecoin,chainlink";
+
+// XAU/USD Gold price API (free, no key required)
+const XAU_API = "https://api.exchangerate.host/convert?from=XAU&to=USD&amount=1";
 
 /**
  * Get current prices for major cryptocurrencies
@@ -49,6 +51,19 @@ export async function getCryptoPrices() {
             LINK: data.chainlink.usd
         };
 
+        // Fetch XAU (Gold) price in parallel
+        try {
+            const xauRes = await fetch(XAU_API);
+            if (xauRes.ok) {
+                const xauData = await xauRes.json();
+                prices.XAU = xauData?.result || 2400;
+            } else {
+                prices.XAU = 2400; // static fallback
+            }
+        } catch {
+            prices.XAU = 2400; // static fallback
+        }
+
         priceCache = { data: prices, timestamp: now };
         return prices;
     } catch (error) {
@@ -70,6 +85,19 @@ export async function getCryptoPrices() {
             // Ensure USDT is 1 if missing or slightly off
             if (!prices.USDT) prices.USDT = 1;
 
+            // Fetch XAU separately for CoinCap fallback path too
+            try {
+                const xauRes = await fetch(XAU_API);
+                if (xauRes.ok) {
+                    const xauData = await xauRes.json();
+                    prices.XAU = xauData?.result || 2400;
+                } else {
+                    prices.XAU = 2400;
+                }
+            } catch {
+                prices.XAU = 2400;
+            }
+
             priceCache = { data: prices, timestamp: now };
             return prices;
         } catch (backupError) {
@@ -80,7 +108,8 @@ export async function getCryptoPrices() {
                 ETH: 2200,
                 USDT: 1,
                 SOL: 100,
-                BNB: 300
+                BNB: 300,
+                XAU: 2400
             };
         }
     }

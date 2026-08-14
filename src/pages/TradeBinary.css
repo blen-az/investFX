@@ -1,10 +1,11 @@
 /* Binary Options Style Trade Page */
 
 .binary-options-style {
-    background: #0a0e1a;
+    background: var(--wm-bg);
     min-height: 100vh;
     padding: 0;
     padding-bottom: 80px;
+    color: var(--wm-text);
 }
 
 /* Pair Display */
