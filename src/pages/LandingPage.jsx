@@ -125,6 +125,26 @@ function HeroBackground({ mousePos }) {
       <div className="hero-orb hero-orb-violet"
         style={{ transform: `translate(${mousePos.x * 1}px, ${-mousePos.y * 1}px)` }} />
       <div className="hero-grid-overlay" />
+      <svg className="hero-wavy-lines" viewBox="0 0 800 600" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#00C2C7" stopOpacity="0" />
+            <stop offset="50%" stopColor="#00C2C7" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3B82F6" stopOpacity="0" />
+            <stop offset="50%" stopColor="#1BA9E8" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#00C2C7" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path className="wave-path wave-1" d="M -100 160 Q 200 40 450 220 T 950 120" fill="none" stroke="url(#waveGrad1)" strokeWidth="2" />
+        <path className="wave-path wave-2" d="M -100 360 Q 180 460 480 290 T 950 420" fill="none" stroke="url(#waveGrad2)" strokeWidth="1.8" />
+        <path className="wave-path wave-3" d="M -100 240 Q 320 380 620 140 T 950 280" fill="none" stroke="url(#waveGrad1)" strokeWidth="1.4" strokeDasharray="8 6" />
+      </svg>
+      <svg className="hero-orbital-arc" viewBox="0 0 500 500" aria-hidden="true">
+        <ellipse cx="250" cy="250" rx="230" ry="110" fill="none" stroke="rgba(0,194,199,0.22)" strokeWidth="1.2" strokeDasharray="6 6" />
+      </svg>
       <div className="hero-particles">
         {[...Array(12)].map((_, i) => (
           <div key={i} className={`hero-particle p-${i}`} />
@@ -734,11 +754,23 @@ export default function LandingPage() {
   const [scrolled, setScrolled]             = useState(false);
   const [mousePos, setMousePos]             = useState({ x: 0, y: 0 });
   const [heroVisible, setHeroVisible]       = useState(false);
+  const [hasPointer, setHasPointer]         = useState(false);
+
+  const hamburgerRef = useRef(null);
+  const closeBtnRef   = useRef(null);
 
   const [prices, setPrices] = useState({
     BTC: 63842.10, ETH: 3142.88, SOL: 142.56,
     BNB: 584.32,   XRP: 0.5234,  XAU: 2400.00,
   });
+
+  // Check pointer capability for mouse parallax
+  useEffect(() => {
+    const check = () => setHasPointer(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Fetch live prices
   useEffect(() => {
@@ -769,8 +801,36 @@ export default function LandingPage() {
     return () => clearTimeout(t);
   }, []);
 
-  // Pointer parallax (desktop only)
+  // Body scroll locking for mobile menu
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      setTimeout(() => closeBtnRef.current?.focus(), 50);
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileMenuOpen]);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+    hamburgerRef.current?.focus();
+  }, []);
+
+  // ESC key handler for mobile menu
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && mobileMenuOpen) {
+        closeMobileMenu();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen, closeMobileMenu]);
+
+  // Pointer parallax (desktop fine pointer only)
   const handleMouseMove = useCallback((e) => {
+    if (!hasPointer) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const cx   = rect.width / 2;
     const cy   = rect.height / 2;
@@ -778,7 +838,7 @@ export default function LandingPage() {
       x: (e.clientX - rect.left - cx) / cx * 8,
       y: (e.clientY - rect.top  - cy) / cy * 8,
     });
-  }, []);
+  }, [hasPointer]);
   const handleMouseLeave = useCallback(() => setMousePos({ x: 0, y: 0 }), []);
 
   // Ticker changes (small simulated movement)
@@ -830,30 +890,96 @@ export default function LandingPage() {
                 </Link>
               </>
             )}
-            <button className="mobile-menu-btn"
+            <button
+              ref={hamburgerRef}
+              className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(v => !v)}
-              aria-label="Toggle Navigation Menu">
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav-panel"
+            >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile drawer */}
+        {/* Mobile Navigation Panel Sheet Overlay */}
         {mobileMenuOpen && (
-          <div className="mobile-nav-drawer">
-            {[["Markets", "/market"], ["Trade", "/trade"], ["Earn & Learn", "/news"], ["Company", "/regulatory-info"]].map(([label, path]) => (
-              <Link key={label} to={path} className="nav-link"
-                onClick={() => setMobileMenuOpen(false)}>{label}</Link>
-            ))}
-            <div style={{ paddingTop: 10, display: "flex", gap: 10 }}>
-              {user ? (
-                <Link to="/home" className="btn-signup" style={{ width: "100%", justifyContent: "center" }}>Dashboard</Link>
-              ) : (
-                <>
-                  <Link to="/login" className="btn-login" style={{ flex: 1, textAlign: "center" }}>Log In</Link>
-                  <Link to="/signup" className="btn-signup" style={{ flex: 1, justifyContent: "center" }}>Sign Up</Link>
-                </>
-              )}
+          <div
+            id="mobile-nav-panel"
+            className="mobile-nav-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation Menu"
+          >
+            <div className="mobile-nav-backdrop" onClick={closeMobileMenu} />
+            <div className="mobile-nav-card">
+              <div className="mobile-nav-header">
+                <Link to="/" className="landing-logo" onClick={closeMobileMenu}>
+                  <Zap className="logo-bolt" size={24} fill="currentColor" />
+                  <span>
+                    <span className="logo-way">Way</span>
+                    <span className="logo-more">More</span>
+                  </span>
+                </Link>
+                <button
+                  ref={closeBtnRef}
+                  className="mobile-nav-close-btn"
+                  onClick={closeMobileMenu}
+                  aria-label="Close navigation"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              <nav className="mobile-nav-links">
+                {[
+                  ["Markets", "/market"],
+                  ["Trade", "/trade"],
+                  ["Futures", "/market"],
+                  ["Earn", "/news"],
+                  ["Learn", "/news"],
+                  ["Company", "/regulatory-info"]
+                ].map(([label, path]) => (
+                  <Link
+                    key={label}
+                    to={path}
+                    className="mobile-nav-link"
+                    onClick={closeMobileMenu}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mobile-nav-auth">
+                {user ? (
+                  <Link
+                    to="/home"
+                    className="btn-signup mobile-nav-btn-full"
+                    onClick={closeMobileMenu}
+                  >
+                    Dashboard <ArrowRight size={15} />
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="btn-login mobile-nav-btn-login"
+                      onClick={closeMobileMenu}
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="btn-signup mobile-nav-btn-signup"
+                      onClick={closeMobileMenu}
+                    >
+                      Create Account <ArrowRight size={15} />
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -875,7 +1001,8 @@ export default function LandingPage() {
             <div className="hero-entry hero-entry-1">
               <div className="hero-trust-badge">
                 <Users size={13} className="trust-badge-icon" />
-                <span>TRUSTED BY 120,000+ TRADERS WORLDWIDE</span>
+                <span className="trust-badge-desktop">TRUSTED BY 120,000+ TRADERS WORLDWIDE</span>
+                <span className="trust-badge-mobile">TRUSTED BY 120K+ TRADERS</span>
               </div>
             </div>
 
@@ -891,7 +1018,7 @@ export default function LandingPage() {
             {/* Copy */}
             <div className="hero-entry hero-entry-3">
               <p className="hero-subcopy">
-                Trade Bitcoin, Ethereum, Gold, and 500+ cryptocurrencies with
+                Trade Bitcoin, Ethereum, Gold (XAU), and 500+ cryptocurrencies with
                 confidence. Professional tools and bank-level security.
               </p>
             </div>
@@ -914,28 +1041,13 @@ export default function LandingPage() {
                   </>
                 )}
               </div>
+              {!user && (
+                <div className="hero-signin-hint">
+                  Already a member? <Link to="/login" className="hero-signin-link">Sign in</Link>
+                </div>
+              )}
             </div>
 
-            {/* Metrics */}
-            <div className="hero-entry hero-entry-5">
-              <div className="hero-metrics-grid">
-                {[
-                  { icon: <Users size={18} />,      target: 120000, suffix: "+", label: "Active Traders" },
-                  { icon: <BarChart3 size={18} />,   target: 500,    suffix: "+", label: "Cryptocurrencies" },
-                  { icon: <ShieldCheck size={18} />, target: 99,     suffix: ".9%", label: "Uptime Guarantee" },
-                ].map((m, i) => (
-                  <div key={i} className="metric-card metric-card-hover">
-                    <div className="metric-icon-wrap">{m.icon}</div>
-                    <div>
-                      <div className="metric-val">
-                        <MetricCounter target={m.target} suffix={m.suffix} duration={900} />
-                      </div>
-                      <div className="metric-lbl">{m.label}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* ── RIGHT: Product Showcase ── */}
@@ -947,6 +1059,28 @@ export default function LandingPage() {
 
             {/* Mobile Phone (layered in front) */}
             <MobilePortfolioPreview prices={prices} mousePos={mousePos} />
+          </div>
+
+          {/* ── Metrics Row ── */}
+          <div className="hero-metrics-row hero-entry hero-entry-5">
+            <div className="hero-metrics-grid">
+              {[
+                { icon: <Users size={18} />,      target: 120000, suffix: "+", label: "Active Traders", mobileLabel: "Traders" },
+                { icon: <BarChart3 size={18} />,   target: 500,    suffix: "+", label: "Cryptocurrencies", mobileLabel: "Assets" },
+                { icon: <ShieldCheck size={18} />, target: 99,     suffix: ".9%", label: "Uptime Guarantee", mobileLabel: "Uptime" },
+              ].map((m, i) => (
+                <div key={i} className="metric-card metric-card-hover">
+                  <div className="metric-icon-wrap">{m.icon}</div>
+                  <div className="metric-text-wrap">
+                    <div className="metric-val">
+                      <MetricCounter target={m.target} suffix={m.suffix} duration={900} />
+                    </div>
+                    <div className="metric-lbl metric-lbl-desktop">{m.label}</div>
+                    <div className="metric-lbl metric-lbl-mobile">{m.mobileLabel}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
@@ -987,25 +1121,27 @@ export default function LandingPage() {
               <div className="live-dot-indicator" />
               <span>LIVE MARKETS OVERVIEW</span>
             </div>
-            <div className="market-ticker-track">
-              {[
-                { sym: "BTC",  pair: "BTC / USDT",   price: prices.BTC,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.BTC, pos: true  },
-                { sym: "ETH",  pair: "ETH / USDT",   price: prices.ETH,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.ETH, pos: true  },
-                { sym: "SOL",  pair: "SOL / USDT",   price: prices.SOL,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.SOL, pos: false },
-                { sym: "BNB",  pair: "BNB / USDT",   price: prices.BNB,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.BNB, pos: true  },
-                { sym: "XRP",  pair: "XRP / USDT",   price: prices.XRP,  fmt: p => p.toFixed(4),                                            chg: tickerChanges.XRP, pos: true  },
-                { sym: "XAU",  pair: "⚜ XAU / USD",  price: prices.XAU,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.XAU, pos: true  },
-              ].map(coin => (
-                <Link key={coin.sym} to="/market" className="ticker-card glass-reflect">
-                  <div className="ticker-top">
-                    <span className="ticker-sym">{coin.pair}</span>
-                    <span className={`ticker-change ${coin.pos ? "pos" : "neg"}`}>
-                      {coin.pos ? "+" : ""}{coin.chg}%
-                    </span>
-                  </div>
-                  <div className="ticker-price">${coin.fmt(coin.price ?? 0)}</div>
-                </Link>
-              ))}
+            <div className="market-scroll-wrapper">
+              <div className="market-ticker-track">
+                {[
+                  { sym: "BTC",  pair: "BTC / USDT",   price: prices.BTC,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.BTC, pos: true  },
+                  { sym: "ETH",  pair: "ETH / USDT",   price: prices.ETH,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.ETH, pos: true  },
+                  { sym: "SOL",  pair: "SOL / USDT",   price: prices.SOL,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.SOL, pos: false },
+                  { sym: "BNB",  pair: "BNB / USDT",   price: prices.BNB,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.BNB, pos: true  },
+                  { sym: "XRP",  pair: "XRP / USDT",   price: prices.XRP,  fmt: p => p.toFixed(4),                                            chg: tickerChanges.XRP, pos: true  },
+                  { sym: "XAU",  pair: "⚜ XAU / USD",  price: prices.XAU,  fmt: p => p.toLocaleString("en-US", { minimumFractionDigits: 2 }), chg: tickerChanges.XAU, pos: true  },
+                ].map(coin => (
+                  <Link key={coin.sym} to="/market" className="ticker-card glass-reflect">
+                    <div className="ticker-top">
+                      <span className="ticker-sym">{coin.pair}</span>
+                      <span className={`ticker-change ${coin.pos ? "pos" : "neg"}`}>
+                        {coin.pos ? "+" : ""}{coin.chg}%
+                      </span>
+                    </div>
+                    <div className="ticker-price">${coin.fmt(coin.price ?? 0)}</div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
