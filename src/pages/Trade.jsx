@@ -569,8 +569,8 @@ export default function Trade() {
                     setIsDrawerOpen(false);
                   }}
                 >
-                  <div style={{ fontWeight: 'bold' }}>{coin.symbol}/USDT</div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>{coin.name}</div>
+                  <div style={{ fontWeight: 'bold', color: 'inherit' }}>{coin.symbol}/USDT</div>
+                  <div style={{ fontSize: '12px', color: '#64748b' }}>{coin.name}</div>
                 </div>
               ))}
             </div>

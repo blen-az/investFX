@@ -1,57 +1,49 @@
-/* TradePerpetual.css */
+/* TradePerpetual.css — Light Theme */
 
-/* Extend binary options style but add specific overrides for Perpetual mode */
 .perpetual-mode-container {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    /* Reduced from 16px */
-    padding: 8px;
-    /* Reduced from 16px */
-    background: #060a10;
-    /* Darker background from image */
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(8, 22, 43, 0.03);
 }
 
 /* Side Selector Tabs (Buy/Sell) */
 .side-selector {
     display: flex;
-    background: #1e222d;
-    border-radius: 4px;
-    /* More square as per image */
+    background: #f1f5f9;
+    border-radius: 8px;
     overflow: hidden;
     margin-bottom: 8px;
-    /* Reduced margin */
+    border: 1px solid #e2e8f0;
 }
 
 .side-tab {
     flex: 1;
     padding: 8px;
-    /* Reduced from 12px */
     text-align: center;
     cursor: pointer;
     font-size: 13px;
-    /* Reduced from 14px */
-    font-weight: 600;
-    color: #848e9c;
+    font-weight: 700;
+    color: #64748b;
     transition: all 0.2s;
     border-bottom: 2px solid transparent;
 }
 
 .side-tab.buy.active {
-    color: #0ECB81;
-    /* Bright Green */
-    background: rgba(14, 203, 129, 0.1);
-    border-bottom-color: #0ECB81;
+    color: #00b67a;
+    background: rgba(0, 182, 122, 0.12);
+    border-bottom-color: #00b67a;
     position: relative;
 }
 
-/* Diagonal separation effect simulation if needed, but simple tabs are cleaner */
-
 .side-tab.sell.active {
-    color: #F6465D;
-    /* Bright Red */
-    background: rgba(246, 70, 93, 0.1);
-    border-bottom-color: #F6465D;
+    color: #f04452;
+    background: rgba(240, 68, 82, 0.12);
+    border-bottom-color: #f04452;
 }
 
 /* Form Inputs */
@@ -59,41 +51,39 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    /* Reduced gap */
     margin-bottom: 8px;
-    /* Reduced margin */
 }
 
 .perp-label {
     font-size: 11px;
-    /* Smaller label */
-    color: #848e9c;
+    font-weight: 600;
+    color: #64748b;
 }
 
 .perp-input-container {
     display: flex;
     align-items: center;
-    background: #1e222d;
-    border-radius: 4px;
-    padding: 0 8px;
-    /* Tighter padding */
-    border: 1px solid #1e222d;
-    height: 32px;
-    /* Explicit smaller height */
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 0 10px;
+    border: 1px solid #e2e8f0;
+    height: 36px;
+    transition: border-color 0.15s ease;
 }
 
 .perp-input-container:focus-within {
-    border-color: #F0B90B;
-    /* Binance Yellowish highlight */
+    border-color: #00c2c7;
+    box-shadow: 0 0 0 2px rgba(0, 194, 199, 0.15);
 }
 
 .perp-input {
     width: 100%;
     background: transparent;
     border: none;
-    color: #eaecef;
+    color: #08162b;
     padding: 0;
     font-size: 13px;
+    font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
     outline: none;
     height: 100%;
@@ -101,58 +91,56 @@
 
 .perp-suffix {
     font-size: 11px;
-    color: #848e9c;
+    font-weight: 700;
+    color: #64748b;
     margin-left: 6px;
 }
 
 /* Order Type Dropdown Mock */
 .order-type-select {
     width: 100%;
-    background: #1e222d;
-    color: #eaecef;
-    border: none;
-    padding: 0 8px;
-    /* Tighter padding */
-    height: 32px;
-    /* Match input height */
-    border-radius: 4px;
+    background: #f8fafc;
+    color: #08162b;
+    border: 1px solid #e2e8f0;
+    padding: 0 10px;
+    height: 36px;
+    border-radius: 8px;
     font-size: 12px;
+    font-weight: 700;
     outline: none;
-    appearance: none;
-    /* Custom arrow would be added here */
 }
 
 /* Percentage Grid */
 .percentage-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    /* Reduced gap */
+    gap: 6px;
     margin-bottom: 8px;
 }
 
 .percent-btn {
-    background: #1e222d;
-    border: 1px solid #2b3139;
-    color: #848e9c;
-    font-size: 10px;
-    /* Smaller font */
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
     padding: 2px;
-    /* Minimal padding */
-    border-radius: 2px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s;
-    height: 24px;
+    transition: all 0.15s ease;
+    height: 28px;
 }
 
 .percent-btn:hover {
-    background: #2b3139;
+    background: #e2e8f0;
+    color: #08162b;
 }
 
 /* Balance Display */
 .perp-balance {
     font-size: 11px;
-    color: #848e9c;
+    font-weight: 600;
+    color: #64748b;
     margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
@@ -161,48 +149,51 @@
 /* Main Action Button */
 .perp-action-btn {
     width: 100%;
-    padding: 10px;
-    /* Reduced padding */
+    padding: 12px;
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
     font-size: 14px;
-    /* Reduced font */
-    font-weight: 700;
+    font-weight: 800;
     color: white;
     cursor: pointer;
     text-transform: capitalize;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.perp-action-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
 }
 
 .perp-action-btn.buy {
-    background: #0ECB81;
+    background: linear-gradient(135deg, #00b67a 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(0, 182, 122, 0.25);
 }
 
 .perp-action-btn.sell {
-    background: #F6465D;
+    background: linear-gradient(135deg, #f04452 0%, #dc2626 100%);
+    box-shadow: 0 4px 12px rgba(240, 68, 82, 0.25);
 }
 
 /* Bottom Tabs (Orders/Assets) */
 .bottom-tabs {
     display: flex;
     gap: 16px;
-    /* Reduced gap */
     margin-top: 16px;
-    /* Reduced margin */
-    border-bottom: 1px solid #2b3139;
+    border-bottom: 1px solid #e2e8f0;
     padding-bottom: 8px;
-    /* Reduced padding */
 }
 
 .bottom-tab {
     font-size: 14px;
-    color: #848e9c;
+    color: #64748b;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .bottom-tab.active {
-    color: #eaecef;
-    font-weight: 700;
+    color: #08162b;
+    font-weight: 800;
     position: relative;
 }
 
@@ -210,11 +201,11 @@
     content: '';
     position: absolute;
     bottom: -9px;
-    /* Adjusted for smaller padding */
     left: 0;
     width: 100%;
     height: 3px;
-    background: #F0B90B;
+    background: #00c2c7;
+    border-radius: 2px;
 }
 
 /* Empty State */
@@ -224,13 +215,13 @@
     align-items: center;
     justify-content: center;
     padding: 40px 0;
-    color: #848e9c;
+    color: #64748b;
     gap: 10px;
 }
 
 .empty-icon {
     font-size: 40px;
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 /* Drawer Styles */
@@ -240,19 +231,21 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(8, 22, 43, 0.45);
     z-index: 9999;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .drawer-content {
-    width: 280px;
+    width: 290px;
     height: 100%;
-    background: #0b0f19;
-    border-right: 1px solid #1f2937;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 4px 0 24px rgba(8, 22, 43, 0.12);
     display: flex;
     flex-direction: column;
-    animation: slideIn 0.3s ease-out;
+    animation: slideIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes slideIn {
@@ -267,18 +260,24 @@
 
 .drawer-header {
     padding: 20px;
-    border-bottom: 1px solid #1f2937;
+    border-bottom: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #fff;
+    color: #08162b;
     font-weight: bold;
+    font-size: 18px;
 }
 
 .close-drawer {
     cursor: pointer;
     font-size: 20px;
-    color: #9ca3af;
+    color: #64748b;
+    transition: color 0.15s ease;
+}
+
+.close-drawer:hover {
+    color: #00c2c7;
 }
 
 .drawer-list {
@@ -288,14 +287,17 @@
 
 .drawer-item {
     padding: 15px 20px;
-    border-bottom: 1px solid #151b28;
+    border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
-    color: #fff;
-    transition: background 0.2s;
+    color: #08162b;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.drawer-item:hover,
+.drawer-item:hover {
+    background: #f8fafc;
+}
+
 .drawer-item.active {
-    background: #151b28;
-    border-left: 3px solid #00bfb3;
+    background: rgba(0, 194, 199, 0.08);
+    border-left: 4px solid #00c2c7;
 }
