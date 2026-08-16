@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 const COINS = [
+  { id: "gold", label: "XAU / USD" },
   { id: "bitcoin", label: "BTC / USD" },
   { id: "ethereum", label: "ETH / USD" },
   { id: "solana", label: "SOL / USD" },
@@ -11,7 +12,6 @@ const COINS = [
   { id: "polkadot", label: "DOT / USD" },
   { id: "litecoin", label: "LTC / USD" },
   { id: "chainlink", label: "LINK / USD" },
-  { id: "gold", label: "XAU / USD" },
 ];
 
 let tvScriptLoadingPromise = null;
@@ -23,6 +23,7 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
 
   const toTVSymbol = (id) => {
     switch (id) {
+      case "gold": return "OANDA:XAUUSD";
       case "bitcoin": return "BINANCE:BTCUSDT";
       case "ethereum": return "BINANCE:ETHUSDT";
       case "solana": return "BINANCE:SOLUSDT";
@@ -33,8 +34,7 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
       case "polkadot": return "BINANCE:DOTUSDT";
       case "litecoin": return "BINANCE:LTCUSDT";
       case "chainlink": return "BINANCE:LINKUSDT";
-      case "gold": return "OANDA:XAUUSD";
-      default: return "BINANCE:BTCUSDT";
+      default: return "OANDA:XAUUSD";
     }
   };
 

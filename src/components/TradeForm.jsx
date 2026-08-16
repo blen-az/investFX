@@ -5,7 +5,7 @@ function uid() {
   return Date.now() + Math.floor(Math.random() * 1000);
 }
 
-export default function TradeForm({ coin = { id: "bitcoin", symbol: "btc", name: "Bitcoin" }, livePrice }) {
+export default function TradeForm({ coin = { id: "gold", symbol: "xau", name: "Gold" }, livePrice }) {
   const keyBalance = "demo_balance_v4";
   const keyOrders = "demo_orders_v4";
 

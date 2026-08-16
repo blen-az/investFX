@@ -100,6 +100,7 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
 
     const getSymbolIcon = (asset) => {
         if (!asset) return "🪙";
+        if (asset.includes("XAU") || asset.includes("GOLD") || asset.includes("Gold")) return "⚜";
         if (asset.includes("BTC")) return "₿";
         if (asset.includes("ETH")) return "Ξ";
         if (asset.includes("SOL")) return "S";

@@ -67,9 +67,11 @@ export default function AdminDashboard() {
 
     const checkMigrationStatus = async () => {
         try {
-            const status = await getMigrationStatus();
+            const [status, sIdStatus] = await Promise.all([
+                getMigrationStatus(),
+                getShortIdMigrationStatus()
+            ]);
             setMigrationStatus(status);
-            const sIdStatus = await getShortIdMigrationStatus();
             setShortIdStatus(sIdStatus);
         } catch (error) {
             console.error("Error checking migration status:", error);

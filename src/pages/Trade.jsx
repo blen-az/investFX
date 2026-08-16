@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { openTrade, checkAndAutoCloseTrades } from "../services/tradeService";
 import { getCryptoPrices } from "../services/priceService";
@@ -16,11 +17,22 @@ import { db } from "../firebase";
 
 export default function Trade() {
   const { user } = useAuth();
+  const location = useLocation();
   const [tradingBalance, setTradingBalance] = useState(0);
-  const [coinMeta, setCoinMeta] = useState({
-    id: "bitcoin",
-    symbol: "BTC",
-    name: "Bitcoin",
+  const [coinMeta, setCoinMeta] = useState(() => {
+    const stateCoin = location.state?.coin;
+    if (stateCoin) {
+      return {
+        id: stateCoin.id || "gold",
+        symbol: (stateCoin.symbol || coinList[stateCoin.id]?.symbol || "XAU").toUpperCase(),
+        name: stateCoin.name || coinList[stateCoin.id]?.name || "Gold",
+      };
+    }
+    return {
+      id: "gold",
+      symbol: "XAU",
+      name: "Gold",
+    };
   });
 
   const [contractType, setContractType] = useState("delivery"); // delivery (binary) | perpetual

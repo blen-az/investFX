@@ -48,26 +48,32 @@ export const getAllUsers = async (filters = {}) => {
             q = query(usersRef, where("role", "==", filters.role));
         }
 
-        const snapshot = await getDocs(q);
-        const users = [];
+        const [snapshot, walletsSnap] = await Promise.all([
+            getDocs(q),
+            getDocs(collection(db, "wallets"))
+        ]);
 
-        for (const userDoc of snapshot.docs) {
+        const walletsMap = new Map();
+        walletsSnap.forEach(wDoc => {
+            const data = wDoc.data();
+            walletsMap.set(wDoc.id, data);
+            if (data.uid) walletsMap.set(data.uid, data);
+        });
+
+        const users = snapshot.docs.map(userDoc => {
             const userData = userDoc.data();
+            const walletData = walletsMap.get(userDoc.id) || walletsMap.get(userData.uid);
 
-            // Get wallet balance
-            const walletDoc = await getDocs(query(collection(db, "wallets"), where("uid", "==", userDoc.id)));
-            const walletData = walletDoc.docs[0]?.data();
-
-            users.push({
+            return {
                 id: userDoc.id,
                 ...userData,
                 balance: (walletData?.mainBalance || 0) + (walletData?.tradingBalance || 0),
                 mainBalance: walletData?.mainBalance || 0,
                 tradingBalance: walletData?.tradingBalance || 0,
                 commissionBalance: walletData?.commissionBalance || 0,
-                createdAt: userData.createdAt?.toDate()
-            });
-        }
+                createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : userData.createdAt
+            };
+        });
 
         // Sort by joined date desc
         users.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -232,50 +238,31 @@ export const getAllDeposits = async (status = null) => {
             q = query(depositsRef, where("status", "==", status), orderBy("createdAt", "desc"));
         }
 
-        const snapshot = await getDocs(q);
-        const deposits = [];
+        const [snapshot, usersSnap] = await Promise.all([
+            getDocs(q),
+            getDocs(collection(db, "users"))
+        ]);
 
-        for (const depositDoc of snapshot.docs) {
+        const usersMap = new Map();
+        usersSnap.forEach(uDoc => {
+            const data = uDoc.data();
+            usersMap.set(uDoc.id, data);
+            if (data.uid) usersMap.set(data.uid, data);
+        });
+
+        const deposits = snapshot.docs.map(depositDoc => {
             const depositData = depositDoc.data();
+            const userData = depositData.uid ? usersMap.get(depositData.uid) : null;
 
-            // Fetch user details
-            let userName = null;
-            let userEmail = null;
-
-            if (depositData.uid) {
-                try {
-                    // Try fetching by Doc ID first (standard)
-                    const userRef = doc(db, "users", depositData.uid);
-                    const userSnap = await getDoc(userRef);
-
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        userName = userData.name;
-                        userEmail = userData.email;
-                    } else {
-                        // Fallback: Query by uid field
-                        const userQ = query(collection(db, "users"), where("uid", "==", depositData.uid));
-                        const userDocs = await getDocs(userQ);
-                        if (!userDocs.empty) {
-                            const userData = userDocs.docs[0].data();
-                            userName = userData.name;
-                            userEmail = userData.email;
-                        }
-                    }
-                } catch (err) {
-                    console.error("Error fetching user for deposit:", err);
-                }
-            }
-
-            deposits.push({
+            return {
                 id: depositDoc.id,
                 ...depositData,
-                userName,
-                userEmail,
-                createdAt: depositData.createdAt?.toDate(),
-                processedAt: depositData.processedAt?.toDate()
-            });
-        }
+                userName: userData?.name || null,
+                userEmail: userData?.email || null,
+                createdAt: depositData.createdAt?.toDate ? depositData.createdAt.toDate() : depositData.createdAt,
+                processedAt: depositData.processedAt?.toDate ? depositData.processedAt.toDate() : depositData.processedAt
+            };
+        });
 
         return deposits;
     } catch (error) {
@@ -471,50 +458,31 @@ export const getAllWithdrawals = async (status = null) => {
             q = query(withdrawalsRef, where("status", "==", status), orderBy("createdAt", "desc"));
         }
 
-        const snapshot = await getDocs(q);
-        const withdrawals = [];
+        const [snapshot, usersSnap] = await Promise.all([
+            getDocs(q),
+            getDocs(collection(db, "users"))
+        ]);
 
-        for (const withdrawalDoc of snapshot.docs) {
+        const usersMap = new Map();
+        usersSnap.forEach(uDoc => {
+            const data = uDoc.data();
+            usersMap.set(uDoc.id, data);
+            if (data.uid) usersMap.set(data.uid, data);
+        });
+
+        const withdrawals = snapshot.docs.map(withdrawalDoc => {
             const withdrawalData = withdrawalDoc.data();
+            const userData = withdrawalData.uid ? usersMap.get(withdrawalData.uid) : null;
 
-            // Fetch user details
-            let userName = null;
-            let userEmail = null;
-
-            if (withdrawalData.uid) {
-                try {
-                    // Try fetching by Doc ID first (standard)
-                    const userRef = doc(db, "users", withdrawalData.uid);
-                    const userSnap = await getDoc(userRef);
-
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        userName = userData.name;
-                        userEmail = userData.email;
-                    } else {
-                        // Fallback: Query by uid field
-                        const userQ = query(collection(db, "users"), where("uid", "==", withdrawalData.uid));
-                        const userDocs = await getDocs(userQ);
-                        if (!userDocs.empty) {
-                            const userData = userDocs.docs[0].data();
-                            userName = userData.name;
-                            userEmail = userData.email;
-                        }
-                    }
-                } catch (err) {
-                    console.error("Error fetching user for withdrawal:", err);
-                }
-            }
-
-            withdrawals.push({
+            return {
                 id: withdrawalDoc.id,
                 ...withdrawalData,
-                userName,
-                userEmail,
-                createdAt: withdrawalData.createdAt?.toDate(),
-                processedAt: withdrawalData.processedAt?.toDate()
-            });
-        }
+                userName: userData?.name || null,
+                userEmail: userData?.email || null,
+                createdAt: withdrawalData.createdAt?.toDate ? withdrawalData.createdAt.toDate() : withdrawalData.createdAt,
+                processedAt: withdrawalData.processedAt?.toDate ? withdrawalData.processedAt.toDate() : withdrawalData.processedAt
+            };
+        });
 
         return withdrawals;
     } catch (error) {
@@ -634,44 +602,34 @@ export const getActiveTradesForAdmin = async () => {
     try {
         const tradesRef = collection(db, "trades");
         const q = query(tradesRef, where("status", "==", "active"));
-        const snapshot = await getDocs(q);
+        const [snapshot, usersSnap] = await Promise.all([
+            getDocs(q),
+            getDocs(collection(db, "users"))
+        ]);
 
-        const trades = [];
+        const usersMap = new Map();
+        usersSnap.forEach(uDoc => {
+            const data = uDoc.data();
+            usersMap.set(uDoc.id, data);
+            if (data.uid) usersMap.set(data.uid, data);
+        });
 
-        for (const tradeDoc of snapshot.docs) {
+        const trades = snapshot.docs.map(tradeDoc => {
             const tradeData = tradeDoc.data();
+            const userData = tradeData.uid ? usersMap.get(tradeData.uid) : null;
 
-            // Fetch user details
-            let userEmail = "Unknown";
-            let userName = "Unknown";
-
-            if (tradeData.uid) {
-                try {
-                    const userRef = doc(db, "users", tradeData.uid);
-                    const userSnap = await getDoc(userRef);
-
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        userEmail = userData.email;
-                        userName = userData.name;
-                    }
-                } catch (err) {
-                    console.error("Error fetching user for trade:", err);
-                }
-            }
-
-            trades.push({
+            return {
                 id: tradeDoc.id,
                 ...tradeData,
-                userEmail,
-                userName,
-                createdAt: tradeData.createdAt?.toDate(),
-                closedAt: tradeData.closedAt?.toDate()
-            });
-        }
+                userEmail: userData?.email || "Unknown",
+                userName: userData?.name || "Unknown",
+                createdAt: tradeData.createdAt?.toDate ? tradeData.createdAt.toDate() : tradeData.createdAt,
+                closedAt: tradeData.closedAt?.toDate ? tradeData.closedAt.toDate() : tradeData.closedAt
+            };
+        });
 
         // Sort by creation date desc
-        trades.sort((a, b) => b.createdAt - a.createdAt);
+        trades.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
         return trades;
     } catch (error) {
@@ -685,41 +643,31 @@ export const getAllTrades = async () => {
     try {
         const tradesRef = collection(db, "trades");
         const q = query(tradesRef, orderBy("createdAt", "desc"), limit(100));
-        const snapshot = await getDocs(q);
+        const [snapshot, usersSnap] = await Promise.all([
+            getDocs(q),
+            getDocs(collection(db, "users"))
+        ]);
 
-        const trades = [];
+        const usersMap = new Map();
+        usersSnap.forEach(uDoc => {
+            const data = uDoc.data();
+            usersMap.set(uDoc.id, data);
+            if (data.uid) usersMap.set(data.uid, data);
+        });
 
-        for (const tradeDoc of snapshot.docs) {
+        const trades = snapshot.docs.map(tradeDoc => {
             const tradeData = tradeDoc.data();
+            const userData = tradeData.uid ? usersMap.get(tradeData.uid) : null;
 
-            // Fetch user details
-            let userEmail = "Unknown";
-            let userName = "Unknown";
-
-            if (tradeData.uid) {
-                try {
-                    const userRef = doc(db, "users", tradeData.uid);
-                    const userSnap = await getDoc(userRef);
-
-                    if (userSnap.exists()) {
-                        const userData = userSnap.data();
-                        userEmail = userData.email;
-                        userName = userData.name;
-                    }
-                } catch (err) {
-                    console.error("Error fetching user for trade:", err);
-                }
-            }
-
-            trades.push({
+            return {
                 id: tradeDoc.id,
                 ...tradeData,
-                userEmail,
-                userName,
-                createdAt: tradeData.createdAt?.toDate(),
-                closedAt: tradeData.closedAt?.toDate()
-            });
-        }
+                userEmail: userData?.email || "Unknown",
+                userName: userData?.name || "Unknown",
+                createdAt: tradeData.createdAt?.toDate ? tradeData.createdAt.toDate() : tradeData.createdAt,
+                closedAt: tradeData.closedAt?.toDate ? tradeData.closedAt.toDate() : tradeData.closedAt
+            };
+        });
 
         return trades;
     } catch (error) {
@@ -853,23 +801,30 @@ export const getUsersByReferrer = async (agentId) => {
     try {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("referredBy", "==", agentId));
-        const snapshot = await getDocs(q);
+        const [snapshot, walletsSnap] = await Promise.all([
+            getDocs(q),
+            getDocs(collection(db, "wallets"))
+        ]);
 
-        const users = [];
-        for (const userDoc of snapshot.docs) {
+        const walletsMap = new Map();
+        walletsSnap.forEach(wDoc => {
+            const data = wDoc.data();
+            walletsMap.set(wDoc.id, data);
+            if (data.uid) walletsMap.set(data.uid, data);
+        });
+
+        const users = snapshot.docs.map(userDoc => {
             const userData = userDoc.data();
+            const walletData = walletsMap.get(userDoc.id) || walletsMap.get(userData.uid);
 
-            // Get wallet balance (optional but good for display)
-            const walletDoc = await getDocs(query(collection(db, "wallets"), where("uid", "==", userDoc.id)));
-            const walletData = walletDoc.docs[0]?.data();
-
-            users.push({
+            return {
                 id: userDoc.id,
                 ...userData,
                 balance: (walletData?.mainBalance || 0) + (walletData?.tradingBalance || 0),
-                createdAt: userData.createdAt?.toDate()
-            });
-        }
+                createdAt: userData.createdAt?.toDate ? userData.createdAt.toDate() : userData.createdAt
+            };
+        });
+
         // Sort by joined date desc
         users.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 

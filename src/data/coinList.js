@@ -1,4 +1,8 @@
 const coinList = {
+  gold: {
+    symbol: "XAU",
+    name: "Gold",
+  },
   bitcoin: {
     symbol: "BTC",
     name: "Bitcoin",
@@ -38,10 +42,6 @@ const coinList = {
   chainlink: {
     symbol: "LINK",
     name: "Chainlink",
-  },
-  gold: {
-    symbol: "XAU",
-    name: "Gold",
   },
 };
 
