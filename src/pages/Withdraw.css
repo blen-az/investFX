@@ -1,20 +1,25 @@
-/* src/pages/Withdraw.css */
+/* src/pages/Withdraw.css — WayMore Light Fintech Theme */
+
 .withdraw-page {
     padding: 40px 20px;
     min-height: 80vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    background: var(--wm-bg);
+    color: var(--wm-text);
 }
 
 .withdraw-container {
     width: 100%;
     max-width: 550px;
     padding: 32px;
-    background: rgba(30, 34, 45, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    background: var(--wm-glass);
+    backdrop-filter: var(--wm-glass-blur);
+    -webkit-backdrop-filter: var(--wm-glass-blur);
+    border: 1px solid var(--wm-glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--wm-shadow-md);
 }
 
 .withdraw-header {
@@ -26,22 +31,26 @@
 
 .withdraw-header h1 {
     font-size: 24px;
+    font-weight: 800;
     margin: 0;
-    color: #fff;
+    color: var(--wm-text);
+    letter-spacing: -0.4px;
 }
 
 .back-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #fff;
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
+    color: var(--wm-text);
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.2s;
+    font-weight: 600;
+    transition: all var(--motion-fast);
 }
 
 .back-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--wm-bg-3);
+    border-color: rgba(0, 194, 199, 0.3);
 }
 
 /* Asset List */
@@ -55,23 +64,26 @@
     display: flex;
     align-items: center;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--motion-fast);
 }
 
 .asset-item:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--wm-bg-3);
+    border-color: rgba(0, 194, 199, 0.3);
     transform: translateY(-2px);
+    box-shadow: var(--wm-shadow-xs);
 }
 
 .asset-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--wm-primary-s);
+    color: var(--wm-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,12 +97,12 @@
 
 .asset-name {
     font-weight: 700;
-    color: #fff;
+    color: var(--wm-text);
     font-size: 16px;
 }
 
 .asset-symbol {
-    color: #94a3b8;
+    color: var(--wm-text-2);
     font-size: 12px;
 }
 
@@ -100,17 +112,18 @@
 }
 
 .balance-val {
-    font-weight: 600;
-    color: #fff;
+    font-weight: 700;
+    color: var(--wm-text);
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .balance-label {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--wm-text-3);
 }
 
 .chevron {
-    color: #64748b;
+    color: var(--wm-text-3);
     font-size: 20px;
 }
 
@@ -119,9 +132,9 @@
     display: flex;
     align-items: center;
     padding: 16px;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 12px;
+    background: var(--wm-primary-s);
+    border: 1px solid rgba(0, 194, 199, 0.25);
+    border-radius: var(--radius-md);
     margin-bottom: 24px;
 }
 
@@ -131,30 +144,34 @@
 
 .form-group label {
     display: block;
-    color: #cbd5e1;
+    color: var(--wm-text-2);
     font-size: 14px;
     margin-bottom: 8px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .withdraw-input {
     width: 100%;
     padding: 14px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: #fff;
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-md);
+    color: var(--wm-text);
     font-size: 16px;
+    font-weight: 600;
     outline: none;
+    transition: all var(--motion-fast);
 }
 
 .withdraw-input:focus {
-    border-color: #3b82f6;
+    border-color: var(--wm-primary);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 194, 199, 0.15);
 }
 
 .input-hint {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--wm-text-3);
     margin-top: 6px;
 }
 
@@ -167,11 +184,11 @@
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: none;
+    background: var(--wm-primary-s);
+    color: var(--wm-primary);
+    border: 1px solid rgba(0, 194, 199, 0.3);
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -180,18 +197,18 @@
 .summary-row {
     display: flex;
     justify-content: space-between;
-    color: #94a3b8;
+    color: var(--wm-text-2);
     font-size: 14px;
     margin-bottom: 8px;
 }
 
 .summary-row.total {
-    color: #fff;
+    color: var(--wm-text);
     font-weight: 700;
     font-size: 16px;
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--wm-border-2);
 }
 
 .withdraw-submit-btn {
@@ -199,18 +216,18 @@
     padding: 16px;
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     color: white;
     font-weight: 700;
     font-size: 16px;
     margin-top: 24px;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .withdraw-submit-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
 }
 
 /* Success State */
@@ -234,8 +251,9 @@
 }
 
 .tx-details {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-md);
     padding: 16px;
     margin: 24px 0;
 }
@@ -245,6 +263,7 @@
     justify-content: space-between;
     margin-bottom: 12px;
     font-size: 14px;
+    color: var(--wm-text-2);
 }
 
 .tx-row:last-child {
@@ -256,6 +275,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: var(--wm-text);
+    font-weight: 600;
 }
 
 .status-pending {
@@ -264,17 +285,17 @@
 }
 
 .home-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
+    color: var(--wm-text);
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 600;
 }
 
 .home-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--wm-bg-3);
 }
 
 /* Mobile Responsive */
@@ -294,7 +315,6 @@
         gap: 16px;
     }
 
-    /* Asset list compact items */
     .asset-item {
         padding: 12px;
     }
@@ -314,7 +334,6 @@
         font-size: 11px;
     }
 
-    /* Summary row padding */
     .summary-row {
         font-size: 13px;
     }

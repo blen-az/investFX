@@ -15,10 +15,10 @@
 .pos-tab {
     flex: 1;
     padding: 12px;
-    border-radius: 8px;
-    border: 1px solid var(--glass-border, rgba(100, 116, 139, 0.2));
-    background: var(--color-bg-secondary, #1a1f2e);
-    color: var(--color-text-secondary, #cbd5e1);
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--wm-border-2, rgba(15, 23, 42, 0.08));
+    background: var(--wm-bg-2, #f1f5f9);
+    color: var(--wm-text-2, #64748b);
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -29,16 +29,15 @@
 }
 
 .pos-tab.active {
-    background: #7c3aed;
-    /* Purple */
+    background: var(--wm-primary, #00c2c7);
     color: white;
-    border-color: #7c3aed;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    border-color: var(--wm-primary, #00c2c7);
+    box-shadow: 0 4px 12px rgba(0, 194, 199, 0.25);
 }
 
 .pos-tab.completed {
-    background: var(--color-bg-tertiary, #252b3d);
-    border-color: var(--glass-border, rgba(100, 116, 139, 0.2));
+    background: var(--wm-bg-2, #f1f5f9);
+    border-color: var(--wm-border-2, rgba(15, 23, 42, 0.08));
 }
 
 .pos-tab.completed.active {
@@ -87,31 +86,29 @@
 
 .last-updated {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--wm-text-3, #94a3b8);
     font-style: italic;
 }
 
 /* Trade Row */
 .trade-row {
-    background: var(--color-bg-secondary, #1a1f2e);
-    border-radius: 8px;
-    border: 1px solid var(--glass-border, rgba(100, 116, 139, 0.2));
+    background: var(--wm-bg-2, #f8fafc);
+    border-radius: var(--radius-md, 12px);
+    border: 1px solid var(--wm-border-2, rgba(15, 23, 42, 0.08));
     margin-bottom: 12px;
     overflow: hidden;
     position: relative;
-    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.3));
+    box-shadow: var(--wm-shadow-xs, 0 1px 3px rgba(15, 23, 42, 0.06));
 }
 
 .trade-row.losing {
-    background: #fecaca;
-    /* Light red bg matching image */
-    border: 1px solid #f87171;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
 }
 
 .trade-row.winning {
-    background: #d1fae5;
-    /* Light green bg */
-    border: 1px solid #34d399;
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
 }
 
 .trade-row-header {
@@ -127,7 +124,7 @@
     align-items: center;
     gap: 8px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--wm-text, #0b1220);
     font-size: 14px;
 }
 
@@ -170,14 +167,14 @@
 
 .detail-col .label {
     font-size: 11px;
-    color: #cbd5e1;
+    color: var(--wm-text-2, #667085);
     font-weight: 600;
 }
 
 .detail-col .value {
     font-size: 13px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--wm-text, #0b1220);
 }
 
 .detail-col .value.highlight {

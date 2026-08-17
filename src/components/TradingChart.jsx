@@ -239,9 +239,9 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
   }, [coinId, selectedCoin]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#0d1117] rounded-lg overflow-hidden relative">
+    <div className="w-full h-full flex flex-col bg-white rounded-xl overflow-hidden relative border border-slate-200">
 
-      <div className="flex gap-2 px-3 py-2 border-b border-gray-800 overflow-x-auto scrollbar-hide flex-shrink-0 z-10 w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200 overflow-x-auto scrollbar-hide flex-shrink-0 z-10 w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
         {COINS.map((c) => (
           <button
             key={c.id}
@@ -249,9 +249,9 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
               setSelectedCoin(c.id);
               onChangeCoin?.(c.id);
             }}
-            className={`px-3 py-1 rounded text-sm font-semibold ${selectedCoin === c.id
-              ? "bg-yellow-500 text-black"
-              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${selectedCoin === c.id
+              ? "bg-[#00c2c7] text-white shadow-sm border border-[#00a8ad]"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/80"
               }`}
           >
             {c.label}
