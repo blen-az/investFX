@@ -165,20 +165,34 @@
 
 @media (max-width: 768px) {
     .users-page {
-        padding: 16px;
+        padding: 12px 8px;
     }
 
     .page-header {
         flex-direction: column;
+        gap: 16px;
+        margin-bottom: 20px;
     }
 
     .page-title {
-        font-size: 2rem;
+        font-size: 1.75rem;
     }
 
     .header-stats {
         width: 100%;
         justify-content: space-between;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .stat-item {
+        align-items: flex-start;
+        flex-shrink: 0;
+    }
+
+    .stat-value {
+        font-size: 22px;
     }
 }
 

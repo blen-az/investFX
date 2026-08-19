@@ -24,6 +24,14 @@
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+}
+
+.filter-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .filter-tab {
@@ -36,6 +44,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .filter-tab:hover {

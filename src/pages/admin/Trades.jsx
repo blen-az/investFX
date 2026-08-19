@@ -157,8 +157,8 @@ export default function Trades() {
             </div>
 
             {/* Tabs */}
-            <div className="filter-tabs" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="filter-tabs" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                     <button
                         className={`filter-tab ${activeTab === "active" ? "active" : ""}`}
                         onClick={() => setActiveTab("active")}

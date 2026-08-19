@@ -3,10 +3,15 @@
 .data-table-container {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
+    border-radius: 16px;
 }
 
 .data-table {
     width: 100%;
+    min-width: 750px;
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(100, 116, 139, 0.2);
@@ -32,6 +37,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: #06b6d4;
+    white-space: nowrap;
 }
 
 .data-table td {
@@ -39,6 +45,7 @@
     border-bottom: 1px solid rgba(100, 116, 139, 0.1);
     color: #cbd5e1;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 .data-table tbody tr {
@@ -58,12 +65,15 @@
     padding: 48px 16px !important;
     color: #64748b;
     font-style: italic;
+    white-space: normal;
 }
 
 .actions-cell {
     display: flex;
     gap: 8px;
     align-items: center;
+    white-space: nowrap;
+    min-width: max-content;
 }
 
 .action-btn {
@@ -77,6 +87,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
 }
 
 .action-btn-primary {
@@ -118,6 +129,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .badge-admin {
@@ -151,15 +163,24 @@
 }
 
 @media (max-width: 768px) {
+    .data-table-container {
+        border-radius: 12px;
+        padding-bottom: 4px;
+    }
+
+    .data-table {
+        min-width: 700px;
+        border-radius: 12px;
+    }
 
     .data-table th,
     .data-table td {
-        padding: 12px 8px;
+        padding: 12px 10px;
         font-size: 12px;
     }
 
     .action-btn {
-        padding: 4px 8px;
+        padding: 6px 10px;
         font-size: 11px;
     }
 }
