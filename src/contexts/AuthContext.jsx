@@ -26,6 +26,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let unsubscribeUserDoc = null;
 
+    // Safety fallback timer: force loading = false after 6s in case network/Firebase hangs
+    const safetyTimeout = setTimeout(() => {
+      setLoading(prev => {
+        if (prev) {
+          console.warn("⚠️ Auth initialization timed out. Forcing loading = false.");
+          return false;
+        }
+        return prev;
+      });
+    }, 6000);
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       console.log('Auth state changed:', currentUser ? currentUser.email : 'No user');
 
@@ -84,10 +95,13 @@ export function AuthProvider({ children }) {
             setEmailVerified(false);
           }
           setLoading(false);
+          clearTimeout(safetyTimeout);
         }, (error) => {
           console.error("Error listening to user doc:", error);
           setUser(currentUser);
+          setUserRole(ROLES.USER);
           setLoading(false);
+          clearTimeout(safetyTimeout);
         });
       } else {
         setUser(null);
@@ -95,12 +109,14 @@ export function AuthProvider({ children }) {
         setEmailVerified(false);
         if (unsubscribeUserDoc) unsubscribeUserDoc();
         setLoading(false);
+        clearTimeout(safetyTimeout);
       }
     });
 
     return () => {
       unsubscribeAuth();
       if (unsubscribeUserDoc) unsubscribeUserDoc();
+      clearTimeout(safetyTimeout);
     };
   }, []);
 

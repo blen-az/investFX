@@ -7,7 +7,6 @@ import LoadingPage from "./components/LoadingPage";
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
 
-import { AuthProvider } from "./contexts/AuthContext";
 import RequireAuth from "./components/RequireAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ROLES } from "./constants/roles";
@@ -72,8 +71,7 @@ const AgentFinance = lazy(() => import("./pages/agent/AgentFinance")); // New
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
         <Layout>
           <ErrorBoundary>
             <Suspense fallback={<LoadingPage />}>
@@ -456,6 +454,5 @@ export default function App() {
           </ErrorBoundary>
         </Layout>
       </Router>
-    </AuthProvider>
   );
 }

@@ -48,20 +48,22 @@ export default function LoadingPage({
     let currentStage = 0;
     const interval = setInterval(() => {
       currentStage += 1;
-      if (currentStage < STAGES.length) {
+      const maxStage = onComplete ? STAGES.length - 1 : STAGES.length - 2; // Cap at 90% unless onComplete is provided
+      if (currentStage <= maxStage) {
         setProgress(STAGES[currentStage].pct);
         setStatusText(statusMessage || STAGES[currentStage].text);
+        if (currentStage === STAGES.length - 1 && onComplete) {
+          clearInterval(interval);
+          handleFinish();
+        }
       } else {
         clearInterval(interval);
-        handleFinish();
       }
     }, 180);
 
     // Slow load notification check (>4.5s)
     slowTimerRef.current = setTimeout(() => {
-      if (progress < 100) {
-        setStatusText("Still syncing your account...");
-      }
+      setStatusText(prev => prev === "Ready" ? prev : "Still syncing your account...");
     }, 4500);
 
     return () => {
@@ -69,7 +71,7 @@ export default function LoadingPage({
       if (slowTimerRef.current) clearTimeout(slowTimerRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [realProgress, statusMessage]);
+  }, [realProgress, statusMessage, onComplete]);
 
   const handleFinish = () => {
     const elapsed = Date.now() - startTimeRef.current;
