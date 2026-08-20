@@ -2,13 +2,13 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ROLES } from "../constants/roles";
-import LoadingPage from "./LoadingPage";
+import PageLoader from "./PageLoader";
 
 export default function ProtectedRoute({ children, requiredRole, allowedRoles }) {
     const { user, userRole, emailVerified, loading } = useAuth();
 
     if (loading) {
-        return <LoadingPage />;
+        return <PageLoader />;
     }
 
     // Not authenticated

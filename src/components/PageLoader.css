@@ -1,0 +1,51 @@
+/* src/components/PageLoader.css */
+.page-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  width: 100%;
+  padding: 40px 20px;
+}
+
+.page-loader-spinner {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(0, 194, 199, 0.12);
+  border: 1px solid rgba(0, 194, 199, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00C2C7;
+  animation: pageLoaderPulse 1.4s ease-in-out infinite alternate;
+  box-shadow: 0 8px 24px rgba(0, 194, 199, 0.15);
+}
+
+.page-loader-icon {
+  width: 26px;
+  height: 26px;
+  color: #00C2C7;
+}
+
+.page-loader-text {
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wm-text-sub, #64748b);
+  letter-spacing: 0.02em;
+}
+
+@keyframes pageLoaderPulse {
+  0% {
+    transform: scale(0.94);
+    opacity: 0.75;
+    box-shadow: 0 0 0 rgba(0, 194, 199, 0);
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 1;
+    box-shadow: 0 0 24px rgba(0, 194, 199, 0.35);
+  }
+}

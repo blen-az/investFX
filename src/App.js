@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Suspense, lazy } from "react";
 
 import Layout from "./components/Layout";
-import LoadingPage from "./components/LoadingPage";
+import PageLoader from "./components/PageLoader";
 
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
@@ -74,7 +74,7 @@ export default function App() {
     <Router>
         <Layout>
           <ErrorBoundary>
-            <Suspense fallback={<LoadingPage />}>
+            <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* ... routes ... */}
                 {/* ROOT PATH - Shows landing page for guests, redirects based on role for logged-in users */}
