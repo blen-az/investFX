@@ -782,3 +782,71 @@ input, select, textarea { font-family: inherit; }
 
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 .safe-top    { padding-top: env(safe-area-inset-top); }
+
+/* ================================================================
+   MOBILE HORIZONTAL SCROLL & TOUCH SYSTEM
+   ================================================================ */
+
+.scroll-x,
+.horizontal-scroll,
+.wm-filter-tabs,
+.account-tabs-container,
+.market-filters,
+.data-table-container,
+.table-responsive,
+.trade-period-row,
+.hero-period-row,
+.network-selector,
+.payment-methods-grid,
+.asset-pills-row,
+.chart-toolbar,
+.stats-cards-scroll,
+[class*="-tabs"],
+[class*="-table-container"],
+[class*="-scroll"] {
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x !important;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.scroll-x > *,
+.horizontal-scroll > *,
+.wm-filter-tabs > *,
+.account-tabs > *,
+.market-filters > *,
+.trade-period-row > *,
+.hero-period-row > * {
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    touch-action: manipulation;
+  }
+
+  .scroll-x::-webkit-scrollbar,
+  .horizontal-scroll::-webkit-scrollbar,
+  .wm-filter-tabs::-webkit-scrollbar,
+  .account-tabs-container::-webkit-scrollbar,
+  .market-filters::-webkit-scrollbar,
+  .data-table-container::-webkit-scrollbar,
+  .table-responsive::-webkit-scrollbar {
+    height: 4px;
+    display: block !important;
+  }
+
+  .scroll-x::-webkit-scrollbar-thumb,
+  .horizontal-scroll::-webkit-scrollbar-thumb,
+  .wm-filter-tabs::-webkit-scrollbar-thumb,
+  .account-tabs-container::-webkit-scrollbar-thumb,
+  .data-table-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 194, 199, 0.4);
+    border-radius: 4px;
+  }
+}
