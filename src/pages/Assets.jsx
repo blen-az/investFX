@@ -70,6 +70,10 @@ export default function Assets() {
                     USDT: { name: 'Tether', symbol: 'USDT', total: data.mainBalance || data.balance || 0, networks: { "TRC20": data.mainBalance || data.balance || 0 } },
                     BTC: { name: 'Bitcoin', symbol: 'BTC', total: 0, networks: { "Bitcoin": 0 } },
                     ETH: { name: 'Ethereum', symbol: 'ETH', total: 0, networks: { "Ethereum": 0 } },
+                    SOL: { name: 'Solana', symbol: 'SOL', total: 0, networks: { "Solana": 0 } },
+                    BNB: { name: 'BNB', symbol: 'BNB', total: 0, networks: { "BSC": 0 } },
+                    XRP: { name: 'XRP', symbol: 'XRP', total: 0, networks: { "XRP Ledger": 0 } },
+                    DOGE: { name: 'Dogecoin', symbol: 'DOGE', total: 0, networks: { "Dogecoin": 0 } },
                 };
                 setAssets(userAssets);
             }
@@ -156,7 +160,7 @@ export default function Assets() {
                                 <div key={symbol} className="asset-card" onClick={() => setSelectedAsset(data)}>
                                     <div className="asset-info">
                                         <div className={`asset-icon ${symbol.toLowerCase()}`}>
-                                            {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : 'S'}
+                                            {symbol === 'USDT' ? '₮' : symbol === 'BTC' ? '₿' : symbol === 'ETH' ? 'Ξ' : symbol === 'SOL' ? '◎' : symbol === 'BNB' ? '⬡' : symbol === 'XRP' ? '✕' : symbol === 'DOGE' ? 'Ð' : 'S'}
                                         </div>
                                         <div className="asset-names">
                                             <div className="name-row">

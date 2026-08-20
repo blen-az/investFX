@@ -19,7 +19,11 @@ export default function Deposit() {
   const [depositAddresses, setDepositAddresses] = useState({
     BTC: "Loading...",
     ETH: "Loading...",
-    USDT: "Loading..."
+    USDT: "Loading...",
+    SOL: "Loading...",
+    BNB: "Loading...",
+    XRP: "Loading...",
+    DOGE: "Loading..."
   });
   const [customDepositAddresses, setCustomDepositAddresses] = useState({});
 
@@ -39,7 +43,11 @@ export default function Deposit() {
           setDepositAddresses({
             BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
             ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-            USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+            USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS",
+            SOL: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+            BNB: "bnb136ns6lfw4Zs5zgjccAMujq24my60xe62jh9w4p",
+            XRP: "rEb8TK3gGKwB247yBNz54rG2Ntz54rG2Ntz",
+            DOGE: "DH5yaieqoZNKiHG2rBCniLwE5BwB26T96Y"
           });
         }
       } else {
@@ -48,7 +56,11 @@ export default function Deposit() {
         setDepositAddresses({
           BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
           ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-          USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+          USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS",
+          SOL: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+          BNB: "bnb136ns6lfw4Zs5zgjccAMujq24my60xe62jh9w4p",
+          XRP: "rEb8TK3gGKwB247yBNz54rG2Ntz54rG2Ntz",
+          DOGE: "DH5yaieqoZNKiHG2rBCniLwE5BwB26T96Y"
         });
       }
     }, (error) => {
@@ -57,7 +69,11 @@ export default function Deposit() {
       setDepositAddresses({
         BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
         ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-        USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+        USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS",
+        SOL: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+        BNB: "bnb136ns6lfw4Zs5zgjccAMujq24my60xe62jh9w4p",
+        XRP: "rEb8TK3gGKwB247yBNz54rG2Ntz54rG2Ntz",
+        DOGE: "DH5yaieqoZNKiHG2rBCniLwE5BwB26T96Y"
       });
     });
 
@@ -162,6 +178,38 @@ export default function Deposit() {
       icon: "Ξ",
       color: "#627EEA",
       balance: "0.00000000",
+    },
+    {
+      id: "solana",
+      name: "Solana",
+      symbol: "SOL",
+      icon: "◎",
+      color: "#14F195",
+      balance: "0.00",
+    },
+    {
+      id: "binancecoin",
+      name: "BNB",
+      symbol: "BNB",
+      icon: "⬡",
+      color: "#F3BA2F",
+      balance: "0.000",
+    },
+    {
+      id: "ripple",
+      name: "XRP",
+      symbol: "XRP",
+      icon: "✕",
+      color: "#23292F",
+      balance: "0.00",
+    },
+    {
+      id: "dogecoin",
+      name: "Dogecoin",
+      symbol: "DOGE",
+      icon: "Ð",
+      color: "#C2A633",
+      balance: "0.00",
     },
     {
       id: "gold",
@@ -452,13 +500,26 @@ export default function Deposit() {
                     <div className="info-value">
                       {customDepositAddresses[selectedCrypto.symbol]
                         ? customDepositAddresses[selectedCrypto.symbol].network
-                        : selectedCrypto.symbol === "USDT" ? "TRC20" : selectedCrypto.symbol}
+                        : selectedCrypto.symbol === "USDT" ? "TRC20"
+                        : selectedCrypto.symbol === "BTC" ? "Bitcoin"
+                        : selectedCrypto.symbol === "ETH" ? "ERC20"
+                        : selectedCrypto.symbol === "SOL" ? "Solana (SPL)"
+                        : selectedCrypto.symbol === "BNB" ? "BEP20 (BSC)"
+                        : selectedCrypto.symbol === "XRP" ? "XRP Ledger"
+                        : selectedCrypto.symbol === "DOGE" ? "Dogecoin"
+                        : selectedCrypto.symbol}
                     </div>
                   </div>
                   <div className="info-item">
                     <div className="info-label">Minimum Deposit</div>
                     <div className="info-value">
-                      {selectedCrypto.symbol === "BTC" ? "0.0001" : selectedCrypto.symbol === "ETH" ? "0.001" : "10"} {selectedCrypto.symbol}
+                      {selectedCrypto.symbol === "BTC" ? "0.0001"
+                        : selectedCrypto.symbol === "ETH" ? "0.001"
+                        : selectedCrypto.symbol === "SOL" ? "0.01"
+                        : selectedCrypto.symbol === "BNB" ? "0.01"
+                        : selectedCrypto.symbol === "DOGE" ? "10"
+                        : selectedCrypto.symbol === "XRP" ? "1"
+                        : "10"} {selectedCrypto.symbol}
                     </div>
                   </div>
                 </div>

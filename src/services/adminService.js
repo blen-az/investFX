@@ -947,7 +947,11 @@ export const getPlatformSettings = async () => {
                 depositAddresses: {
                     BTC: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
                     ETH: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-                    USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS"
+                    USDT: "TYASr5UV6HEcXatwdFQfmLVUqQQQMUxHLS",
+                    SOL: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+                    BNB: "bnb136ns6lfw4Zs5zgjccAMujq24my60xe62jh9w4p",
+                    XRP: "rEb8TK3gGKwB247yBNz54rG2Ntz54rG2Ntz",
+                    DOGE: "DH5yaieqoZNKiHG2rBCniLwE5BwB26T96Y"
                 },
                 updatedAt: new Date()
             };

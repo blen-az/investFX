@@ -48,6 +48,10 @@ export default function Withdraw() {
         { id: "tether", name: "Tether", symbol: "USDT", icon: "₮", balance: balance.toFixed(2), color: "#26A17B" },
         { id: "bitcoin", name: "Bitcoin", symbol: "BTC", icon: "₿", balance: "0.00000000", color: "#F7931A" },
         { id: "ethereum", name: "Ethereum", symbol: "ETH", icon: "Ξ", balance: "0.00000000", color: "#627EEA" },
+        { id: "solana", name: "Solana", symbol: "SOL", icon: "◎", balance: "0.00", color: "#14F195" },
+        { id: "binancecoin", name: "BNB", symbol: "BNB", icon: "⬡", balance: "0.000", color: "#F3BA2F" },
+        { id: "ripple", name: "XRP", symbol: "XRP", icon: "✕", balance: "0.00", color: "#23292F" },
+        { id: "dogecoin", name: "Dogecoin", symbol: "DOGE", icon: "Ð", balance: "0.00", color: "#C2A633" },
         { id: "gold", name: "Gold", symbol: "XAU", icon: "⚜", balance: "0.000", color: "#D4A017" },
     ];
 

@@ -1,19 +1,14 @@
-// src/components/ProtectedRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ROLES } from "../constants/roles";
+import LoadingPage from "./LoadingPage";
 
 export default function ProtectedRoute({ children, requiredRole, allowedRoles }) {
     const { user, userRole, emailVerified, loading } = useAuth();
 
     if (loading) {
-        return (
-            <div className="loading-screen">
-                <div className="spinner"></div>
-                <p>Verifying authentication...</p>
-            </div>
-        );
+        return <LoadingPage />;
     }
 
     // Not authenticated

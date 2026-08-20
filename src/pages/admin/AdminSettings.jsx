@@ -68,7 +68,11 @@ export default function AdminSettings() {
         depositAddresses: {
             BTC: "",
             ETH: "",
-            USDT: ""
+            USDT: "",
+            SOL: "",
+            BNB: "",
+            XRP: "",
+            DOGE: ""
         }
     });
 
@@ -532,14 +536,69 @@ export default function AdminSettings() {
                         <label>Tether (USDT TRC20) Address</label>
                         <input
                             type="text"
-                            value={platformSettings.depositAddresses.USDT}
+                            value={platformSettings.depositAddresses.USDT || ''}
                             onChange={(e) => setPlatformSettings({
                                 ...platformSettings,
                                 depositAddresses: { ...platformSettings.depositAddresses, USDT: e.target.value }
                             })}
                             className="form-input"
                             placeholder="T..."
-                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Solana (SOL) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.SOL || ''}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, SOL: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="7xK..."
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>BNB (BEP20 / BSC) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.BNB || ''}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, BNB: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="0x... or bnb..."
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>XRP (Ripple) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.XRP || ''}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, XRP: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="rEb..."
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Dogecoin (DOGE) Address</label>
+                        <input
+                            type="text"
+                            value={platformSettings.depositAddresses.DOGE || ''}
+                            onChange={(e) => setPlatformSettings({
+                                ...platformSettings,
+                                depositAddresses: { ...platformSettings.depositAddresses, DOGE: e.target.value }
+                            })}
+                            className="form-input"
+                            placeholder="DH5..."
                         />
                     </div>
 

@@ -192,7 +192,7 @@ export default function Users() {
     const handleCryptoChange = (crypto) => {
         setWalletAddressCrypto(crypto);
         setWalletAddressSuccess(false);
-        const defaults = { USDT: "TRC20", BTC: "Bitcoin", ETH: "ERC20", SOL: "Solana" };
+        const defaults = { USDT: "TRC20", BTC: "Bitcoin", ETH: "ERC20", SOL: "Solana", BNB: "BEP20", XRP: "Ripple", DOGE: "Dogecoin" };
         setWalletAddressNetwork(defaults[crypto] || crypto);
     };
 
@@ -727,6 +727,7 @@ export default function Users() {
                             <option value="SOL">SOL (Solana)</option>
                             <option value="BNB">BNB (Binance)</option>
                             <option value="XRP">XRP (Ripple)</option>
+                            <option value="DOGE">DOGE (Dogecoin)</option>
                         </select>
                     </div>
 

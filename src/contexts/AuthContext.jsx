@@ -83,6 +83,7 @@ export function AuthProvider({ children }) {
             setUserRole(ROLES.USER);
             setEmailVerified(false);
           }
+          setLoading(false);
         }, (error) => {
           console.error("Error listening to user doc:", error);
           setUser(currentUser);
@@ -93,9 +94,8 @@ export function AuthProvider({ children }) {
         setUserRole(null);
         setEmailVerified(false);
         if (unsubscribeUserDoc) unsubscribeUserDoc();
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
     return () => {
