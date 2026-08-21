@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import StatsCard from "../../components/StatsCard";
+import { LogOut } from "lucide-react";
 import { getAllUsers, getAllDeposits, getAllWithdrawals, getAllTrades } from "../../services/adminService";
 import {
     migrateAgentReferralCodes,
@@ -12,7 +13,8 @@ import {
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [stats, setStats] = useState({
         totalUsers: 0,
         pendingDeposits: 0,
@@ -32,6 +34,15 @@ export default function AdminDashboard() {
         loadDashboardStats();
         checkMigrationStatus();
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate("/login");
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
 
     const loadDashboardStats = async () => {
         try {
@@ -131,6 +142,10 @@ export default function AdminDashboard() {
                     <h1 className="admin-title gradient-text">Admin Dashboard</h1>
                     <p className="admin-subtitle">Welcome back, {user?.email}</p>
                 </div>
+                <button className="admin-logout-btn" onClick={handleLogout} title="Logout of Admin Account">
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                </button>
             </div>
 
             <div className="stats-grid">
@@ -234,6 +249,12 @@ export default function AdminDashboard() {
                         <div className="action-title">Settings</div>
                         <div className="action-desc">Manage your account</div>
                     </Link>
+
+                    <div className="action-card glass-card logout-card" onClick={handleLogout} role="button" tabIndex={0}>
+                        <div className="action-icon">🚪</div>
+                        <div className="action-title" style={{ color: "#ff4d4d" }}>Logout</div>
+                        <div className="action-desc">Sign out of admin account</div>
+                    </div>
                 </div>
             </div>
 

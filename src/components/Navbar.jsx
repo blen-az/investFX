@@ -92,13 +92,13 @@ export function UserDropdownMenu({ anchorEl, onClose, navigate }) {
 
 // ── Desktop Sidebar ──────────────────────────────────────────────
 function DesktopSidebar() {
-  const { user, isAdmin, isAgent } = useAuth();
+  const { logout, isAdmin, isAgent } = useAuth();
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
-  const avatarRef = useRef(null);
 
-  const displayName = user?.displayName || user?.name || user?.email?.split("@")[0] || "User";
-  const initial = displayName.charAt(0).toUpperCase();
+  const handleSidebarLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   const userLinks = [
     { to: "/home",         icon: <Home size={17} />,       label: "Home" },
@@ -163,33 +163,16 @@ function DesktopSidebar() {
             </NavLink>
           </>
         )}
-      </nav>
 
-      <div className="sidebar-footer">
-        {user && (
-          <>
-            <div
-              ref={avatarRef}
-              className="sidebar-user"
-              onClick={() => setShowMenu(v => !v)}
-            >
-              <div className="sidebar-avatar">{initial}</div>
-              <div className="sidebar-user-info">
-                <div className="sidebar-user-name">{displayName}</div>
-                <div className="sidebar-user-role">{isAdmin() ? "Admin" : isAgent() ? "Agent" : "Member"}</div>
-              </div>
-              <ChevronDown size={14} style={{ color: "var(--wm-text-3)", marginLeft: "auto", transform: showMenu ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
-            </div>
-            {showMenu && (
-              <UserDropdownMenu
-                anchorEl={avatarRef.current}
-                onClose={() => setShowMenu(false)}
-                navigate={navigate}
-              />
-            )}
-          </>
-        )}
-      </div>
+        <div className="sidebar-divider" />
+        <button
+          onClick={handleSidebarLogout}
+          className="sidebar-link logout-sidebar-btn"
+          style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}
+        >
+          <LogOut size={17} /> Logout
+        </button>
+      </nav>
     </aside>
   );
 }

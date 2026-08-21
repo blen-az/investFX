@@ -57,7 +57,7 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
       symbol,
       interval: currentInterval,
       autosize: true,
-      theme: "dark",
+      theme: "light",
       style: "1",
       locale: "en",
       timezone: "Etc/UTC",

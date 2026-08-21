@@ -118,6 +118,15 @@
     margin: 8px 12px;
   }
 
+  .sidebar-link.logout-sidebar-btn {
+    color: #f87171;
+    font-weight: 500;
+  }
+  .sidebar-link.logout-sidebar-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+
   .sidebar-footer {
     padding: 12px;
     border-top: 1px solid var(--wm-border-2);
