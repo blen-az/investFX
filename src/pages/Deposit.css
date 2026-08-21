@@ -1,4 +1,4 @@
-/* src/pages/Deposit.css */
+/* src/pages/Deposit.css — WayMore Light Fintech Theme */
 
 .deposit-page {
     padding: 24px;
@@ -28,18 +28,18 @@
 
 .back-btn:hover {
     background: var(--wm-bg-3);
+    border-color: rgba(0, 194, 199, 0.3);
 }
 
 .deposit-title {
     font-size: 24px;
-    font-weight: 700;
+    font-weight: 800;
     margin: 0;
     color: var(--wm-text);
 }
 
 .header-spacer {
     width: 60px;
-    /* Balance back button width */
 }
 
 /* Balance Card */
@@ -49,16 +49,17 @@
     gap: 20px;
     padding: 24px;
     margin-bottom: 24px;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1));
-    border: 1px solid rgba(6, 182, 212, 0.2);
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(59, 130, 246, 0.08));
+    border: 1px solid rgba(6, 182, 212, 0.25);
     border-radius: var(--radius-md);
+    box-shadow: var(--wm-shadow-xs);
 }
 
 .balance-icon {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: rgba(6, 182, 212, 0.2);
+    background: rgba(6, 182, 212, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -68,7 +69,7 @@
 .balance-label {
     font-size: 12px;
     color: var(--wm-text-2);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1px;
 }
 
@@ -91,8 +92,8 @@
     gap: 16px;
     padding: 16px;
     margin-bottom: 24px;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.2);
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
     border-radius: var(--radius-md);
 }
 
@@ -102,7 +103,7 @@
 
 .kyc-title {
     font-weight: 700;
-    color: #f59e0b;
+    color: #d97706;
     margin-bottom: 4px;
 }
 
@@ -112,8 +113,8 @@
 }
 
 .status-badge {
-    background: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 11px;
@@ -138,19 +139,18 @@
 .search-input {
     width: 100%;
     padding: 14px 14px 14px 48px;
-    background: var(--wm-bg-2);
+    background: #ffffff;
     border: 1px solid var(--wm-border-2);
     border-radius: var(--radius-md);
     color: var(--wm-text);
-    font-size: 16px;
+    font-size: 15px;
     outline: none;
     transition: all 0.2s;
 }
 
 .search-input:focus {
     border-color: #06b6d4;
-    background: #ffffff;
-    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
 /* Tabs */
@@ -163,10 +163,10 @@
 .tab-btn {
     flex: 1;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
-    border-radius: 12px;
-    color: #94a3b8;
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-md);
+    color: var(--wm-text-2);
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -177,13 +177,16 @@
 }
 
 .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: var(--wm-bg-3);
+    color: var(--wm-text);
+    border-color: rgba(6, 182, 212, 0.3);
 }
 
 .tab-btn.active {
     background: #06b6d4;
-    color: #fff;
+    color: #ffffff;
+    border-color: #06b6d4;
+    font-weight: 700;
 }
 
 /* Crypto List */
@@ -193,12 +196,14 @@
 
 .section-title {
     font-size: 18px;
+    font-weight: 800;
+    color: var(--wm-text);
     margin: 0 0 4px 0;
 }
 
 .section-subtitle {
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--wm-text-2);
     margin: 0;
 }
 
@@ -212,20 +217,26 @@
     display: flex;
     align-items: center;
     padding: 16px;
+    background: #ffffff;
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .crypto-item:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--wm-bg-2);
+    border-color: rgba(6, 182, 212, 0.4);
+    box-shadow: var(--wm-shadow-xs);
 }
 
 .crypto-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(6, 182, 212, 0.12);
+    color: #06b6d4;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,12 +250,12 @@
 
 .crypto-name {
     font-weight: 700;
-    color: #fff;
+    color: var(--wm-text);
 }
 
 .crypto-symbol {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--wm-text-2);
 }
 
 .crypto-balance {
@@ -252,7 +263,8 @@
 }
 
 .balance-value {
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--wm-text);
     margin-bottom: 4px;
 }
 
@@ -261,6 +273,7 @@
     border: none;
     color: #06b6d4;
     font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -271,8 +284,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -287,6 +300,11 @@
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    color: var(--wm-text);
 }
 
 .modal-close {
@@ -295,7 +313,7 @@
     right: 16px;
     background: transparent;
     border: none;
-    color: #94a3b8;
+    color: var(--wm-text-3);
     font-size: 20px;
     cursor: pointer;
 }
@@ -309,7 +327,8 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(6, 182, 212, 0.12);
+    color: #06b6d4;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -320,10 +339,12 @@
 .modal-title {
     margin: 0 0 4px 0;
     font-size: 24px;
+    font-weight: 800;
+    color: var(--wm-text);
 }
 
 .modal-subtitle {
-    color: #94a3b8;
+    color: var(--wm-text-2);
     margin: 0;
 }
 
@@ -331,9 +352,10 @@
     display: flex;
     gap: 16px;
     margin-bottom: 24px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--wm-bg-2);
+    border: 1px solid var(--wm-border-2);
     padding: 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
 }
 
 .info-item {
@@ -343,14 +365,15 @@
 
 .info-label {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--wm-text-3);
     text-transform: uppercase;
     margin-bottom: 4px;
+    font-weight: 600;
 }
 
 .info-value {
     font-weight: 700;
-    color: #fff;
+    color: var(--wm-text);
 }
 
 .wallet-address {
@@ -359,8 +382,9 @@
 
 .address-label {
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--wm-text-2);
     margin-bottom: 8px;
+    font-weight: 600;
 }
 
 .address-box {
@@ -370,27 +394,28 @@
 
 .address-code {
     flex: 1;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--wm-bg-2);
     padding: 12px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-    color: #06b6d4;
+    color: #0891b2;
     word-break: break-all;
-    border: 1px solid rgba(100, 116, 139, 0.2);
+    border: 1px solid var(--wm-border-2);
+    font-weight: 600;
 }
 
 .copy-btn {
     background: rgba(6, 182, 212, 0.1);
-    border: 1px solid rgba(6, 182, 212, 0.2);
-    color: #06b6d4;
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    color: #0891b2;
     padding: 0 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    font-weight: 600;
+    font-weight: 700;
     transition: all 0.2s;
 }
 
@@ -401,10 +426,10 @@
 /* Deposit Form */
 .deposit-form {
     margin-bottom: 24px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--wm-bg-2);
     padding: 20px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--wm-border-2);
 }
 
 .form-group {
@@ -414,25 +439,27 @@
 .form-label {
     display: block;
     font-size: 13px;
-    color: #94a3b8;
+    color: var(--wm-text-2);
     margin-bottom: 8px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .form-input {
     width: 100%;
     padding: 12px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(100, 116, 139, 0.2);
-    border-radius: 8px;
-    color: #fff;
+    background: #ffffff;
+    border: 1px solid var(--wm-border-2);
+    border-radius: var(--radius-sm);
+    color: var(--wm-text);
     font-size: 16px;
+    font-weight: 600;
     outline: none;
     transition: border-color 0.2s;
 }
 
 .form-input:focus {
     border-color: #06b6d4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
 .file-upload-box {
@@ -449,13 +476,14 @@
     justify-content: center;
     gap: 10px;
     padding: 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px dashed rgba(100, 116, 139, 0.4);
-    border-radius: 8px;
+    background: #ffffff;
+    border: 2px dashed var(--wm-border-2);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all 0.2s;
-    color: #94a3b8;
+    color: var(--wm-text-2);
     font-size: 14px;
+    font-weight: 600;
 }
 
 .file-label:hover {
@@ -469,16 +497,16 @@
 }
 
 .file-name {
-    color: #10b981;
-    font-weight: 600;
+    color: #059669;
+    font-weight: 700;
 }
 
 .submit-deposit-btn {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    background: linear-gradient(135deg, #06b6d4, #2563eb);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     color: white;
     font-weight: 700;
     font-size: 16px;
@@ -489,17 +517,17 @@
 
 .submit-deposit-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
 }
 
 .deposit-warning {
     display: flex;
     gap: 12px;
     padding: 16px;
-    background: rgba(6, 182, 212, 0.1);
-    border: 1px solid rgba(6, 182, 212, 0.2);
-    border-radius: 8px;
-    color: #06b6d4;
+    background: rgba(6, 182, 212, 0.08);
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    border-radius: var(--radius-md);
+    color: #0891b2;
     font-size: 13px;
     line-height: 1.5;
 }

@@ -14,10 +14,8 @@
     width: 100%;
     max-width: 550px;
     padding: 32px;
-    background: var(--wm-glass);
-    backdrop-filter: var(--wm-glass-blur);
-    -webkit-backdrop-filter: var(--wm-glass-blur);
-    border: 1px solid var(--wm-glass-border);
+    background: #ffffff;
+    border: 1px solid var(--wm-border-2);
     border-radius: var(--radius-xl);
     box-shadow: var(--wm-shadow-md);
 }
@@ -73,7 +71,7 @@
 
 .asset-item:hover {
     background: var(--wm-bg-3);
-    border-color: rgba(0, 194, 199, 0.3);
+    border-color: rgba(0, 194, 199, 0.4);
     transform: translateY(-2px);
     box-shadow: var(--wm-shadow-xs);
 }
@@ -82,7 +80,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--wm-primary-s);
+    background: rgba(0, 194, 199, 0.12);
     color: var(--wm-primary);
     display: flex;
     align-items: center;
@@ -98,7 +96,7 @@
 .asset-name {
     font-weight: 700;
     color: var(--wm-text);
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .asset-symbol {
@@ -132,7 +130,7 @@
     display: flex;
     align-items: center;
     padding: 16px;
-    background: var(--wm-primary-s);
+    background: rgba(0, 194, 199, 0.08);
     border: 1px solid rgba(0, 194, 199, 0.25);
     border-radius: var(--radius-md);
     margin-bottom: 24px;
@@ -153,7 +151,7 @@
 .withdraw-input {
     width: 100%;
     padding: 14px;
-    background: var(--wm-bg-2);
+    background: #ffffff;
     border: 1px solid var(--wm-border-2);
     border-radius: var(--radius-md);
     color: var(--wm-text);
@@ -184,7 +182,7 @@
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--wm-primary-s);
+    background: rgba(0, 194, 199, 0.12);
     color: var(--wm-primary);
     border: 1px solid rgba(0, 194, 199, 0.3);
     padding: 4px 10px;
@@ -280,7 +278,7 @@
 }
 
 .status-pending {
-    color: #f59e0b;
+    color: #d97706;
     font-weight: 600;
 }
 
