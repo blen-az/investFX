@@ -442,7 +442,106 @@ export default function Home() {
              ======================================================= */}
           {walletLoading ? <TotalAssetsSkeleton /> : (
             <section className="home-hero-card anim-fade-up delay-1" aria-label="Total Assets">
-              
+
+              {/* Futuristic Animated Backdrop: Waving Line, Orbit Rings & 3D Floating Coins */}
+              <div className="hero-futuristic-bg" aria-hidden="true">
+                <svg className="futuristic-wave-svg" viewBox="0 0 320 130" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#00C2C7" stopOpacity="0.9" />
+                      <stop offset="45%" stopColor="#F5C842" stopOpacity="1" />
+                      <stop offset="85%" stopColor="#3B82F6" stopOpacity="0.9" />
+                    </linearGradient>
+                    <linearGradient id="waveGradient2" x1="100%" y1="0%" x2="0%" y2="0%">
+                      <stop offset="0%" stopColor="#10B981" stopOpacity="0.75" />
+                      <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.85" />
+                      <stop offset="100%" stopColor="#00C2C7" stopOpacity="0.75" />
+                    </linearGradient>
+                    <filter id="waveGlow" x="-30%" y="-30%" width="160%" height="160%">
+                      <feGaussianBlur stdDeviation="3.5" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  {/* Wave 1: Primary Electric Wave */}
+                  <path
+                    d="M 0 50 C 40 10, 80 85, 130 40 C 180 -5, 230 75, 320 35"
+                    className="wave-line-1"
+                    stroke="url(#waveGradient1)"
+                    filter="url(#waveGlow)"
+                  />
+                  {/* Wave 2: Secondary Interlocking Wave */}
+                  <path
+                    d="M 0 75 C 60 105, 120 25, 190 80 C 250 120, 280 40, 320 60"
+                    className="wave-line-2"
+                    stroke="url(#waveGradient2)"
+                    filter="url(#waveGlow)"
+                  />
+                  {/* Wave 3: Subtle Background Spark Line */}
+                  <path
+                    d="M 0 35 Q 80 85, 160 30 T 320 70"
+                    className="wave-line-3"
+                    stroke="rgba(245, 200, 66, 0.45)"
+                  />
+                </svg>
+
+                {/* Orbit Laser Rings */}
+                <div className="coin-orbit-ring ring-gold"></div>
+                <div className="coin-orbit-ring ring-btc"></div>
+
+                {/* Floating 3D Coins */}
+                <div className="floating-coin gold-coin" title="Gold (XAU)">
+                  <div className="coin-3d-wrapper">
+                    <div className="coin-face coin-front">
+                      <span className="coin-icon">⚜</span>
+                      <span className="coin-symbol">XAU</span>
+                    </div>
+                  </div>
+                  <div className="coin-glow gold-glow"></div>
+                  <div className="coin-ring gold-ring"></div>
+                </div>
+
+                <div className="floating-coin btc-coin" title="Bitcoin (BTC)">
+                  <div className="coin-3d-wrapper">
+                    <div className="coin-face coin-front">
+                      <span className="coin-icon">₿</span>
+                      <span className="coin-symbol">BTC</span>
+                    </div>
+                  </div>
+                  <div className="coin-glow btc-glow"></div>
+                  <div className="coin-ring btc-ring"></div>
+                </div>
+
+                <div className="floating-coin eth-coin" title="Ethereum (ETH)">
+                  <div className="coin-3d-wrapper">
+                    <div className="coin-face coin-front">
+                      <span className="coin-icon">Ξ</span>
+                      <span className="coin-symbol">ETH</span>
+                    </div>
+                  </div>
+                  <div className="coin-glow eth-glow"></div>
+                </div>
+
+                <div className="floating-coin sol-coin" title="Solana (SOL)">
+                  <div className="coin-3d-wrapper">
+                    <div className="coin-face coin-front">
+                      <span className="coin-icon">◎</span>
+                      <span className="coin-symbol">SOL</span>
+                    </div>
+                  </div>
+                  <div className="coin-glow sol-glow"></div>
+                </div>
+
+                {/* Ambient Tech Particles */}
+                <span className="tech-dot dot-1" />
+                <span className="tech-dot dot-2" />
+                <span className="tech-dot dot-3" />
+                <span className="tech-dot dot-4" />
+                <span className="tech-dot dot-5" />
+              </div>
+
               {/* Card Header & Privacy Toggle */}
               <div className="hero-header">
                 <div>

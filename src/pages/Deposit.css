@@ -5,6 +5,7 @@
     max-width: 800px;
     margin: 0 auto;
     padding-bottom: 100px;
+    background: var(--wm-bg);
     color: var(--wm-text);
 }
 

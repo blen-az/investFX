@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { submitWithdrawal } from "../services/withdrawalService";
-import ParticleBackground from "../components/ParticleBackground";
 import "./Withdraw.css";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
@@ -96,8 +95,6 @@ export default function Withdraw() {
 
     return (
         <div className="withdraw-page">
-            <ParticleBackground />
-
             <div className="withdraw-container glass-card">
                 <div className="withdraw-header">
                     <button

@@ -127,12 +127,378 @@
   pointer-events: none;
 }
 
+/* ================================================================
+   FUTURISTIC HERO ANIMATED BACKDROP & FLOATING COINS
+   ================================================================ */
+
+/* ================================================================
+   FUTURISTIC HERO ANIMATED BACKDROP & FLOATING 3D COINS
+   ================================================================ */
+
+.hero-futuristic-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 65%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  perspective: 1000px;
+}
+
+/* Waving Neon Wave Lines */
+.futuristic-wave-svg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+}
+
+.wave-line-1 {
+  fill: none;
+  stroke-width: 2.8;
+  stroke-dasharray: 14 8;
+  animation: waveDash 14s linear infinite, waveFloat 4s ease-in-out infinite alternate;
+}
+
+.wave-line-2 {
+  fill: none;
+  stroke-width: 2;
+  stroke-dasharray: 8 8;
+  animation: waveDash 20s linear infinite reverse, waveFloat 5.5s ease-in-out infinite alternate-reverse;
+}
+
+.wave-line-3 {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 12;
+  animation: waveDash 28s linear infinite, waveFloat 7s ease-in-out infinite alternate;
+}
+
+@keyframes waveDash {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 400; }
+}
+
+@keyframes waveFloat {
+  0% { transform: translateY(0px) scaleY(1); }
+  50% { transform: translateY(-7px) scaleY(1.08); }
+  100% { transform: translateY(5px) scaleY(0.94); }
+}
+
+/* Orbit Laser Rings behind Coins */
+.coin-orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.coin-orbit-ring.ring-gold {
+  top: -8px;
+  right: 10px;
+  width: 80px;
+  height: 80px;
+  border: 1.5px dashed rgba(245, 200, 66, 0.5);
+  box-shadow: 0 0 12px rgba(245, 200, 66, 0.25);
+  animation: orbitSpin 12s linear infinite;
+}
+
+.coin-orbit-ring.ring-btc {
+  top: 45px;
+  right: 70px;
+  width: 65px;
+  height: 65px;
+  border: 1.5px stroke rgba(0, 194, 199, 0.45);
+  box-shadow: 0 0 10px rgba(0, 194, 199, 0.2);
+  animation: orbitSpin 16s linear infinite reverse;
+}
+
+@keyframes orbitSpin {
+  0% { transform: rotateX(65deg) rotateZ(0deg); }
+  100% { transform: rotateX(65deg) rotateZ(360deg); }
+}
+
+/* Floating 3D Coins Container */
+.floating-coin {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.coin-3d-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Gold (XAU) 3D Coin */
+.floating-coin.gold-coin {
+  top: 10px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle at 30% 30%, #FFF8D6 0%, #F5C842 45%, #D49E10 80%, #946B00 100%);
+  border: 2px solid rgba(255, 235, 140, 0.95);
+  animation: float3DGold 5.5s ease-in-out infinite alternate;
+  z-index: 4;
+}
+
+.gold-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 200, 66, 0.55) 0%, transparent 70%);
+  z-index: -1;
+  animation: pulseGlow 2.8s ease-in-out infinite alternate;
+}
+
+.gold-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.8);
+  animation: orbitSpin 8s linear infinite;
+}
+
+/* Bitcoin (BTC) 3D Coin */
+.floating-coin.btc-coin {
+  top: 56px;
+  right: 90px;
+  width: 38px;
+  height: 38px;
+  background: radial-gradient(circle at 30% 30%, #FFECD2 0%, #F7931A 50%, #C86C00 100%);
+  border: 1.5px solid rgba(247, 147, 26, 0.85);
+  animation: float3DBtc 6.5s ease-in-out infinite alternate-reverse;
+  z-index: 3;
+}
+
+.btc-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247, 147, 26, 0.45) 0%, transparent 70%);
+  z-index: -1;
+  animation: pulseGlow 3.5s ease-in-out infinite alternate;
+}
+
+.btc-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px dotted rgba(247, 147, 26, 0.9);
+  animation: orbitSpin 10s linear infinite reverse;
+}
+
+/* Ethereum (ETH) 3D Coin */
+.floating-coin.eth-coin {
+  top: 72px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 30% 30%, #EEF2FF 0%, #627EEA 55%, #3B4CCA 100%);
+  border: 1.5px solid rgba(98, 126, 234, 0.85);
+  animation: float3DEth 4.8s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
+.eth-glow {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(98, 126, 234, 0.45) 0%, transparent 70%);
+  z-index: -1;
+}
+
+/* Solana (SOL) 3D Coin */
+.floating-coin.sol-coin {
+  top: 18px;
+  right: 145px;
+  width: 28px;
+  height: 28px;
+  background: radial-gradient(circle at 30% 30%, #DCFCE7 0%, #10B981 55%, #059669 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.85);
+  animation: float3DSol 5.2s ease-in-out infinite alternate-reverse;
+  z-index: 2;
+}
+
+.sol-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, transparent 70%);
+  z-index: -1;
+}
+
+.coin-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.gold-coin .coin-face {
+  color: #4A3300;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.coin-icon {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.gold-coin .coin-icon { font-size: 20px; }
+.btc-coin .coin-icon  { font-size: 16px; }
+.eth-coin .coin-icon  { font-size: 14px; }
+.sol-coin .coin-icon  { font-size: 12px; }
+
+.coin-symbol {
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  margin-top: 1px;
+}
+
+/* 3D Floating Keyframe Animations */
+@keyframes float3DGold {
+  0% {
+    transform: translateY(0px) rotateX(15deg) rotateY(-20deg) rotateZ(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) rotateX(-10deg) rotateY(25deg) rotateZ(6deg) scale(1.08);
+  }
+  100% {
+    transform: translateY(7px) rotateX(20deg) rotateY(-15deg) rotateZ(-4deg) scale(0.96);
+  }
+}
+
+@keyframes float3DBtc {
+  0% {
+    transform: translateY(0px) rotateX(-12deg) rotateY(20deg) rotateZ(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(15deg) rotateY(-25deg) rotateZ(-7deg);
+  }
+  100% {
+    transform: translateY(6px) rotateX(-18deg) rotateY(15deg) rotateZ(5deg);
+  }
+}
+
+@keyframes float3DEth {
+  0% {
+    transform: translateY(0px) rotateX(20deg) rotateY(12deg) scale(1);
+  }
+  50% {
+    transform: translateY(11px) rotateX(-15deg) rotateY(-18deg) scale(1.06);
+  }
+  100% {
+    transform: translateY(-8px) rotateX(12deg) rotateY(22deg) scale(0.95);
+  }
+}
+
+@keyframes float3DSol {
+  0% {
+    transform: translateY(0px) rotateX(-15deg) rotateY(-15deg) scale(1);
+  }
+  50% {
+    transform: translateY(-9px) rotateX(18deg) rotateY(18deg) scale(1.1);
+  }
+  100% {
+    transform: translateY(6px) rotateX(-10deg) rotateY(-10deg) scale(0.92);
+  }
+}
+
+@keyframes pulseGlow {
+  0% { opacity: 0.45; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1.22); }
+}
+
+/* Ambient Sparkle Tech Particles */
+.tech-dot {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.tech-dot.dot-1 {
+  width: 5px;
+  height: 5px;
+  top: 22%;
+  right: 62%;
+  background: #00C2C7;
+  box-shadow: 0 0 10px #00C2C7, 0 0 18px #00C2C7;
+  animation: dotPulse 2.8s ease-in-out infinite alternate;
+}
+
+.tech-dot.dot-2 {
+  width: 6px;
+  height: 6px;
+  top: 68%;
+  right: 42%;
+  background: #F5C842;
+  box-shadow: 0 0 12px #F5C842, 0 0 20px #F5C842;
+  animation: dotPulse 3.8s ease-in-out infinite alternate-reverse;
+}
+
+.tech-dot.dot-3 {
+  width: 4px;
+  height: 4px;
+  top: 15%;
+  right: 22%;
+  background: #627EEA;
+  box-shadow: 0 0 10px #627EEA;
+  animation: dotPulse 2.4s ease-in-out infinite alternate;
+}
+
+.tech-dot.dot-4 {
+  width: 5px;
+  height: 5px;
+  top: 80%;
+  right: 75%;
+  background: #10B981;
+  box-shadow: 0 0 10px #10B981;
+  animation: dotPulse 4.2s ease-in-out infinite alternate;
+}
+
+.tech-dot.dot-5 {
+  width: 4px;
+  height: 4px;
+  top: 40%;
+  right: 15%;
+  background: #F7931A;
+  box-shadow: 0 0 10px #F7931A;
+  animation: dotPulse 3.1s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes dotPulse {
+  0% { opacity: 0.15; transform: scale(0.7); }
+  100% { opacity: 1; transform: scale(1.6); }
+}
+
 .hero-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-label {
@@ -214,6 +580,8 @@
 .hero-chart-wrap {
   height: 75px;
   margin: 6px -4px 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .home-chart-tooltip {
@@ -234,6 +602,8 @@
   display: flex;
   gap: 4px;
   margin-bottom: 14px;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-period-btn {
@@ -258,6 +628,8 @@
 .hero-actions {
   display: flex;
   gap: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-action-btn {

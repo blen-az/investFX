@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { submitDeposit } from "../services/depositService";
-import ParticleBackground from "../components/ParticleBackground";
 import "./Deposit.css";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
@@ -229,8 +228,6 @@ export default function Deposit() {
 
   return (
     <div className="deposit-page">
-      <ParticleBackground />
-
       <div className="deposit-container">
         {/* Header */}
         <div className="deposit-header">
