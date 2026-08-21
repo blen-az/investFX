@@ -59,6 +59,15 @@ const GOLD_INITIAL_COIN = {
   sparkline_in_7d: { price: [2380, 2390, 2385, 2398, 2405, 2412.50] }
 };
 
+// ── Demo / Visual dataset curves for zero-balance state ──────────
+const DEMO_CHART_CURVES = {
+  "1D": [42, 45, 43, 50, 48, 56, 52, 60, 57, 65, 62, 70],
+  "1W": [38, 42, 49, 46, 58, 54, 63, 59, 68, 74],
+  "1M": [35, 40, 38, 48, 52, 47, 59, 64, 60, 71, 67, 75, 72, 80],
+  "3M": [30, 36, 42, 39, 51, 48, 62, 57, 69, 65, 78, 73, 84, 80, 88, 92],
+  "1Y": [25, 32, 40, 35, 48, 44, 58, 53, 67, 62, 76, 71, 83, 79, 90, 86, 95, 100]
+};
+
 // ── SKELETON LOADERS ──────────────────────────────────────────────
 function TotalAssetsSkeleton() {
   return (
@@ -286,28 +295,26 @@ export default function Home() {
 
   // ── Generate Portfolio Chart Data ────────────────────────────────
   useEffect(() => {
-    if (balance === 0 && walletLoading) {
-      setChartData([]);
+    if (!balance || balance === 0) {
+      // Use visual demo dataset curve for zero balance state
+      const curve = DEMO_CHART_CURVES[chartPeriod] || DEMO_CHART_CURVES["1W"];
+      const data = curve.map((v, i) => ({ i, v }));
+      setChartData(data);
       return;
     }
+
     const points = chartPeriod === "1D" ? 24 : chartPeriod === "1W" ? 7 : chartPeriod === "1M" ? 30 : chartPeriod === "3M" ? 90 : 365;
-    const base = balance || 100;
+    const base = balance;
     const data = [];
-    let cur = base * (balance > 0 ? 0.94 : 1);
+    let cur = base * 0.94;
     for (let i = 0; i < points; i++) {
-      if (balance === 0) {
-        data.push({ i, v: 0 });
-      } else {
-        cur = cur + (Math.random() - 0.47) * base * 0.02;
-        cur = Math.max(cur, base * 0.7);
-        data.push({ i, v: parseFloat(cur.toFixed(2)) });
-      }
+      cur = cur + (Math.random() - 0.47) * base * 0.02;
+      cur = Math.max(cur, base * 0.7);
+      data.push({ i, v: parseFloat(cur.toFixed(2)) });
     }
-    if (balance > 0) {
-      data.push({ i: points, v: parseFloat(base.toFixed(2)) });
-    }
+    data.push({ i: points, v: parseFloat(base.toFixed(2)) });
     setChartData(data);
-  }, [balance, chartPeriod, walletLoading]);
+  }, [balance, chartPeriod]);
 
   // ── Calculate Performance & Zero-Balance Guard ───────────────────
   const hasZeroBalance = balance === 0;
@@ -441,105 +448,95 @@ export default function Home() {
              SECTION 1 — TOTAL ASSETS (15–20% more compact)
              ======================================================= */}
           {walletLoading ? <TotalAssetsSkeleton /> : (
-            <section className="home-hero-card anim-fade-up delay-1" aria-label="Total Assets">
+            <section className="home-hero-card" aria-label="Total Assets">
 
-              {/* Futuristic Animated Backdrop: Waving Line, Orbit Rings & 3D Floating Coins */}
+              {/* Premium Futuristic Ambient Backdrop & Floating Token Constellation */}
               <div className="hero-futuristic-bg" aria-hidden="true">
-                <svg className="futuristic-wave-svg" viewBox="0 0 320 130" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="waveGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#00C2C7" stopOpacity="0.9" />
-                      <stop offset="45%" stopColor="#F5C842" stopOpacity="1" />
-                      <stop offset="85%" stopColor="#3B82F6" stopOpacity="0.9" />
-                    </linearGradient>
-                    <linearGradient id="waveGradient2" x1="100%" y1="0%" x2="0%" y2="0%">
-                      <stop offset="0%" stopColor="#10B981" stopOpacity="0.75" />
-                      <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.85" />
-                      <stop offset="100%" stopColor="#00C2C7" stopOpacity="0.75" />
-                    </linearGradient>
-                    <filter id="waveGlow" x="-30%" y="-30%" width="160%" height="160%">
-                      <feGaussianBlur stdDeviation="3.5" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  {/* Wave 1: Primary Electric Wave */}
-                  <path
-                    d="M 0 50 C 40 10, 80 85, 130 40 C 180 -5, 230 75, 320 35"
-                    className="wave-line-1"
-                    stroke="url(#waveGradient1)"
-                    filter="url(#waveGlow)"
-                  />
-                  {/* Wave 2: Secondary Interlocking Wave */}
-                  <path
-                    d="M 0 75 C 60 105, 120 25, 190 80 C 250 120, 280 40, 320 60"
-                    className="wave-line-2"
-                    stroke="url(#waveGradient2)"
-                    filter="url(#waveGlow)"
-                  />
-                  {/* Wave 3: Subtle Background Spark Line */}
-                  <path
-                    d="M 0 35 Q 80 85, 160 30 T 320 70"
-                    className="wave-line-3"
-                    stroke="rgba(245, 200, 66, 0.45)"
-                  />
+                {/* Ambient Soft Glow Haze */}
+                <div className="ambient-glow-haze" />
+                <div className="ambient-glow-haze-teal" />
+                <div className="ambient-glow-haze-warm" />
+
+                {/* Floating Ambient Sparkles (6 total) */}
+                <span className="ambient-particle p1" />
+                <span className="ambient-particle p2" />
+                <span className="ambient-particle p3" />
+                <span className="ambient-particle p4" />
+                <span className="ambient-particle p5" />
+                <span className="ambient-particle p6" />
+
+                {/* Orbital Traces SVG (behind coins) */}
+                <svg className="orbital-traces-svg" viewBox="0 0 320 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* BTC orbit - larger elliptical */}
+                  <ellipse className="orbit-trace orbit-btc" cx="88" cy="52" rx="38" ry="22" />
+                  {/* ETH orbit - medium */}
+                  <ellipse className="orbit-trace orbit-eth" cx="268" cy="78" rx="30" ry="18" />
+                  {/* XAU orbit - faint gold */}
+                  <ellipse className="orbit-trace orbit-xau" cx="288" cy="30" rx="26" ry="15" />
                 </svg>
 
-                {/* Orbit Laser Rings */}
-                <div className="coin-orbit-ring ring-gold"></div>
-                <div className="coin-orbit-ring ring-btc"></div>
+                {/* Connection Lines SVG (digital network traces) */}
+                <svg className="connection-lines-svg" viewBox="0 0 320 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* BTC → ETH */}
+                  <path className="conn-line conn-btc-eth" d="M100 52 Q180 30 268 78" />
+                  {/* USDT → BTC */}
+                  <path className="conn-line conn-usdt-btc" d="M148 20 Q120 35 100 52" />
+                  {/* ETH → SOL */}
+                  <path className="conn-line conn-eth-sol" d="M268 78 Q265 100 252 125" />
+                </svg>
 
-                {/* Floating 3D Coins */}
-                <div className="floating-coin gold-coin" title="Gold (XAU)">
-                  <div className="coin-3d-wrapper">
-                    <div className="coin-face coin-front">
-                      <span className="coin-icon">⚜</span>
-                      <span className="coin-symbol">XAU</span>
+                {/* Suspended Crypto Token Constellation (Upper & Center Right) */}
+                <div className="suspended-coins-container">
+                  {/* 1. USDT (Tether) */}
+                  <div className="suspended-coin coin-usdt" title="Tether (USDT)">
+                    <div className="coin-halo usdt-halo" />
+                    <div className="token-badge-circle usdt-badge">
+                      <span>₮</span>
+                      <div className="coin-inner-highlight" />
                     </div>
+                    <span className="token-ticker">USDT</span>
                   </div>
-                  <div className="coin-glow gold-glow"></div>
-                  <div className="coin-ring gold-ring"></div>
-                </div>
 
-                <div className="floating-coin btc-coin" title="Bitcoin (BTC)">
-                  <div className="coin-3d-wrapper">
-                    <div className="coin-face coin-front">
-                      <span className="coin-icon">₿</span>
-                      <span className="coin-symbol">BTC</span>
+                  {/* 2. XAU (Gold Ingot) */}
+                  <div className="suspended-coin coin-xau" title="Gold (XAU)">
+                    <div className="coin-halo xau-halo" />
+                    <div className="token-badge-circle xau-badge">
+                      <span>⚜</span>
+                      <div className="coin-inner-highlight" />
                     </div>
+                    <span className="token-ticker">XAU</span>
                   </div>
-                  <div className="coin-glow btc-glow"></div>
-                  <div className="coin-ring btc-ring"></div>
-                </div>
 
-                <div className="floating-coin eth-coin" title="Ethereum (ETH)">
-                  <div className="coin-3d-wrapper">
-                    <div className="coin-face coin-front">
-                      <span className="coin-icon">Ξ</span>
-                      <span className="coin-symbol">ETH</span>
+                  {/* 3. BTC (Bitcoin) - Central & Prominent */}
+                  <div className="suspended-coin coin-btc" title="Bitcoin (BTC)">
+                    <div className="coin-halo btc-halo" />
+                    <div className="token-badge-circle btc-badge">
+                      <span>₿</span>
+                      <div className="coin-inner-highlight" />
                     </div>
+                    <span className="token-ticker">BTC</span>
                   </div>
-                  <div className="coin-glow eth-glow"></div>
-                </div>
 
-                <div className="floating-coin sol-coin" title="Solana (SOL)">
-                  <div className="coin-3d-wrapper">
-                    <div className="coin-face coin-front">
-                      <span className="coin-icon">◎</span>
-                      <span className="coin-symbol">SOL</span>
+                  {/* 4. ETH (Ethereum) - Prominent */}
+                  <div className="suspended-coin coin-eth" title="Ethereum (ETH)">
+                    <div className="coin-halo eth-halo" />
+                    <div className="token-badge-circle eth-badge">
+                      <span>Ξ</span>
+                      <div className="coin-inner-highlight" />
                     </div>
+                    <span className="token-ticker">ETH</span>
                   </div>
-                  <div className="coin-glow sol-glow"></div>
-                </div>
 
-                {/* Ambient Tech Particles */}
-                <span className="tech-dot dot-1" />
-                <span className="tech-dot dot-2" />
-                <span className="tech-dot dot-3" />
-                <span className="tech-dot dot-4" />
-                <span className="tech-dot dot-5" />
+                  {/* 5. SOL (Solana) */}
+                  <div className="suspended-coin coin-sol" title="Solana (SOL)">
+                    <div className="coin-halo sol-halo" />
+                    <div className="token-badge-circle sol-badge">
+                      <span>◎</span>
+                      <div className="coin-inner-highlight" />
+                    </div>
+                    <span className="token-ticker">SOL</span>
+                  </div>
+                </div>
               </div>
 
               {/* Card Header & Privacy Toggle */}
@@ -556,14 +553,19 @@ export default function Home() {
                       aria-label={balanceHidden ? "Show balance" : "Hide balance"}
                       title={balanceHidden ? "Show balance" : "Hide balance"}
                     >
-                      {balanceHidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                      {balanceHidden ? <EyeOff size={13} /> : <Eye size={13} />}
                     </button>
                   </div>
 
                   {/* Return / Change Subline */}
                   <div className="hero-pnl-row">
                     {hasZeroBalance ? (
-                      <span className="hero-pnl neutral">{displayPnlText}</span>
+                      <>
+                        <span className="hero-pnl neutral">{displayPnlText}</span>
+                        <span className="hero-pct positive">
+                          <span className="pct-live-dot" /> 0.00%
+                        </span>
+                      </>
                     ) : (
                       <>
                         <span className={`hero-pnl ${isUp ? "positive" : "negative"}`}>
@@ -581,34 +583,56 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Shorter Responsive Portfolio Chart */}
+              {/* Centerpiece Futuristic Luminous Portfolio Chart */}
               <div className="hero-chart-wrap">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 18, right: 14, bottom: 4, left: 14 }}>
                     <defs>
-                      <linearGradient id="heroGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={isUp ? "#00C2C7" : "#EF4444"} stopOpacity={0.25} />
-                        <stop offset="95%" stopColor={isUp ? "#00C2C7" : "#EF4444"} stopOpacity={0} />
+                      <linearGradient id="futuristicHeroGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#00F2FE" stopOpacity={0.25} />
+                        <stop offset="65%" stopColor="#00C2C7" stopOpacity={0.06} />
+                        <stop offset="100%" stopColor="#00C2C7" stopOpacity={0} />
                       </linearGradient>
+                      <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.2" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.04)" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 6" stroke="rgba(0, 194, 199, 0.07)" vertical={false} />
                     <XAxis dataKey="i" hide />
                     <YAxis hide domain={["auto", "auto"]} />
                     <Tooltip content={<CustomTooltip />} />
                     <Area
                       type="monotone"
                       dataKey="v"
-                      stroke={isUp ? "#00C2C7" : "#EF4444"}
-                      strokeWidth={2}
-                      fill="url(#heroGrad)"
+                      stroke="#00F2FE"
+                      strokeWidth={2.6}
+                      fill="url(#futuristicHeroGrad)"
                       dot={false}
-                      animationDuration={600}
+                      filter="url(#neonGlow)"
+                      isAnimationActive={false}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
+
+                {/* Glowing Endpoint Node Head Pulse */}
+                <div className="chart-endpoint-node" aria-hidden="true">
+                  <span className="endpoint-core" />
+                  <span className="endpoint-pulse-ring" />
+                  <span className="endpoint-pulse-ring ring-2" />
+                </div>
+
+                {/* Energy Pulse that travels along chart */}
+                <div className="chart-energy-pulse" aria-hidden="true" />
+
+                {/* Chart fill shimmer overlay */}
+                <div className="chart-fill-shimmer" aria-hidden="true" />
               </div>
 
-              {/* Time Range Selector Tabs */}
+              {/* Time Range Selector Tabs (Futuristic Pill & Indicator Dot) */}
               <div className="hero-period-row">
                 {["1D", "1W", "1M", "3M", "1Y"].map(p => (
                   <button
@@ -617,6 +641,7 @@ export default function Home() {
                     onClick={() => setChartPeriod(p)}
                   >
                     {p}
+                    {chartPeriod === p && <span className="period-active-dot" />}
                   </button>
                 ))}
               </div>
