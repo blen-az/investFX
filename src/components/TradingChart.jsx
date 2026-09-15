@@ -192,45 +192,60 @@ export default function TradingChart({ coinId, interval = "60", onPrice, onTicke
     }
 
     // Try WebSocket first (for all other crypto assets)
-    const ws = new WebSocket(
-      "wss://stream.binance.com:9443/ws/" + streams[selectedCoin] + "@ticker"
-    );
-
+    let ws = null;
+    let fallbackInterval = null;
     let priceReceived = false;
 
-    ws.onmessage = (e) => {
-      const d = JSON.parse(e.data);
-      if (d?.c) {
-        priceReceived = true;
-        onPriceRef.current(parseFloat(d.c));
-        if (onTickerDataRef.current) {
-          onTickerDataRef.current({
-            price: parseFloat(d.c),
-            high: parseFloat(d.h || d.c),
-            low: parseFloat(d.l || d.c),
-            volume: parseFloat(d.v || 0),
-            change: parseFloat(d.P || 0)
-          });
+    try {
+      ws = new WebSocket(
+        "wss://stream.binance.com:9443/ws/" + streams[selectedCoin] + "@ticker"
+      );
+
+      ws.onmessage = (e) => {
+        const d = JSON.parse(e.data);
+        if (d?.c) {
+          priceReceived = true;
+          onPriceRef.current(parseFloat(d.c));
+          if (onTickerDataRef.current) {
+            onTickerDataRef.current({
+              price: parseFloat(d.c),
+              high: parseFloat(d.h || d.c),
+              low: parseFloat(d.l || d.c),
+              volume: parseFloat(d.v || 0),
+              change: parseFloat(d.P || 0)
+            });
+          }
         }
-      }
-    };
+      };
 
-    ws.onerror = () => {
-      console.log("WebSocket error, using fallback API");
+      ws.onerror = () => {
+        console.log("WebSocket error, using fallback API polling");
+        fetchPriceFallback();
+        if (!fallbackInterval) {
+          fallbackInterval = setInterval(fetchPriceFallback, 5000);
+        }
+      };
+    } catch (e) {
+      console.warn("Could not initiate WebSocket:", e);
       fetchPriceFallback();
-    };
+      fallbackInterval = setInterval(fetchPriceFallback, 5000);
+    }
 
-    // If no price after 3 seconds, use fallback
+    // If no price received after 3 seconds, start fallback polling
     const fallbackTimer = setTimeout(() => {
       if (!priceReceived) {
-        console.log("WebSocket slow, using fallback API");
+        console.log("WebSocket slow, starting fallback API polling");
         fetchPriceFallback();
+        if (!fallbackInterval) {
+          fallbackInterval = setInterval(fetchPriceFallback, 5000);
+        }
       }
     }, 3000);
 
     return () => {
       clearTimeout(fallbackTimer);
-      ws.close();
+      if (fallbackInterval) clearInterval(fallbackInterval);
+      if (ws) ws.close();
     };
   }, [selectedCoin]);
 

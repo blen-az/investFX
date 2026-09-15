@@ -77,9 +77,16 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                 'delivery',
                 1
             ).then(result => {
+                let resolvedExitPrice = result.exitPrice;
+                if (!resolvedExitPrice || resolvedExitPrice === trade.entryPrice) {
+                    const jitter = trade.entryPrice * (0.0004 + Math.random() * 0.0006);
+                    resolvedExitPrice = result.outcome === 'win'
+                        ? (trade.side === 'buy' ? trade.entryPrice + jitter : trade.entryPrice - jitter)
+                        : (trade.side === 'buy' ? trade.entryPrice - jitter : trade.entryPrice + jitter);
+                }
                 setForcedOutcome(result.outcome);
                 setCompletionInfo({
-                    exitPrice: result.exitPrice || currentPrice,
+                    exitPrice: resolvedExitPrice,
                     closedAt: new Date(),
                     outcome: result.outcome,
                     pnl: result.pnl
@@ -90,9 +97,18 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                 // Fallback: still determine outcome for display
                 determineTradeOutcome(user.uid, trade.side, trade.entryPrice, currentPrice)
                     .then(outcome => {
+                        let fallbackExit = currentPrice;
+                        const jitter = trade.entryPrice * (0.0004 + Math.random() * 0.0006);
+                        if (!fallbackExit || fallbackExit === trade.entryPrice || 
+                            (outcome === 'win' && ((trade.side === 'buy' && fallbackExit <= trade.entryPrice) || (trade.side === 'sell' && fallbackExit >= trade.entryPrice))) ||
+                            (outcome === 'loss' && ((trade.side === 'buy' && fallbackExit >= trade.entryPrice) || (trade.side === 'sell' && fallbackExit <= trade.entryPrice)))) {
+                            fallbackExit = outcome === 'win'
+                                ? (trade.side === 'buy' ? trade.entryPrice + jitter : trade.entryPrice - jitter)
+                                : (trade.side === 'buy' ? trade.entryPrice - jitter : trade.entryPrice + jitter);
+                        }
                         setForcedOutcome(outcome);
                         setCompletionInfo({
-                            exitPrice: currentPrice,
+                            exitPrice: fallbackExit,
                             closedAt: new Date(),
                             outcome: outcome,
                             pnl: outcome === 'win' ? trade.amount * (trade.profitPercent / 100) : -trade.amount

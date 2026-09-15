@@ -109,12 +109,26 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                 : -amount;
                 
             // Admin Override Handling for Binary Options (Delivery)
+            const jitterRatio = 0.0004 + Math.random() * 0.0006; // 0.04% - 0.10% realistic tick
             if (outcome === "win") {
-                if (side === "buy" && currentPrice <= entryPrice) finalExitPrice = entryPrice * 1.0005; // Force higher
-                if (side === "sell" && currentPrice >= entryPrice) finalExitPrice = entryPrice * 0.9995; // Force lower
+                if (side === "buy" && finalExitPrice <= entryPrice) {
+                    finalExitPrice = entryPrice * (1 + jitterRatio);
+                } else if (side === "sell" && finalExitPrice >= entryPrice) {
+                    finalExitPrice = entryPrice * (1 - jitterRatio);
+                }
             } else if (outcome === "loss") {
-                if (side === "buy" && currentPrice >= entryPrice) finalExitPrice = entryPrice * 0.9995; // Force lower
-                if (side === "sell" && currentPrice <= entryPrice) finalExitPrice = entryPrice * 1.0005; // Force higher
+                if (side === "buy" && finalExitPrice >= entryPrice) {
+                    finalExitPrice = entryPrice * (1 - jitterRatio);
+                } else if (side === "sell" && finalExitPrice <= entryPrice) {
+                    finalExitPrice = entryPrice * (1 + jitterRatio);
+                }
+            }
+
+            // Guaranteed safeguard: closing price must never equal opening price
+            if (finalExitPrice === entryPrice) {
+                finalExitPrice = outcome === "win"
+                    ? (side === "buy" ? entryPrice * (1 + jitterRatio) : entryPrice * (1 - jitterRatio))
+                    : (side === "buy" ? entryPrice * (1 - jitterRatio) : entryPrice * (1 + jitterRatio));
             }
         }
 
@@ -137,6 +151,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                     reason: "Trade already closed",
                     outcome: tradeData.result,
                     pnl: tradeData.pnl,
+                    exitPrice: tradeData.exitPrice || finalExitPrice,
                     newTradingBalance: null // Balance unchanged
                 };
             }
