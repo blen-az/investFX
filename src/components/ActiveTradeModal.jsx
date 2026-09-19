@@ -1,8 +1,7 @@
-// src/components/ActiveTradeModal.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { determineTradeOutcome } from "../services/tradeSettingsService";
-import { closeTrade } from "../services/tradeService";
+import { closeTrade, closeGuestTrade } from "../services/tradeService";
 import "./ActiveTradeModal.css";
 
 export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
@@ -62,10 +61,31 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         setProgress((timeLeft / initialDuration) * 100);
 
         // When trade expires, determine outcome and settle trade
-        if (timeLeft === 0 && !tradeSettled && user?.uid && trade.tradeId) {
+        if (timeLeft === 0 && !tradeSettled && trade.tradeId) {
             setTradeSettled(true);
 
-            // Close trade and update balance
+            if (!user?.uid) {
+                // Settle Guest Demo Trade
+                let exitP = currentPrice;
+                if (exitP === trade.entryPrice) {
+                    const jitter = trade.entryPrice * (0.0004 + Math.random() * 0.0006);
+                    exitP = trade.side === 'buy' ? trade.entryPrice + jitter : trade.entryPrice - jitter;
+                }
+                closeGuestTrade(trade.tradeId, exitP).then(result => {
+                    setForcedOutcome(result.outcome);
+                    setCompletionInfo({
+                        exitPrice: result.exitPrice,
+                        closedAt: new Date(),
+                        outcome: result.outcome,
+                        pnl: result.pnl
+                    });
+                }).catch(err => {
+                    console.error("Error settling guest trade:", err);
+                });
+                return;
+            }
+
+            // Close logged-in trade and update balance
             closeTrade(
                 trade.tradeId,
                 user.uid,

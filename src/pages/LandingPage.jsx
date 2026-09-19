@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getCryptoPrices } from "../services/priceService";
 import {
   Zap, ShieldCheck, BarChart3, Headphones, ArrowRight,
-  Globe, Users, CheckCircle2, Lock, Menu, X, TrendingUp
+  Globe, Users, CheckCircle2, Lock, Menu, X, TrendingUp, Sparkles
 } from "lucide-react";
 import "./LandingPage.css";
 
@@ -865,15 +865,19 @@ export default function LandingPage() {
           </Link>
 
           <nav className="landing-nav">
-            {["Markets", "Trade", "Futures", "Earn", "Learn", "Company"].map((item, i) => (
+            {["Markets", "Trade", "Demo Practice", "Futures", "Earn", "Learn", "Company"].map((item, i) => (
               <Link key={item}
                 to={item === "Markets" || item === "Futures" ? "/market"
                   : item === "Trade" ? "/trade"
+                  : item === "Demo Practice" ? "/trade?demo=true"
                   : item === "Company" ? "/regulatory-info"
                   : "/news"}
-                className="nav-link"
+                className={`nav-link${item === "Demo Practice" ? " nav-link-demo" : ""}`}
                 style={{ animationDelay: `${i * 50}ms` }}
-              >{item}</Link>
+              >
+                {item === "Demo Practice" && <Sparkles size={13} className="demo-nav-sparkle" />}
+                {item}
+              </Link>
             ))}
           </nav>
 
@@ -936,6 +940,7 @@ export default function LandingPage() {
                 {[
                   ["Markets", "/market"],
                   ["Trade", "/trade"],
+                  ["Demo Practice", "/trade?demo=true"],
                   ["Futures", "/market"],
                   ["Earn", "/news"],
                   ["Learn", "/news"],
@@ -944,9 +949,10 @@ export default function LandingPage() {
                   <Link
                     key={label}
                     to={path}
-                    className="mobile-nav-link"
+                    className={`mobile-nav-link${label === "Demo Practice" ? " mobile-nav-demo" : ""}`}
                     onClick={closeMobileMenu}
                   >
+                    {label === "Demo Practice" && <Sparkles size={14} style={{ display: "inline", marginRight: 6, color: "#f59e0b" }} />}
                     {label}
                   </Link>
                 ))}
@@ -1027,13 +1033,21 @@ export default function LandingPage() {
             <div className="hero-entry hero-entry-4">
               <div className="hero-cta-group">
                 {user ? (
-                  <Link to="/home" className="btn-hero-primary btn-shimmer">
-                    Go to Dashboard <ArrowRight size={16} className="arrow-icon" />
-                  </Link>
+                  <>
+                    <Link to="/home" className="btn-hero-primary btn-shimmer">
+                      Go to Dashboard <ArrowRight size={16} className="arrow-icon" />
+                    </Link>
+                    <Link to="/trade?demo=true" className="btn-hero-demo">
+                      <Sparkles size={16} /> Try Demo Account
+                    </Link>
+                  </>
                 ) : (
                   <>
                     <Link to="/signup" className="btn-hero-primary btn-shimmer">
                       Start Trading Now <ArrowRight size={16} className="arrow-icon" />
+                    </Link>
+                    <Link to="/trade?demo=true" className="btn-hero-demo">
+                      <Sparkles size={16} /> Try Demo Account
                     </Link>
                     <Link to="/login" className="btn-hero-secondary">
                       Sign In

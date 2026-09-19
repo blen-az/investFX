@@ -82,6 +82,7 @@ export default function App() {
 
                 {/* PUBLIC ROUTES */}
                 <Route path="/market" element={<Market />} />
+                <Route path="/trade" element={<Trade />} />
                 <Route path="/verification" element={<Verification />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/coin/:id" element={<CoinDetails />} />
@@ -98,15 +99,6 @@ export default function App() {
                   element={
                     <RequireAuth>
                       <Home />
-                    </RequireAuth>
-                  }
-                />
-
-                <Route
-                  path="/trade"
-                  element={
-                    <RequireAuth>
-                      <Trade />
                     </RequireAuth>
                   }
                 />

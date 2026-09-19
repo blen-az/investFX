@@ -708,7 +708,10 @@ export const forceTradeResult = async (tradeId, result, pnl) => {
 
             if (walletSnap.exists()) {
                 const walletData = walletSnap.data();
-                const currentBalance = parseFloat(walletData.tradingBalance) || 0;
+                const isDemo = tradeData.isDemo === true;
+                const currentBalance = isDemo
+                    ? (walletData.demoBalance !== undefined ? parseFloat(walletData.demoBalance) : 10000)
+                    : (parseFloat(walletData.tradingBalance) || 0);
 
                 // Calculate return amount
                 // If Win: Principal + PnL
@@ -723,8 +726,9 @@ export const forceTradeResult = async (tradeId, result, pnl) => {
                     returnAmount = tradeAmount;
                 }
 
+                const balanceField = isDemo ? "demoBalance" : "tradingBalance";
                 await updateDoc(walletRef, {
-                    tradingBalance: currentBalance + returnAmount,
+                    [balanceField]: currentBalance + returnAmount,
                     updatedAt: new Date()
                 });
             }

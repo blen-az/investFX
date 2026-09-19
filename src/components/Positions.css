@@ -90,6 +90,19 @@
     font-style: italic;
 }
 
+.demo-positions-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Trade Row */
 .trade-row {
     background: var(--wm-bg-2, #f8fafc);

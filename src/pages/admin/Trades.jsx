@@ -80,6 +80,15 @@ export default function Trades() {
             )
         },
         {
+            header: "Mode",
+            key: "isDemo",
+            render: (value) => (
+                <span className={`badge ${value ? 'badge-warning' : 'badge-success'}`} style={{ fontSize: '11px', fontWeight: 700 }}>
+                    {value ? '🟡 DEMO' : '🟢 REAL'}
+                </span>
+            )
+        },
+        {
             header: "Asset",
             key: "asset",
             render: (value) => <span style={{ fontWeight: 600 }}>{value}</span>

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
-import { closeTrade } from "../services/tradeService";
+import { closeTrade, getGuestDemoTrades, closeGuestTrade } from "../services/tradeService";
 import "./Positions.css";
 
-export default function Positions({ currentPrice, currentCoin, initialTab = "active" }) {
+export default function Positions({ currentPrice, currentCoin, initialTab = "active", isDemo = false }) {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState(initialTab); // active | completed
     const [activeTrades, setActiveTrades] = useState([]);
@@ -19,6 +19,20 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
         const timer = setInterval(() => setNow(Date.now()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    // Guest demo trade subscription
+    useEffect(() => {
+        if (user) return;
+        const loadGuestTrades = () => {
+            const all = getGuestDemoTrades();
+            setActiveTrades(all.filter(t => t.status === "active"));
+            setCompletedTrades(all.filter(t => t.status === "closed"));
+            setLoading(false);
+        };
+        loadGuestTrades();
+        window.addEventListener("investfx_guest_trade_update", loadGuestTrades);
+        return () => window.removeEventListener("investfx_guest_trade_update", loadGuestTrades);
+    }, [user]);
 
     useEffect(() => {
         if (!user) return;
@@ -72,24 +86,28 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
     }, [user]);
 
     const handleClosePosition = async (trade) => {
-        if (!user || closingId) return;
+        if (closingId) return;
 
         try {
             setClosingId(trade.id);
             // If the coin matches, use livePrice, otherwise use current entryPrice as fallback
             const exitPrice = trade.asset === currentCoin ? currentPrice : trade.entryPrice;
 
-            await closeTrade(
-                trade.id,
-                user.uid,
-                trade.side,
-                trade.entryPrice,
-                exitPrice,
-                trade.amount,
-                trade.profitPercent,
-                trade.type,
-                trade.leverage
-            );
+            if (user) {
+                await closeTrade(
+                    trade.id,
+                    user.uid,
+                    trade.side,
+                    trade.entryPrice,
+                    exitPrice,
+                    trade.amount,
+                    trade.profitPercent,
+                    trade.type,
+                    trade.leverage
+                );
+            } else {
+                await closeGuestTrade(trade.id, exitPrice);
+            }
         } catch (error) {
             console.error("Error closing position:", error);
             alert("Failed to close position: " + error.message);
@@ -114,6 +132,9 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
         return "🪙";
     };
 
+    const displayActiveTrades = activeTrades.filter(t => isDemo ? t.isDemo === true : !t.isDemo);
+    const displayCompletedTrades = completedTrades.filter(t => isDemo ? t.isDemo === true : !t.isDemo);
+
     return (
         <div className="positions-container">
             {/* Tabs */}
@@ -122,19 +143,20 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                     className={`pos-tab ${activeTab === "active" ? "active" : ""}`}
                     onClick={() => setActiveTab("active")}
                 >
-                    Active <span className="badge-count">{activeTrades.length}</span>
+                    Active <span className="badge-count">{displayActiveTrades.length}</span>
                 </button>
                 <button
                     className={`pos-tab ${activeTab === "completed" ? "completed" : ""}`}
                     onClick={() => setActiveTab("completed")}
                 >
-                    Completed <span className="badge-count success">{completedTrades.length}</span>
+                    Completed <span className="badge-count success">{displayCompletedTrades.length}</span>
                 </button>
             </div>
 
             {/* Toolbar */}
             <div className="positions-toolbar">
                 <span className="last-updated">Real-time updates enabled</span>
+                {isDemo && <span className="demo-positions-tag">Practice Mode</span>}
             </div>
 
             {/* Content */}
@@ -143,10 +165,10 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                     <div className="loading-state">Loading trades...</div>
                 ) : activeTab === "active" ? (
                     <div className="trades-list">
-                        {activeTrades.length === 0 ? (
-                            <div className="empty-state-pos">No active trades</div>
+                        {displayActiveTrades.length === 0 ? (
+                            <div className="empty-state-pos">No active {isDemo ? "demo" : ""} trades</div>
                         ) : (
-                            activeTrades.map((trade) => {
+                            displayActiveTrades.map((trade) => {
                                 const totalTime = trade.expiresAt ? (trade.expiresAt.getTime() - trade.createdAt.getTime()) / 1000 : 60;
                                 const timeLeft = trade.expiresAt ? Math.max(0, Math.floor((trade.expiresAt.getTime() - now) / 1000)) : 0;
                                 const progress = (timeLeft / (totalTime || 1)) * 100;
@@ -253,10 +275,10 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                     </div>
                 ) : (
                     <div className="trades-list">
-                        {completedTrades.length === 0 ? (
-                            <div className="empty-state-pos">No completed trades</div>
+                        {displayCompletedTrades.length === 0 ? (
+                            <div className="empty-state-pos">No completed {isDemo ? "demo" : ""} trades</div>
                         ) : (
-                            completedTrades.map((trade) => (
+                            displayCompletedTrades.map((trade) => (
                                 <div key={trade.id} className={`trade-row ${trade.result}`}>
                                     <div className="trade-row-header">
                                         <div className="trade-symbol">

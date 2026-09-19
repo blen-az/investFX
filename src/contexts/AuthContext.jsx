@@ -53,6 +53,7 @@ export function AuthProvider({ children }) {
               balance: 0,
               mainBalance: 0,
               tradingBalance: 0,
+              demoBalance: 10000,
               commissionBalance: 0,
               assets: {
                 USDT: { name: "Tether", symbol: "USDT", total: 0, networks: { "TRC20": 0, "ERC20": 0, "BEP20": 0 } },
@@ -177,6 +178,7 @@ export function AuthProvider({ children }) {
         balance: 0,           // Legacy
         mainBalance: 0,      // New schema
         tradingBalance: 0,   // New schema
+        demoBalance: 10000,   // Demo trading practice balance
         commissionBalance: 0,
         assets: {
           USDT: {

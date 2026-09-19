@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { openTrade, checkAndAutoCloseTrades } from "../services/tradeService";
+import {
+  openTrade,
+  checkAndAutoCloseTrades,
+  resetDemoBalance,
+  getGuestDemoBalance,
+  openGuestTrade,
+  resetGuestDemoBalance,
+  checkAndAutoCloseGuestTrades
+} from "../services/tradeService";
 import { getCryptoPrices } from "../services/priceService";
 import TradingChart from "../components/TradingChart";
 import ActiveTradeModal from "../components/ActiveTradeModal";
 import AlertModal from "../components/AlertModal";
 import Positions from "../components/Positions";
-import OrderBook from "../components/OrderBook"; // Imported
+import OrderBook from "../components/OrderBook";
 import coinList from "../data/coinList";
 import "./TradeBinary.css";
 import "./TradePerpetual.css";
@@ -18,7 +26,37 @@ import { db } from "../firebase";
 export default function Trade() {
   const { user } = useAuth();
   const location = useLocation();
+
+  // Mode: 'real' | 'demo' (guests always default to demo)
+  const [tradeMode, setTradeMode] = useState(() => {
+    if (!user) return "demo";
+    const params = new URLSearchParams(location.search);
+    if (params.get("demo") === "true") return "demo";
+    if (params.get("demo") === "false") return "real";
+    return localStorage.getItem("investfx_trade_mode") || "demo";
+  });
+
+  useEffect(() => {
+    if (!user) {
+      setTradeMode("demo");
+      return;
+    }
+    const params = new URLSearchParams(location.search);
+    if (params.get("demo") === "true") {
+      setTradeMode("demo");
+      localStorage.setItem("investfx_trade_mode", "demo");
+    } else if (params.get("demo") === "false") {
+      setTradeMode("real");
+      localStorage.setItem("investfx_trade_mode", "real");
+    }
+  }, [location.search, user]);
+
   const [tradingBalance, setTradingBalance] = useState(0);
+  const [demoBalance, setDemoBalance] = useState(10000);
+  const [guestBalance, setGuestBalance] = useState(getGuestDemoBalance);
+  const [isResetting, setIsResetting] = useState(false);
+  const [authPromptModal, setAuthPromptModal] = useState(false);
+
   const [coinMeta, setCoinMeta] = useState(() => {
     const stateCoin = location.state?.coin;
     if (stateCoin) {
@@ -62,8 +100,35 @@ export default function Trade() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const map = coinList;
+  const isDemo = tradeMode === 'demo';
+  const effectiveDemoBalance = user ? demoBalance : guestBalance;
+  const effectiveBalance = isDemo ? effectiveDemoBalance : tradingBalance;
 
-  // Subscribe to trading balance and active trades
+  // Guest demo balance & trade updates
+  useEffect(() => {
+    if (user) return;
+    const handleGuestUpdate = () => {
+      setGuestBalance(getGuestDemoBalance());
+    };
+    window.addEventListener("investfx_guest_trade_update", handleGuestUpdate);
+    return () => window.removeEventListener("investfx_guest_trade_update", handleGuestUpdate);
+  }, [user]);
+
+  // Guest heartbeat for auto-closing expired demo trades
+  useEffect(() => {
+    if (user) return;
+    const interval = setInterval(async () => {
+      try {
+        const prices = await getCryptoPrices();
+        await checkAndAutoCloseGuestTrades(prices);
+      } catch (err) {
+        console.error("Guest trade auto-close error:", err);
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // Subscribe to trading balance, demo balance, and active trades for logged-in users
   useEffect(() => {
     if (!user) return;
     const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
@@ -71,7 +136,9 @@ export default function Trade() {
         const data = doc.data();
         const bal = parseFloat(data.tradingBalance);
         setTradingBalance(!isNaN(bal) ? bal : 0);
-        console.log("Current Trading Balance:", bal);
+
+        const dBal = data.demoBalance !== undefined ? parseFloat(data.demoBalance) : 10000;
+        setDemoBalance(!isNaN(dBal) ? dBal : 10000);
       }
     });
 
@@ -96,27 +163,49 @@ export default function Trade() {
     };
   }, [user]);
 
-  // Heartbeat monitoring for liquidation and expiration
+  // Heartbeat monitoring for liquidation and expiration (logged in)
   useEffect(() => {
     if (!user || activeTrades.length === 0) return;
 
     const heartbeat = setInterval(async () => {
       try {
         const prices = await getCryptoPrices();
-
-        // Only run if there's someone to check
         if (activeTrades.length > 0) {
           await checkAndAutoCloseTrades(user.uid, activeTrades, prices);
         }
       } catch (error) {
         console.error("Heartbeat error:", error);
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(heartbeat);
   }, [user, activeTrades]);
 
-  // Update time every second
+  // Handle Reset Demo Balance
+  const handleResetDemo = async () => {
+    if (isResetting) return;
+    try {
+      setIsResetting(true);
+      if (user) {
+        await resetDemoBalance(user.uid, 10000);
+      } else {
+        resetGuestDemoBalance();
+        setGuestBalance(10000);
+      }
+      setAlertModal({
+        isOpen: true,
+        message: "🎉 Your practice balance has been reset to $10,000 USDT! Happy trading!"
+      });
+    } catch (err) {
+      console.error("Error resetting demo balance:", err);
+      setAlertModal({
+        isOpen: true,
+        message: "Failed to reset demo balance: " + (err.message || "Please try again.")
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   // Trade duration options with profit rates
   const tradeDurations = [
@@ -132,6 +221,18 @@ export default function Trade() {
 
   const handleTradeStart = async (direction) => {
     try {
+      const amount = Number(tradeAmount);
+      if (isNaN(amount) || amount <= 0) {
+        throw new Error("Amount must be greater than 0");
+      }
+      if (amount > effectiveBalance) {
+        throw new Error(
+          isDemo
+            ? "Insufficient practice balance. Click 'Reset $10,000' to restore demo funds."
+            : "Insufficient trading balance. Please deposit or transfer funds to your trading account."
+        );
+      }
+
       let tradeDetails;
 
       if (contractType === 'delivery') {
@@ -141,24 +242,15 @@ export default function Trade() {
           type: 'delivery',
           coin: coinMeta,
           entryPrice: livePrice,
-          amount: Number(tradeAmount),
+          amount: amount,
           side: direction === 'up' ? 'buy' : 'sell',
           duration: duration + 's',
           profitPercent: durationOption.profitRate,
+          isDemo: isDemo,
         };
       } else {
         // Perpetual Logic
-        // Unlike delivery which passes explicit direction argument, perp uses the state `perpSide`
         const side = perpSide;
-        const amount = Number(tradeAmount);
-
-        if (amount <= 0) {
-          throw new Error("Amount must be greater than 0");
-        }
-        if (amount > tradingBalance) {
-          throw new Error("Insufficient balance");
-        }
-
         tradeDetails = {
           type: 'perpetual',
           coin: coinMeta,
@@ -166,10 +258,13 @@ export default function Trade() {
           amount: amount,
           side: side,
           leverage: leverage,
+          isDemo: isDemo,
         };
       }
 
-      const result = await openTrade(user.uid, tradeDetails);
+      const result = user
+        ? await openTrade(user.uid, tradeDetails)
+        : await openGuestTrade(tradeDetails);
 
       if (contractType === 'delivery') {
         setActiveTrade({
@@ -180,7 +275,7 @@ export default function Trade() {
       } else {
         setAlertModal({
           isOpen: true,
-          message: `Successfully opened ${tradeDetails.side.toUpperCase()} position!`
+          message: `Successfully opened ${isDemo ? '[DEMO] ' : ''}${tradeDetails.side.toUpperCase()} position!`
         });
       }
     } catch (error) {
@@ -193,21 +288,14 @@ export default function Trade() {
   };
 
   const handlePerpPercentage = (percent) => {
-    if (!tradingBalance || isNaN(tradingBalance)) {
-      console.warn("Cannot calculate percentage: Invalid Balance", tradingBalance);
+    if (effectiveBalance === undefined || isNaN(effectiveBalance)) {
+      console.warn("Cannot calculate percentage: Invalid Balance", effectiveBalance);
       return;
     }
 
-    // Explicit calculations
     const factor = percent / 100;
-    const margin = tradingBalance * factor;
-    // Position Size = Margin * Leverage (handled in Service or implied)
-    // We set tradeAmount to Margin because openTrade deducts this 'amount' from balance.
-
-    // Floor to 2 decimals
+    const margin = effectiveBalance * factor;
     const amount = Math.floor(margin * 100) / 100;
-
-    console.log(`[Perp Calc] Balance: ${tradingBalance} | Percent: ${percent}% | Margin: ${amount} | Leverage: ${leverage}`);
     setTradeAmount(amount);
   };
 
@@ -215,11 +303,71 @@ export default function Trade() {
     setActiveTrade(null);
   };
 
-
-
-
   return (
-    <div className="trade-page binary-options-style">
+    <div className={`trade-page binary-options-style ${isDemo ? 'in-demo-mode' : ''}`}>
+      {/* Trade Mode Bar (Real vs Demo) */}
+      <div className="trade-mode-bar">
+        <div className="trade-mode-toggle-group">
+          <button
+            type="button"
+            className={`trade-mode-btn ${tradeMode === 'real' ? 'active-real' : ''}`}
+            onClick={() => {
+              if (!user) {
+                setAuthPromptModal(true);
+                return;
+              }
+              setTradeMode('real');
+              localStorage.setItem('investfx_trade_mode', 'real');
+            }}
+          >
+            <span className="mode-indicator-dot real-dot"></span>
+            Real Account
+          </button>
+          <button
+            type="button"
+            className={`trade-mode-btn ${tradeMode === 'demo' ? 'active-demo' : ''}`}
+            onClick={() => {
+              setTradeMode('demo');
+              localStorage.setItem('investfx_trade_mode', 'demo');
+            }}
+          >
+            <span className="mode-indicator-dot demo-dot"></span>
+            Demo Practice
+          </button>
+        </div>
+
+        {isDemo ? (
+          <div className="demo-balance-quick-view">
+            <span className="demo-label-pill">🟡 PRACTICE</span>
+            <span className="demo-amount-pill">${effectiveDemoBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <button
+              type="button"
+              className="reset-demo-header-btn"
+              onClick={handleResetDemo}
+              disabled={isResetting}
+              title="Reset practice funds to $10,000"
+            >
+              {isResetting ? "..." : "🔄 Reset $10K"}
+            </button>
+          </div>
+        ) : (
+          <div className="real-balance-quick-view">
+            <span className="real-label-pill">🟢 REAL</span>
+            <span className="real-amount-pill">${tradingBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Demo Practice Banner */}
+      {isDemo && (
+        <div className="demo-practice-banner">
+          <span className="demo-banner-icon">🎮</span>
+          <div className="demo-banner-text">
+            <strong>Practice Trading Mode</strong>: Real market prices with risk-free virtual funds.
+          </div>
+        </div>
+      )}
+
       {/* Contract Type Tabs */}
       <div className="contract-type-tabs">
         <button
@@ -251,6 +399,7 @@ export default function Trade() {
             <span className={`pair-change ${priceChange >= 0 ? 'positive' : 'negative'}`}>
               {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
             </span>
+            {isDemo && <span className="demo-inline-badge">DEMO</span>}
             <span style={{ marginLeft: 'auto' }}>📊</span>
           </div>
         </div>
@@ -259,8 +408,21 @@ export default function Trade() {
         {contractType === 'delivery' ? (
           /* ================= DELIVERY MODE UI (Existing) ================= */
           <>
-            <div className="trading-balance-chip">
-              Balance: ${tradingBalance.toLocaleString()}
+            <div className={`trading-balance-chip ${isDemo ? 'demo-chip' : ''}`}>
+              <div className="chip-content">
+                <span className="chip-tag">{isDemo ? 'Demo Balance' : 'Trading Balance'}:</span>
+                <span className="chip-val">${effectiveBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
+              {isDemo && (
+                <button
+                  type="button"
+                  className="reset-demo-inline-btn"
+                  onClick={handleResetDemo}
+                  disabled={isResetting}
+                >
+                  {isResetting ? "Resetting..." : "🔄 Reset $10,000"}
+                </button>
+              )}
             </div>
 
             {/* Price Display Section */}
@@ -344,21 +506,23 @@ export default function Trade() {
               </div>
 
               {/* Transaction Mode Label */}
-              <div className="transaction-mode-label">Transaction mode</div>
+              <div className="transaction-mode-label">
+                Transaction mode {isDemo && <span className="demo-mode-inline-indicator">(Practice)</span>}
+              </div>
 
               {/* Buy/Sell Buttons */}
               <div className="trade-action-buttons">
                 <button className="trade-action-btn buy-btn" onClick={() => handleTradeStart('up')}>
-                  BUY / UP
+                  BUY / UP {isDemo ? '(DEMO)' : ''}
                 </button>
                 <button className="trade-action-btn sell-btn" onClick={() => handleTradeStart('down')}>
-                  SELL / DOWN
+                  SELL / DOWN {isDemo ? '(DEMO)' : ''}
                 </button>
               </div>
 
               {/* Positions / History */}
               <div className="trade-history-section" style={{ marginTop: '20px' }}>
-                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} />
+                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} isDemo={isDemo} />
               </div>
             </div>
           </>
@@ -445,8 +609,18 @@ export default function Trade() {
                 </div>
 
                 {/* Balance */}
-                <div className="perp-balance" style={{ marginTop: '10px' }}>
-                  Balance: {tradingBalance.toFixed(4)} USDT
+                <div className={`perp-balance ${isDemo ? 'demo-balance-row' : ''}`} style={{ marginTop: '10px' }}>
+                  <span>{isDemo ? 'Demo Balance' : 'Balance'}: {effectiveBalance.toFixed(2)} USDT</span>
+                  {isDemo && (
+                    <button
+                      type="button"
+                      className="reset-demo-inline-btn-perp"
+                      onClick={handleResetDemo}
+                      disabled={isResetting}
+                    >
+                      {isResetting ? "..." : "🔄 Reset"}
+                    </button>
+                  )}
                 </div>
 
                 {/* Leverage Selector */}
@@ -469,37 +643,31 @@ export default function Trade() {
                   onClick={() => handleTradeStart(perpSide === 'buy' ? 'up' : 'down')}
                   style={{ marginTop: '16px' }}
                 >
-                  {perpSide === 'buy' ? 'Buy (go long)' : 'Sell (go short)'}
+                  {isDemo ? `[DEMO] ` : ''}{perpSide === 'buy' ? 'Buy (go long)' : 'Sell (go short)'}
                 </button>
               </div>
 
               {/* RIGHT SIDE: Order Book */}
               <div style={{ flex: '1', borderLeft: '1px solid #1e293b', paddingLeft: '10px' }}>
                 <OrderBook currentPrice={livePrice} />
-
-                {/* Leverage Selector (Moved to right column or below?) */}
-                {/* For now, keep it simple or integrate it. 
-                         The screenshot has "OrderBook" on right. 
-                     */}
               </div>
             </div>
 
             {/* Bottom Tabs: Current delegate / History */}
             <div className="bottom-tabs" style={{ marginTop: '30px' }}>
-              {/* ... existing tabs ... */}
               <div
                 className={`bottom-tab ${perpTab === 'positions' ? 'active' : ''}`}
                 onClick={() => setPerpTab('positions')}
               >
                 <span style={{ marginRight: '5px' }}>📄</span>
-                Current delegate
+                Current delegate {isDemo && '(Demo)'}
               </div>
               <div
                 className={`bottom-tab ${perpTab === 'history' ? 'active' : ''}`}
                 onClick={() => setPerpTab('history')}
               >
                 <span style={{ marginRight: '5px' }}>📄</span>
-                History
+                History {isDemo && '(Demo)'}
               </div>
             </div>
 
@@ -507,10 +675,10 @@ export default function Trade() {
             <div className="tab-content-area">
               {perpTab === 'positions' ? (
                 /* Active Positions */
-                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} initialTab="active" variant="perpetual" />
+                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} initialTab="active" variant="perpetual" isDemo={isDemo} />
               ) : (
                 /* Completed History */
-                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} initialTab="completed" variant="perpetual" />
+                <Positions currentPrice={livePrice} currentCoin={coinMeta.symbol} initialTab="completed" variant="perpetual" isDemo={isDemo} />
               )}
             </div>
 
@@ -553,6 +721,42 @@ export default function Trade() {
           currentPrice={livePrice}
           onClose={handleTradeClose}
         />
+      )}
+
+      {/* AUTH PROMPT MODAL FOR GUESTS SWITCHING TO REAL */}
+      {authPromptModal && (
+        <div className="alert-modal-backdrop" onClick={() => setAuthPromptModal(false)}>
+          <div className="alert-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+            <div className="alert-modal-icon" style={{ fontSize: 36, marginBottom: 12 }}>🔐</div>
+            <h3 style={{ margin: "0 0 8px", fontSize: 18, color: "var(--text-main, #08162b)" }}>Account Required</h3>
+            <p style={{ margin: "0 0 20px", fontSize: 14, color: "var(--text-muted, #64748b)", lineHeight: 1.5 }}>
+              You are currently trading in guest practice mode. To trade with real funds and deposit crypto or fiat, please sign in or create your free account.
+            </p>
+            <div style={{ display: "flex", gap: 10, width: "100%" }}>
+              <Link
+                to="/signup"
+                className="btn-hero-primary"
+                style={{ flex: 1, justifyContent: "center", textDecoration: "none", padding: "10px 14px", borderRadius: 8 }}
+              >
+                Create Account
+              </Link>
+              <Link
+                to="/login"
+                className="btn-hero-secondary"
+                style={{ flex: 1, justifyContent: "center", textDecoration: "none", padding: "10px 14px", borderRadius: 8, textAlign: "center" }}
+              >
+                Log In
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAuthPromptModal(false)}
+              style={{ marginTop: 12, background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 13 }}
+            >
+              Continue with Demo Mode
+            </button>
+          </div>
+        </div>
       )}
 
       {/* ALERT MODAL */}
