@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 
-import Layout from "./components/Layout";
-import PageLoader from "./components/PageLoader";
+import Layout from "./components/Layout"; import PageLoader from "./components/PageLoader";
 
 // ⭐ Smart redirect component
 import HomeRedirect from "./components/HomeRedirect";
@@ -72,379 +71,379 @@ const AgentFinance = lazy(() => import("./pages/agent/AgentFinance")); // New
 export default function App() {
   return (
     <Router>
-        <Layout>
-          <ErrorBoundary>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* ... routes ... */}
-                {/* ROOT PATH - Shows landing page for guests, redirects based on role for logged-in users */}
-                <Route path="/" element={<HomeRedirect />} />
+      <Layout>
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* ... routes ... */}
+              {/* ROOT PATH - Shows landing page for guests, redirects based on role for logged-in users */}
+              <Route path="/" element={<HomeRedirect />} />
 
-                {/* PUBLIC ROUTES */}
-                <Route path="/market" element={<Market />} />
-                <Route path="/trade" element={<Trade />} />
-                <Route path="/verification" element={<Verification />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/coin/:id" element={<CoinDetails />} />
-                <Route path="/news" element={<News />} />
+              {/* PUBLIC ROUTES */}
+              <Route path="/market" element={<Market />} />
+              <Route path="/trade" element={<Trade />} />
+              <Route path="/verification" element={<Verification />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/coin/:id" element={<CoinDetails />} />
+              <Route path="/news" element={<News />} />
 
-                {/* AUTH ROUTES */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
+              {/* AUTH ROUTES */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                {/* USER PROTECTED ROUTES */}
-                <Route
-                  path="/home"
-                  element={
-                    <RequireAuth>
-                      <Home />
-                    </RequireAuth>
-                  }
-                />
+              {/* USER PROTECTED ROUTES */}
+              <Route
+                path="/home"
+                element={
+                  <RequireAuth>
+                    <Home />
+                  </RequireAuth>
+                }
+              />
 
-                <Route
-                  path="/profile"
-                  element={
-                    <RequireAuth>
-                      <Profile />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/profile"
+                element={
+                  <RequireAuth>
+                    <Profile />
+                  </RequireAuth>
+                }
+              />
 
-                <Route
-                  path="/deposit"
-                  element={
-                    <RequireAuth>
-                      <Deposit />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/deposit"
+                element={
+                  <RequireAuth>
+                    <Deposit />
+                  </RequireAuth>
+                }
+              />
 
-                <Route
-                  path="/withdraw"
-                  element={
-                    <RequireAuth>
-                      <Withdraw />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/wallet"
-                  element={
-                    <RequireAuth>
-                      <Wallet />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/account-transfer"
-                  element={
-                    <RequireAuth>
-                      <AccountTransfer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/exchange"
-                  element={
-                    <RequireAuth>
-                      <Exchange />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/promotion"
-                  element={
-                    <RequireAuth>
-                      <Promotion />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/security"
-                  element={
-                    <RequireAuth>
-                      <SecurityCenter />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/withdrawal-address"
-                  element={
-                    <RequireAuth>
-                      <WithdrawalAddress />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/payment-methods"
-                  element={
-                    <RequireAuth>
-                      <PaymentMethods />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/download-app"
-                  element={
-                    <RequireAuth>
-                      <DownloadApp />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/regulatory-info"
-                  element={
-                    <RequireAuth>
-                      <RegulatoryInfo />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/withdraw"
+                element={
+                  <RequireAuth>
+                    <Withdraw />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/wallet"
+                element={
+                  <RequireAuth>
+                    <Wallet />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/account-transfer"
+                element={
+                  <RequireAuth>
+                    <AccountTransfer />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/exchange"
+                element={
+                  <RequireAuth>
+                    <Exchange />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/promotion"
+                element={
+                  <RequireAuth>
+                    <Promotion />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/security"
+                element={
+                  <RequireAuth>
+                    <SecurityCenter />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/withdrawal-address"
+                element={
+                  <RequireAuth>
+                    <WithdrawalAddress />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/payment-methods"
+                element={
+                  <RequireAuth>
+                    <PaymentMethods />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/download-app"
+                element={
+                  <RequireAuth>
+                    <DownloadApp />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/regulatory-info"
+                element={
+                  <RequireAuth>
+                    <RegulatoryInfo />
+                  </RequireAuth>
+                }
+              />
 
-                <Route
-                  path="/transactions"
-                  element={
-                    <RequireAuth>
-                      <Transactions />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/transactions"
+                element={
+                  <RequireAuth>
+                    <Transactions />
+                  </RequireAuth>
+                }
+              />
 
 
-                <Route
-                  path="/assets"
-                  element={
-                    <RequireAuth>
-                      <Assets />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/assets"
+                element={
+                  <RequireAuth>
+                    <Assets />
+                  </RequireAuth>
+                }
+              />
 
-                <Route
-                  path="/chat"
-                  element={
-                    <RequireAuth>
-                      <LiveChat />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/chat"
+                element={
+                  <RequireAuth>
+                    <LiveChat />
+                  </RequireAuth>
+                }
+              />
 
-                <Route
-                  path="/verification"
-                  element={
-                    <RequireAuth>
-                      <Verification />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/verify-email"
-                  element={
-                    <RequireAuth>
-                      <VerifyEmail />
-                    </RequireAuth>
-                  }
-                />
+              <Route
+                path="/verification"
+                element={
+                  <RequireAuth>
+                    <Verification />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/verify-email"
+                element={
+                  <RequireAuth>
+                    <VerifyEmail />
+                  </RequireAuth>
+                }
+              />
 
-                {/* ADMIN ROUTES */}
-                <Route
-                  path="/admin/dashboard"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/users"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <Users />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/create-agent"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <AgentCreator />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/agents"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <Agents />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/deposits"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <Deposits />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/withdrawals"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <Withdrawals />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/trades"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <Trades />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/trade-settings"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <TradeSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/commissions"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <AdminCommissions />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/verifications"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <Verifications />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/settings"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <AdminSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/balance-history"
-                  element={
-                    <ProtectedRoute requiredRole={ROLES.ADMIN}>
-                      <BalanceHistory />
-                    </ProtectedRoute>
-                  }
-                />
+              {/* ADMIN ROUTES */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Users />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/create-agent"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AgentCreator />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/agents"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Agents />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/deposits"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Deposits />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/withdrawals"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Withdrawals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/trades"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Trades />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/trade-settings"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <TradeSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/commissions"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AdminCommissions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/verifications"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <Verifications />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <AdminSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/balance-history"
+                element={
+                  <ProtectedRoute requiredRole={ROLES.ADMIN}>
+                    <BalanceHistory />
+                  </ProtectedRoute>
+                }
+              />
 
-                {/* AGENT ROUTES */}
-                <Route
-                  path="/agent/dashboard"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/referrals"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <Referrals />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/commissions"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentCommissions />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/chats"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentChats />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/service"
-                  element={<Navigate to="/agent/chats" replace />}
-                />
-                <Route
-                  path="/agent/withdraw"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentWithdraw />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/settings"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentSettings />
-                    </ProtectedRoute>
-                  }
-                />
+              {/* AGENT ROUTES */}
+              <Route
+                path="/agent/dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/referrals"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <Referrals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/commissions"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentCommissions />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/chats"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentChats />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/service"
+                element={<Navigate to="/agent/chats" replace />}
+              />
+              <Route
+                path="/agent/withdraw"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentWithdraw />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/settings"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentSettings />
+                  </ProtectedRoute>
+                }
+              />
 
-                {/* NEW AGENT ROUTES */}
-                <Route
-                  path="/agent/agents"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentsList />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/orders/delivery"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentOrderList />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/orders/contract"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentOrderList />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/deposits"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentFinance />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/agent/withdrawals"
-                  element={
-                    <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
-                      <AgentFinance />
-                    </ProtectedRoute>
-                  }
-                />
+              {/* NEW AGENT ROUTES */}
+              <Route
+                path="/agent/agents"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentsList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/orders/delivery"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentOrderList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/orders/contract"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentOrderList />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/deposits"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentFinance />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/agent/withdrawals"
+                element={
+                  <ProtectedRoute allowedRoles={[ROLES.AGENT]}>
+                    <AgentFinance />
+                  </ProtectedRoute>
+                }
+              />
 
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </Layout>
-      </Router>
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
+      </Layout>
+    </Router>
   );
 }

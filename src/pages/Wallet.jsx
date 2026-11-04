@@ -28,18 +28,18 @@ export default function Wallet() {
         if (!user) return;
 
         // Subscribe to Wallet
-        const unsubscribeWallet = onSnapshot(doc(db, 'wallets', user.uid), (doc) => {
-            if (doc.exists()) {
-                const data = doc.data();
+        const unsubscribeWallet = onSnapshot(doc(db, 'wallets', user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
                 // Migration logic: if new fields don't exist, use the old names or defaults
                 setBalances({
-                    funding: data.mainBalance !== undefined ? data.mainBalance : (data.balance || 0),
-                    spot: data.spotBalance || 0,
-                    futures: data.tradingBalance !== undefined ? data.tradingBalance : 0,
-                    earn: data.earnBalance || 0,
-                    contract: data.contractBalance || 0,
-                    fiat: data.fiatBalance || 0,
-                    commission: data.commissionBalance || 0
+                    funding: parseFloat(data.mainBalance !== undefined ? data.mainBalance : data.balance) || 0,
+                    spot: parseFloat(data.spotBalance) || 0,
+                    futures: parseFloat(data.tradingBalance) || 0,
+                    earn: parseFloat(data.earnBalance) || 0,
+                    contract: parseFloat(data.contractBalance) || 0,
+                    fiat: parseFloat(data.fiatBalance) || 0,
+                    commission: parseFloat(data.commissionBalance) || 0
                 });
             }
         });
@@ -52,10 +52,15 @@ export default function Wallet() {
         );
 
         const unsubscribeTrades = onSnapshot(tradesQuery, (snapshot) => {
-            const tradesData = snapshot.docs.map(doc => ({
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate()
-            }));
+            const tradesData = snapshot.docs
+                .map(d => {
+                    const data = d.data();
+                    return {
+                        ...data,
+                        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAtMs ? new Date(data.createdAtMs) : new Date())
+                    };
+                })
+                .filter(t => !t.isDemo);
 
             // Total Trades
             const total = tradesData.length;
@@ -68,8 +73,12 @@ export default function Wallet() {
             // Today's P&L
             const startOfToday = new Date();
             startOfToday.setHours(0, 0, 0, 0);
-            const todayTrades = tradesData.filter(t => t.createdAt >= startOfToday);
-            const pnl = todayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+            const todayTrades = closedTrades.filter(t => t.createdAt >= startOfToday);
+            const pnl = todayTrades.reduce((sum, t) => {
+                const rawPnl = parseFloat(t.pnl) || 0;
+                const signed = t.result === 'loss' ? -Math.abs(rawPnl) : rawPnl;
+                return sum + signed;
+            }, 0);
 
             setStats({
                 todayPL: pnl,

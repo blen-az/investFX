@@ -27,13 +27,13 @@ export default function Trade() {
   const { user } = useAuth();
   const location = useLocation();
 
-  // Mode: 'real' | 'demo' (guests always default to demo)
+  // Mode: 'real' | 'demo' (logged-in users default to 'real'; guests always default to 'demo')
   const [tradeMode, setTradeMode] = useState(() => {
     if (!user) return "demo";
     const params = new URLSearchParams(location.search);
     if (params.get("demo") === "true") return "demo";
     if (params.get("demo") === "false") return "real";
-    return localStorage.getItem("investfx_trade_mode") || "demo";
+    return localStorage.getItem("investfx_user_trade_mode") || "real";
   });
 
   useEffect(() => {
@@ -44,10 +44,13 @@ export default function Trade() {
     const params = new URLSearchParams(location.search);
     if (params.get("demo") === "true") {
       setTradeMode("demo");
-      localStorage.setItem("investfx_trade_mode", "demo");
+      localStorage.setItem("investfx_user_trade_mode", "demo");
     } else if (params.get("demo") === "false") {
       setTradeMode("real");
-      localStorage.setItem("investfx_trade_mode", "real");
+      localStorage.setItem("investfx_user_trade_mode", "real");
+    } else {
+      const savedMode = localStorage.getItem("investfx_user_trade_mode") || "real";
+      setTradeMode(savedMode);
     }
   }, [location.search, user]);
 
@@ -120,22 +123,28 @@ export default function Trade() {
     const interval = setInterval(async () => {
       try {
         const prices = await getCryptoPrices();
+        if (livePrice > 0) {
+          prices[coinMeta.symbol] = livePrice;
+        }
         await checkAndAutoCloseGuestTrades(prices);
       } catch (err) {
         console.error("Guest trade auto-close error:", err);
       }
     }, 2000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, livePrice, coinMeta.symbol]);
 
-  // Subscribe to trading balance, demo balance, and active trades for logged-in users
+  // Subscribe to wallet balance, demo balance, and active trades for logged-in users
   useEffect(() => {
     if (!user) return;
-    const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        const bal = parseFloat(data.tradingBalance);
-        setTradingBalance(!isNaN(bal) ? bal : 0);
+    const unsubWallet = onSnapshot(doc(db, "wallets", user.uid), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const tBal = parseFloat(data.tradingBalance) || 0;
+        const mBal = parseFloat(
+          data.mainBalance !== undefined ? data.mainBalance : data.balance
+        ) || 0;
+        setTradingBalance(tBal + mBal);
 
         const dBal = data.demoBalance !== undefined ? parseFloat(data.demoBalance) : 10000;
         setDemoBalance(!isNaN(dBal) ? dBal : 10000);
@@ -148,12 +157,15 @@ export default function Trade() {
       where("status", "==", "active")
     );
     const unsubTrades = onSnapshot(tradesQuery, (snapshot) => {
-      const trades = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        expiresAt: doc.data().expiresAt?.toDate(),
-        createdAt: doc.data().createdAt?.toDate()
-      }));
+      const trades = snapshot.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          ...data,
+          expiresAt: data.expiresAt?.toDate ? data.expiresAt.toDate() : (data.expiresAt ? new Date(data.expiresAt) : null),
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAtMs ? new Date(data.createdAtMs) : new Date())
+        };
+      });
       setActiveTrades(trades);
     });
 
@@ -170,16 +182,24 @@ export default function Trade() {
     const heartbeat = setInterval(async () => {
       try {
         const prices = await getCryptoPrices();
+        if (livePrice > 0) {
+          prices[coinMeta.symbol] = livePrice;
+        }
         if (activeTrades.length > 0) {
-          await checkAndAutoCloseTrades(user.uid, activeTrades, prices);
+          await checkAndAutoCloseTrades(
+            user.uid,
+            activeTrades,
+            prices,
+            activeTrade?.tradeId || null
+          );
         }
       } catch (error) {
         console.error("Heartbeat error:", error);
       }
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(heartbeat);
-  }, [user, activeTrades]);
+  }, [user, activeTrades, livePrice, coinMeta.symbol, activeTrade?.tradeId]);
 
   // Handle Reset Demo Balance
   const handleResetDemo = async () => {
@@ -229,7 +249,7 @@ export default function Trade() {
         throw new Error(
           isDemo
             ? "Insufficient practice balance. Click 'Reset $10,000' to restore demo funds."
-            : "Insufficient trading balance. Please deposit or transfer funds to your trading account."
+            : "Insufficient wallet balance. Please deposit funds to your account."
         );
       }
 
@@ -317,7 +337,7 @@ export default function Trade() {
                 return;
               }
               setTradeMode('real');
-              localStorage.setItem('investfx_trade_mode', 'real');
+              localStorage.setItem('investfx_user_trade_mode', 'real');
             }}
           >
             <span className="mode-indicator-dot real-dot"></span>
@@ -328,7 +348,9 @@ export default function Trade() {
             className={`trade-mode-btn ${tradeMode === 'demo' ? 'active-demo' : ''}`}
             onClick={() => {
               setTradeMode('demo');
-              localStorage.setItem('investfx_trade_mode', 'demo');
+              if (user) {
+                localStorage.setItem('investfx_user_trade_mode', 'demo');
+              }
             }}
           >
             <span className="mode-indicator-dot demo-dot"></span>
@@ -410,7 +432,7 @@ export default function Trade() {
           <>
             <div className={`trading-balance-chip ${isDemo ? 'demo-chip' : ''}`}>
               <div className="chip-content">
-                <span className="chip-tag">{isDemo ? 'Demo Balance' : 'Trading Balance'}:</span>
+                <span className="chip-tag">{isDemo ? 'Demo Balance' : 'Wallet Balance'}:</span>
                 <span className="chip-val">${effectiveBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               {isDemo && (
@@ -686,15 +708,7 @@ export default function Trade() {
         )}
       </div>
 
-      {/* INVISIBLE CHART LOADER FOR PERP MODE TO KEEP PRICE UPDATING? 
-           Actually, TradingChart updates the price via onPrice callback. 
-           If we unmount TradingChart in Perp mode, livePrice stops updating!
-           We must keep TradingChart mounted but hidden if we want prices, 
-           OR rely on it being visible if the design allows. 
-           
-           The reference image SHOWS the price "4330.39" but NO CHART in the layout.
-           So we should hide the chart visually but keep it mounted.
-       */}
+      {/* Hidden chart loader for perpetual mode to keep livePrice updating */}
       {contractType === 'perpetual' && (
         <div style={{ display: 'none' }}>
           <TradingChart
@@ -712,7 +726,6 @@ export default function Trade() {
           />
         </div>
       )}
-
 
       {/* ACTIVE TRADE MODAL (For Delivery) */}
       {activeTrade && contractType === 'delivery' && (
@@ -796,4 +809,3 @@ export default function Trade() {
     </div>
   );
 }
-

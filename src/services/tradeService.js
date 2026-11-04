@@ -4,10 +4,40 @@ import { doc, collection, runTransaction, serverTimestamp } from "firebase/fires
 import { determineTradeOutcome } from "./tradeSettingsService";
 
 /**
- * Open a new trade - deducts investment from user trading balance (or demoBalance if demo mode)
+ * Helper to keep walletData.assets.USDT synchronized when mainBalance changes
+ */
+function buildSyncedAssets(walletData, newMainBalance) {
+    const assets = walletData.assets
+        ? JSON.parse(JSON.stringify(walletData.assets))
+        : {
+            USDT: { name: "Tether", symbol: "USDT", total: 0, networks: { TRC20: 0 } }
+        };
+
+    if (!assets.USDT) {
+        assets.USDT = { name: "Tether", symbol: "USDT", total: 0, networks: { TRC20: 0 } };
+    }
+    if (!assets.USDT.networks) {
+        assets.USDT.networks = { TRC20: 0 };
+    }
+
+    const safeBalance = Math.max(0, newMainBalance);
+    assets.USDT.total = safeBalance;
+    const firstNetwork = Object.keys(assets.USDT.networks)[0] || "TRC20";
+    assets.USDT.networks[firstNetwork] = safeBalance;
+
+    return assets;
+}
+
+/**
+ * Open a new trade - deducts investment from user wallet balance (or demoBalance if demo mode)
  */
 export const openTrade = async (uid, tradeData) => {
     try {
+        const tradeAmount = parseFloat(tradeData.amount);
+        if (isNaN(tradeAmount) || tradeAmount <= 0) {
+            throw new Error("Invalid trade amount");
+        }
+
         return await runTransaction(db, async (transaction) => {
             const walletRef = doc(db, "wallets", uid);
             const walletSnap = await transaction.get(walletRef);
@@ -18,10 +48,12 @@ export const openTrade = async (uid, tradeData) => {
 
             const walletData = walletSnap.data();
             const isDemo = Boolean(tradeData.isDemo);
+            const nowMs = Date.now();
+            const durationSec = parseDuration(tradeData.duration);
 
             if (isDemo) {
                 const demoBalance = walletData.demoBalance !== undefined ? parseFloat(walletData.demoBalance) : 10000;
-                if (demoBalance < tradeData.amount) {
+                if (demoBalance < tradeAmount) {
                     throw new Error("Insufficient demo balance. Click 'Reset Demo Funds' to restore your $10,000 practice balance.");
                 }
 
@@ -32,53 +64,85 @@ export const openTrade = async (uid, tradeData) => {
                     asset: tradeData.coin.symbol,
                     assetName: tradeData.coin.name,
                     side: tradeData.side,
-                    amount: tradeData.amount,
-                    entryPrice: tradeData.entryPrice,
-                    leverage: tradeData.leverage || 1,
-                    profitPercent: tradeData.profitPercent || 0,
+                    amount: tradeAmount,
+                    entryPrice: parseFloat(tradeData.entryPrice) || 0,
+                    leverage: parseFloat(tradeData.leverage) || 1,
+                    profitPercent: parseFloat(tradeData.profitPercent) || 20,
                     duration: tradeData.duration || null,
                     status: "active",
                     isDemo: true,
+                    walletField: "demoBalance",
+                    principalDeducted: true,
                     createdAt: serverTimestamp(),
+                    createdAtMs: nowMs,
                 };
 
                 // Only Delivery trades have an expiration
-                if (tradeData.type === 'delivery') {
-                    tradeRecord.expiresAt = new Date(Date.now() + parseDuration(tradeData.duration) * 1000);
+                if (tradeRecord.type === 'delivery') {
+                    tradeRecord.expiresAt = new Date(nowMs + durationSec * 1000);
                 }
 
                 // Calculate Liquidation Price for Perpetual
-                if (tradeData.type === 'perpetual') {
+                if (tradeRecord.type === 'perpetual') {
                     const buffer = 0.9; // Liquidate when 90% of margin is lost
                     if (tradeData.side === 'buy') {
-                        tradeRecord.liquidationPrice = tradeData.entryPrice * (1 - (buffer / (tradeData.leverage || 1)));
+                        tradeRecord.liquidationPrice = tradeRecord.entryPrice * (1 - (buffer / tradeRecord.leverage));
                     } else {
-                        tradeRecord.liquidationPrice = tradeData.entryPrice * (1 + (buffer / (tradeData.leverage || 1)));
+                        tradeRecord.liquidationPrice = tradeRecord.entryPrice * (1 + (buffer / tradeRecord.leverage));
                     }
                 }
 
                 const tradeRef = doc(collection(db, "trades"));
                 transaction.set(tradeRef, tradeRecord);
 
+                const newDemoBalance = Math.max(0, demoBalance - tradeAmount);
                 // Deduct investment from demo balance
                 transaction.update(walletRef, {
-                    demoBalance: demoBalance - tradeData.amount,
+                    demoBalance: newDemoBalance,
                     updatedAt: serverTimestamp()
                 });
 
                 return {
                     success: true,
                     tradeId: tradeRef.id,
-                    newDemoBalance: demoBalance - tradeData.amount,
+                    newDemoBalance,
                     isDemo: true
                 };
             }
 
             // Real Trade Execution
-            const tradingBalance = walletData.tradingBalance !== undefined ? walletData.tradingBalance : 0;
+            const tradingBalance = parseFloat(walletData.tradingBalance) || 0;
+            const mainBalance = parseFloat(
+                walletData.mainBalance !== undefined ? walletData.mainBalance : walletData.balance
+            ) || 0;
+            const totalAvailable = tradingBalance + mainBalance;
 
-            if (tradingBalance < tradeData.amount) {
-                throw new Error("Insufficient trading balance");
+            if (totalAvailable < tradeAmount) {
+                throw new Error("Insufficient wallet balance");
+            }
+
+            // Determine which wallet balance field(s) to deduct from
+            let walletField = "tradingBalance";
+            const walletUpdates = {
+                updatedAt: serverTimestamp()
+            };
+
+            if (tradingBalance >= tradeAmount) {
+                walletField = "tradingBalance";
+                walletUpdates.tradingBalance = tradingBalance - tradeAmount;
+            } else if (mainBalance >= tradeAmount && tradingBalance === 0) {
+                walletField = "mainBalance";
+                const newMain = mainBalance - tradeAmount;
+                walletUpdates.mainBalance = newMain;
+                walletUpdates.assets = buildSyncedAssets(walletData, newMain);
+            } else {
+                // Split deduction across tradingBalance first, then mainBalance
+                walletField = "mainBalance";
+                const remainingToDeduct = tradeAmount - tradingBalance;
+                const newMain = Math.max(0, mainBalance - remainingToDeduct);
+                walletUpdates.tradingBalance = 0;
+                walletUpdates.mainBalance = newMain;
+                walletUpdates.assets = buildSyncedAssets(walletData, newMain);
             }
 
             // Create trade record
@@ -88,44 +152,44 @@ export const openTrade = async (uid, tradeData) => {
                 asset: tradeData.coin.symbol,
                 assetName: tradeData.coin.name,
                 side: tradeData.side,
-                amount: tradeData.amount,
-                entryPrice: tradeData.entryPrice,
-                leverage: tradeData.leverage || 1,
-                profitPercent: tradeData.profitPercent || 0,
+                amount: tradeAmount,
+                entryPrice: parseFloat(tradeData.entryPrice) || 0,
+                leverage: parseFloat(tradeData.leverage) || 1,
+                profitPercent: parseFloat(tradeData.profitPercent) || 20,
                 duration: tradeData.duration || null,
                 status: "active",
                 isDemo: false,
+                walletField,
+                principalDeducted: true,
                 createdAt: serverTimestamp(),
+                createdAtMs: nowMs,
             };
 
             // Only Delivery trades have an expiration
-            if (tradeData.type === 'delivery') {
-                tradeRecord.expiresAt = new Date(Date.now() + parseDuration(tradeData.duration) * 1000);
+            if (tradeRecord.type === 'delivery') {
+                tradeRecord.expiresAt = new Date(nowMs + durationSec * 1000);
             }
 
             // Calculate Liquidation Price for Perpetual
-            if (tradeData.type === 'perpetual') {
+            if (tradeRecord.type === 'perpetual') {
                 const buffer = 0.9; // Liquidate when 90% of margin is lost
                 if (tradeData.side === 'buy') {
-                    tradeRecord.liquidationPrice = tradeData.entryPrice * (1 - (buffer / (tradeData.leverage || 1)));
+                    tradeRecord.liquidationPrice = tradeRecord.entryPrice * (1 - (buffer / tradeRecord.leverage));
                 } else {
-                    tradeRecord.liquidationPrice = tradeData.entryPrice * (1 + (buffer / (tradeData.leverage || 1)));
+                    tradeRecord.liquidationPrice = tradeRecord.entryPrice * (1 + (buffer / tradeRecord.leverage));
                 }
             }
 
             const tradeRef = doc(collection(db, "trades"));
             transaction.set(tradeRef, tradeRecord);
 
-            // Deduct investment from trading balance
-            transaction.update(walletRef, {
-                tradingBalance: tradingBalance - tradeData.amount,
-                updatedAt: serverTimestamp()
-            });
+            // Deduct investment from wallet
+            transaction.update(walletRef, walletUpdates);
 
             return {
                 success: true,
                 tradeId: tradeRef.id,
-                newTradingBalance: tradingBalance - tradeData.amount,
+                newTradingBalance: totalAvailable - tradeAmount,
                 isDemo: false
             };
         });
@@ -136,61 +200,12 @@ export const openTrade = async (uid, tradeData) => {
 };
 
 /**
- * Close a trade - adds profit/loss to user trading balance (or demoBalance if demo mode)
+ * Close a trade - settles profit/loss into the user's wallet balance (or demoBalance if demo mode)
  */
 export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, amount, profitPercent, type = 'delivery', leverage = 1) => {
     try {
         // Determine outcome based on settings
         const outcome = await determineTradeOutcome(uid, side, entryPrice, currentPrice, type);
-
-        let pnl;
-        let finalExitPrice = currentPrice;
-
-        if (type === 'perpetual') {
-            // Leverage based P&L: ((Current - Entry) / Entry) * Amount * Leverage
-            const priceDeltaPercent = (currentPrice - entryPrice) / entryPrice;
-            pnl = priceDeltaPercent * amount * leverage * (side === "buy" ? 1 : -1);
-
-            // Admin Override Handling
-            if (outcome === "win" && pnl <= 0) {
-                pnl = Math.abs(pnl) || (amount * 0.1); // Force positive if admin says win
-                // Reverse calculate the exit price so the math perfectly matches the forced PNL!
-                finalExitPrice = entryPrice * (1 + (pnl / (amount * leverage * (side === "buy" ? 1 : -1))));
-            }
-            if (outcome === "loss" && pnl >= 0) {
-                pnl = -Math.abs(pnl) || -(amount * 0.1); // Force negative if admin says loss
-                // Reverse calculate the exit price so the math perfectly matches the forced PNL!
-                finalExitPrice = entryPrice * (1 + (pnl / (amount * leverage * (side === "buy" ? 1 : -1))));
-            }
-        } else {
-            // Binary (Delivery) logic
-            pnl = outcome === "win"
-                ? amount * (profitPercent / 100)
-                : -amount;
-                
-            // Admin Override Handling for Binary Options (Delivery)
-            const jitterRatio = 0.0004 + Math.random() * 0.0006; // 0.04% - 0.10% realistic tick
-            if (outcome === "win") {
-                if (side === "buy" && finalExitPrice <= entryPrice) {
-                    finalExitPrice = entryPrice * (1 + jitterRatio);
-                } else if (side === "sell" && finalExitPrice >= entryPrice) {
-                    finalExitPrice = entryPrice * (1 - jitterRatio);
-                }
-            } else if (outcome === "loss") {
-                if (side === "buy" && finalExitPrice >= entryPrice) {
-                    finalExitPrice = entryPrice * (1 - jitterRatio);
-                } else if (side === "sell" && finalExitPrice <= entryPrice) {
-                    finalExitPrice = entryPrice * (1 + jitterRatio);
-                }
-            }
-
-            // Guaranteed safeguard: closing price must never equal opening price
-            if (finalExitPrice === entryPrice) {
-                finalExitPrice = outcome === "win"
-                    ? (side === "buy" ? entryPrice * (1 + jitterRatio) : entryPrice * (1 - jitterRatio))
-                    : (side === "buy" ? entryPrice * (1 - jitterRatio) : entryPrice * (1 + jitterRatio));
-            }
-        }
 
         return await runTransaction(db, async (transaction) => {
             // 1. Get Trade Doc inside transaction to ensure atomicity
@@ -211,12 +226,71 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                     reason: "Trade already closed",
                     outcome: tradeData.result,
                     pnl: tradeData.pnl,
-                    exitPrice: tradeData.exitPrice || finalExitPrice,
+                    exitPrice: tradeData.exitPrice || currentPrice || tradeData.entryPrice,
                     newBalance: null
                 };
             }
 
-            const walletRef = doc(db, "wallets", uid);
+            const tradeUid = uid || tradeData.uid;
+            const tradeSide = side || tradeData.side || "buy";
+            const tradeType = type || tradeData.type || "delivery";
+            const tradeAmount = parseFloat(tradeData.amount ?? amount) || 0;
+            const tradeEntryPrice = parseFloat(tradeData.entryPrice ?? entryPrice) || 0;
+            const tradeProfitPercent = parseFloat(tradeData.profitPercent || profitPercent) || 20;
+            const tradeLeverage = parseFloat(tradeData.leverage ?? leverage) || 1;
+            let finalExitPrice = parseFloat(currentPrice) || tradeEntryPrice;
+
+            let pnl = 0;
+
+            if (tradeType === 'perpetual') {
+                // Leverage based P&L: ((Current - Entry) / Entry) * Amount * Leverage
+                const priceDeltaPercent = tradeEntryPrice > 0 ? (finalExitPrice - tradeEntryPrice) / tradeEntryPrice : 0;
+                pnl = priceDeltaPercent * tradeAmount * tradeLeverage * (tradeSide === "buy" ? 1 : -1);
+
+                // Admin Override Handling
+                if (outcome === "win" && pnl <= 0) {
+                    pnl = Math.abs(pnl) || (tradeAmount * 0.1); // Force positive if admin says win
+                    if (tradeEntryPrice > 0) {
+                        finalExitPrice = tradeEntryPrice * (1 + (pnl / (tradeAmount * tradeLeverage * (tradeSide === "buy" ? 1 : -1))));
+                    }
+                }
+                if (outcome === "loss" && pnl >= 0) {
+                    pnl = -(Math.abs(pnl) || (tradeAmount * 0.1)); // Force negative if admin says loss
+                    if (tradeEntryPrice > 0) {
+                        finalExitPrice = tradeEntryPrice * (1 + (pnl / (tradeAmount * tradeLeverage * (tradeSide === "buy" ? 1 : -1))));
+                    }
+                }
+            } else {
+                // Binary (Delivery) logic
+                pnl = outcome === "win"
+                    ? tradeAmount * (tradeProfitPercent / 100)
+                    : -tradeAmount;
+
+                // Admin Override Handling for Binary Options (Delivery)
+                const jitterRatio = 0.0004 + Math.random() * 0.0006; // 0.04% - 0.10% realistic tick
+                if (outcome === "win") {
+                    if (tradeSide === "buy" && finalExitPrice <= tradeEntryPrice) {
+                        finalExitPrice = tradeEntryPrice * (1 + jitterRatio);
+                    } else if (tradeSide === "sell" && finalExitPrice >= tradeEntryPrice) {
+                        finalExitPrice = tradeEntryPrice * (1 - jitterRatio);
+                    }
+                } else if (outcome === "loss") {
+                    if (tradeSide === "buy" && finalExitPrice >= tradeEntryPrice) {
+                        finalExitPrice = tradeEntryPrice * (1 - jitterRatio);
+                    } else if (tradeSide === "sell" && finalExitPrice <= tradeEntryPrice) {
+                        finalExitPrice = tradeEntryPrice * (1 + jitterRatio);
+                    }
+                }
+
+                // Guaranteed safeguard: closing price must never equal opening price
+                if (finalExitPrice === tradeEntryPrice) {
+                    finalExitPrice = outcome === "win"
+                        ? (tradeSide === "buy" ? tradeEntryPrice * (1 + jitterRatio) : tradeEntryPrice * (1 - jitterRatio))
+                        : (tradeSide === "buy" ? tradeEntryPrice * (1 - jitterRatio) : tradeEntryPrice * (1 + jitterRatio));
+                }
+            }
+
+            const walletRef = doc(db, "wallets", tradeUid);
             const walletSnap = await transaction.get(walletRef);
 
             if (!walletSnap.exists()) {
@@ -227,20 +301,22 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
             const isDemo = tradeData.isDemo === true;
 
             let returnAmount;
-            if (type === 'perpetual') {
+            if (tradeType === 'perpetual') {
                 // Return original Margin + P&L
-                returnAmount = amount + pnl;
+                returnAmount = tradeAmount + pnl;
             } else {
-                // If win: return investment + profit. If loss: 0
-                returnAmount = outcome === "win" ? (amount + pnl) : 0;
+                // Delivery: principal was deducted at openTrade.
+                // If win: return principal + profit. If loss: return 0 (principal stays deducted).
+                returnAmount = outcome === "win" ? (tradeAmount + pnl) : 0;
             }
 
-            // Prevent balance from going negative below zero
+            // Prevent return amount from being negative
             const finalReturn = Math.max(0, returnAmount);
+            const resolvedResult = tradeType === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome;
 
             if (isDemo) {
                 const currentDemoBalance = walletData.demoBalance !== undefined ? parseFloat(walletData.demoBalance) : 10000;
-                const newDemoBalance = currentDemoBalance + finalReturn;
+                const newDemoBalance = Math.max(0, currentDemoBalance + finalReturn);
 
                 transaction.update(walletRef, {
                     demoBalance: newDemoBalance,
@@ -250,7 +326,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                 // Update trade record
                 transaction.update(tradeRef, {
                     status: "closed",
-                    result: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
+                    result: resolvedResult,
                     pnl,
                     exitPrice: finalExitPrice,
                     closedAt: serverTimestamp()
@@ -258,7 +334,7 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
 
                 return {
                     success: true,
-                    outcome: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
+                    outcome: resolvedResult,
                     pnl,
                     exitPrice: finalExitPrice,
                     newBalance: newDemoBalance,
@@ -266,17 +342,37 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
                 };
             } else {
                 const tradingBalance = parseFloat(walletData.tradingBalance) || 0;
-                const newBalance = tradingBalance + finalReturn;
+                const mainBalance = parseFloat(
+                    walletData.mainBalance !== undefined ? walletData.mainBalance : walletData.balance
+                ) || 0;
 
-                transaction.update(walletRef, {
-                    tradingBalance: newBalance,
+                // Credit back to the wallet field the trade was funded from
+                const targetField = tradeData.walletField === "mainBalance"
+                    ? "mainBalance"
+                    : tradeData.walletField === "tradingBalance"
+                        ? "tradingBalance"
+                        : (tradingBalance > 0 || mainBalance === 0 ? "tradingBalance" : "mainBalance");
+
+                const walletUpdates = {
                     updatedAt: serverTimestamp()
-                });
+                };
+
+                let newTargetBalance = 0;
+                if (targetField === "mainBalance") {
+                    newTargetBalance = Math.max(0, mainBalance + finalReturn);
+                    walletUpdates.mainBalance = newTargetBalance;
+                    walletUpdates.assets = buildSyncedAssets(walletData, newTargetBalance);
+                } else {
+                    newTargetBalance = Math.max(0, tradingBalance + finalReturn);
+                    walletUpdates.tradingBalance = newTargetBalance;
+                }
+
+                transaction.update(walletRef, walletUpdates);
 
                 // Update trade record
                 transaction.update(tradeRef, {
                     status: "closed",
-                    result: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
+                    result: resolvedResult,
                     pnl,
                     exitPrice: finalExitPrice,
                     closedAt: serverTimestamp()
@@ -284,10 +380,10 @@ export const closeTrade = async (tradeId, uid, side, entryPrice, currentPrice, a
 
                 return {
                     success: true,
-                    outcome: type === 'perpetual' ? (pnl >= 0 ? "win" : "loss") : outcome,
+                    outcome: resolvedResult,
                     pnl,
                     exitPrice: finalExitPrice,
-                    newTradingBalance: newBalance,
+                    newTradingBalance: newTargetBalance,
                     isDemo: false
                 };
             }
@@ -332,19 +428,29 @@ export const resetDemoBalance = async (uid, amount = 10000) => {
  * Automatically check and close trades that have reached expiration or liquidation
  * This is meant to be called in a heartbeat loop on the client side.
  */
-export const checkAndAutoCloseTrades = async (uid, activeTrades, currentPrices) => {
+export const checkAndAutoCloseTrades = async (uid, activeTrades, currentPrices = {}, skipTradeId = null) => {
     const results = [];
     const now = Date.now();
 
     for (const trade of activeTrades) {
         if (trade.uid !== uid || trade.status !== 'active') continue;
 
+        const expiresAtDate = trade.expiresAt?.toDate
+            ? trade.expiresAt.toDate()
+            : (trade.expiresAt ? new Date(trade.expiresAt) : null);
+
+        // If this trade is currently open in ActiveTradeModal, give ActiveTradeModal a 3-second grace window
+        // so it can settle using the exact chart livePrice first.
+        if (skipTradeId && trade.id === skipTradeId && expiresAtDate && now < expiresAtDate.getTime() + 3000) {
+            continue;
+        }
+
         let shouldClose = false;
         let reason = "";
 
         // 1. Check Delivery Expiration
-        if (trade.type === 'delivery' && trade.expiresAt) {
-            if (now >= trade.expiresAt.getTime()) {
+        if (trade.type === 'delivery' && expiresAtDate) {
+            if (now >= expiresAtDate.getTime()) {
                 shouldClose = true;
                 reason = "expiration";
             }
@@ -559,6 +665,7 @@ export const closeGuestTrade = async (tradeId, exitPriceOverride = null) => {
         status: "closed",
         exitPrice,
         outcome,
+        result: outcome,
         pnl,
         closedAt: new Date().toISOString()
     };

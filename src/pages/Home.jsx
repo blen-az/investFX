@@ -166,9 +166,9 @@ export default function Home() {
     const unsub = onSnapshot(doc(db, "wallets", user.uid), (snap) => {
       if (snap.exists()) {
         const d = snap.data();
-        const main = d.mainBalance !== undefined ? d.mainBalance : (d.balance || 0);
-        const trading = d.tradingBalance !== undefined ? d.tradingBalance : 0;
-        setMainBalance(main);
+        const main = parseFloat(d.mainBalance !== undefined ? d.mainBalance : d.balance) || 0;
+        const trading = parseFloat(d.tradingBalance) || 0;
+        setMainBalance(main + trading);
         setBalance(main + trading);
       }
       setWalletLoading(false);
@@ -396,7 +396,9 @@ export default function Home() {
         amount: tradeReviewModal.mode === "buy" ? tradeReviewModal.amount : parseFloat(tradeReviewModal.estimatedOut),
         entryPrice: selectedPair.defaultPrice,
         type: "delivery",
-        duration: "60s"
+        duration: "60s",
+        profitPercent: 20,
+        isDemo: false
       });
       setToast({
         message: `Successfully executed Quick ${tradeReviewModal.mode.toUpperCase()} order for ${selectedPair.symbol}!`,
@@ -407,7 +409,7 @@ export default function Home() {
     } catch (err) {
       console.error("Trade error:", err);
       setToast({
-        message: err.message || "Failed to execute order. Check trading balance.",
+        message: err.message || "Failed to execute order. Check wallet balance.",
         type: "error"
       });
     } finally {

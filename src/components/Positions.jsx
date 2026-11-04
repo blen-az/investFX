@@ -48,12 +48,15 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
         );
 
         const unsubscribeActive = onSnapshot(activeQuery, (snapshot) => {
-            const trades = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate(),
-                expiresAt: doc.data().expiresAt?.toDate()
-            }));
+            const trades = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAtMs ? new Date(data.createdAtMs) : new Date()),
+                    expiresAt: data.expiresAt?.toDate ? data.expiresAt.toDate() : (data.expiresAt ? new Date(data.expiresAt) : null)
+                };
+            });
             setActiveTrades(trades);
             setLoading(false);
         }, (error) => {
@@ -70,12 +73,15 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
         );
 
         const unsubscribeCompleted = onSnapshot(completedQuery, (snapshot) => {
-            const trades = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate(),
-                closedAt: doc.data().closedAt?.toDate()
-            }));
+            const trades = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAtMs ? new Date(data.createdAtMs) : new Date()),
+                    closedAt: data.closedAt?.toDate ? data.closedAt.toDate() : (data.closedAt ? new Date(data.closedAt) : new Date())
+                };
+            });
             setCompletedTrades(trades);
         });
 
@@ -169,8 +175,10 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                             <div className="empty-state-pos">No active {isDemo ? "demo" : ""} trades</div>
                         ) : (
                             displayActiveTrades.map((trade) => {
-                                const totalTime = trade.expiresAt ? (trade.expiresAt.getTime() - trade.createdAt.getTime()) / 1000 : 60;
-                                const timeLeft = trade.expiresAt ? Math.max(0, Math.floor((trade.expiresAt.getTime() - now) / 1000)) : 0;
+                                const createdTime = trade.createdAt instanceof Date ? trade.createdAt.getTime() : (trade.createdAtMs || now);
+                                const expiresTime = trade.expiresAt instanceof Date ? trade.expiresAt.getTime() : null;
+                                const totalTime = expiresTime ? Math.max(1, Math.round((expiresTime - createdTime) / 1000)) : (parseInt(trade.duration) || 60);
+                                const timeLeft = expiresTime ? Math.max(0, Math.floor((expiresTime - now) / 1000)) : 0;
                                 const progress = (timeLeft / (totalTime || 1)) * 100;
 
                                 // PnL Calculation for Perpetual
@@ -211,11 +219,11 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                                         <div className="trade-details-grid">
                                             <div className="detail-col">
                                                 <span className="label">Amount:</span>
-                                                <span className="value">${(trade.amount || 0).toFixed(2)}</span>
+                                                <span className="value">${(parseFloat(trade.amount) || 0).toFixed(2)}</span>
                                             </div>
                                             <div className="detail-col">
                                                 <span className="label">Entry:</span>
-                                                <span className="value">${(trade.entryPrice || 0).toLocaleString()}</span>
+                                                <span className="value">${(parseFloat(trade.entryPrice) || 0).toLocaleString()}</span>
                                             </div>
                                             <div className="detail-col">
                                                 <span className="label">
@@ -278,41 +286,45 @@ export default function Positions({ currentPrice, currentCoin, initialTab = "act
                         {displayCompletedTrades.length === 0 ? (
                             <div className="empty-state-pos">No completed {isDemo ? "demo" : ""} trades</div>
                         ) : (
-                            displayCompletedTrades.map((trade) => (
-                                <div key={trade.id} className={`trade-row ${trade.result}`}>
-                                    <div className="trade-row-header">
-                                        <div className="trade-symbol">
-                                            <span className="coin-icon">{getSymbolIcon(trade.asset)}</span>
-                                            {trade.assetName}
+                            displayCompletedTrades.map((trade) => {
+                                const resOutcome = trade.result || trade.outcome || 'loss';
+                                const isWin = resOutcome === 'win';
+                                return (
+                                    <div key={trade.id} className={`trade-row ${resOutcome}`}>
+                                        <div className="trade-row-header">
+                                            <div className="trade-symbol">
+                                                <span className="coin-icon">{getSymbolIcon(trade.asset)}</span>
+                                                {trade.assetName}
+                                            </div>
+                                            <div className={`trade-status-text ${resOutcome}`}>
+                                                {resOutcome.toUpperCase()}
+                                            </div>
                                         </div>
-                                        <div className={`trade-status-text ${trade.result}`}>
-                                            {trade.result?.toUpperCase()}
+                                        <div className="trade-details-grid">
+                                            <div className="detail-col">
+                                                <span className="label">Amount:</span>
+                                                <span className="value">${(parseFloat(trade.amount) || 0).toFixed(2)}</span>
+                                            </div>
+                                            <div className="detail-col">
+                                                <span className="label">Result:</span>
+                                                <span className={`value ${isWin ? 'positive' : 'negative'}`}>
+                                                    {isWin ? '+' : '-'}${Math.abs(parseFloat(trade.pnl) || 0).toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <div className="detail-col">
+                                                <span className="label">Closed:</span>
+                                                <span className="value" style={{ fontSize: '10px' }}>
+                                                    {trade.closedAt?.toLocaleString ? trade.closedAt.toLocaleString() : ''}
+                                                </span>
+                                            </div>
+                                            <div className="detail-col">
+                                                <span className="label">duration:</span>
+                                                <span className="value">{trade.duration ? parseInt(trade.duration) : '-'}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="trade-details-grid">
-                                        <div className="detail-col">
-                                            <span className="label">Amount:</span>
-                                            <span className="value">${(trade.amount || 0).toFixed(2)}</span>
-                                        </div>
-                                        <div className="detail-col">
-                                            <span className="label">Result:</span>
-                                            <span className={`value ${trade.result === 'win' ? 'positive' : 'negative'}`}>
-                                                {trade.result === 'win' ? '+' : ''}${Math.abs(trade.pnl || 0).toFixed(2)}
-                                            </span>
-                                        </div>
-                                        <div className="detail-col">
-                                            <span className="label">Closed:</span>
-                                            <span className="value" style={{ fontSize: '10px' }}>
-                                                {trade.closedAt?.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="detail-col">
-                                            <span className="label">duration:</span>
-                                            <span className="value">{trade.duration ? parseInt(trade.duration) : '-'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                 )}

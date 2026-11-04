@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 import { determineTradeOutcome } from "../services/tradeSettingsService";
 import { closeTrade, closeGuestTrade } from "../services/tradeService";
 import "./ActiveTradeModal.css";
@@ -49,6 +51,40 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         return () => clearInterval(timer);
     }, []);
 
+    // Listen to Firestore trade doc in case Admin forces result or background heartbeat settles it
+    useEffect(() => {
+        if (!user?.uid || !trade?.tradeId || String(trade.tradeId).startsWith("guest_")) return;
+
+        const unsub = onSnapshot(doc(db, "trades", trade.tradeId), (snap) => {
+            if (!snap.exists()) return;
+            const data = snap.data();
+            if (data.status === "closed") {
+                setTradeSettled(true);
+                setTimeLeft(0);
+                const outcome = data.result || "loss";
+                const resolvedPnl = data.pnl !== undefined
+                    ? parseFloat(data.pnl)
+                    : (outcome === "win" ? trade.amount * (trade.profitPercent / 100) : -trade.amount);
+                let resolvedExitPrice = parseFloat(data.exitPrice) || currentPrice || trade.entryPrice;
+                if (resolvedExitPrice === trade.entryPrice) {
+                    const jitter = trade.entryPrice * 0.0005;
+                    resolvedExitPrice = outcome === "win"
+                        ? (trade.side === "buy" ? trade.entryPrice + jitter : trade.entryPrice - jitter)
+                        : (trade.side === "buy" ? trade.entryPrice - jitter : trade.entryPrice + jitter);
+                }
+                setForcedOutcome(outcome);
+                setCompletionInfo({
+                    exitPrice: resolvedExitPrice,
+                    closedAt: data.closedAt?.toDate ? data.closedAt.toDate() : new Date(),
+                    outcome,
+                    pnl: outcome === "loss" ? -Math.abs(resolvedPnl) : Math.abs(resolvedPnl)
+                });
+            }
+        });
+
+        return () => unsub();
+    }, [user?.uid, trade?.tradeId, trade.amount, trade.entryPrice, trade.profitPercent, trade.side, currentPrice]);
+
     // Lock scroll when modal is open
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -66,7 +102,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
 
             if (!user?.uid) {
                 // Settle Guest Demo Trade
-                let exitP = currentPrice;
+                let exitP = currentPrice || trade.entryPrice;
                 if (exitP === trade.entryPrice) {
                     const jitter = trade.entryPrice * (0.0004 + Math.random() * 0.0006);
                     exitP = trade.side === 'buy' ? trade.entryPrice + jitter : trade.entryPrice - jitter;
@@ -74,7 +110,7 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                 closeGuestTrade(trade.tradeId, exitP).then(result => {
                     setForcedOutcome(result.outcome);
                     setCompletionInfo({
-                        exitPrice: result.exitPrice,
+                        exitPrice: result.exitPrice || exitP,
                         closedAt: new Date(),
                         outcome: result.outcome,
                         pnl: result.pnl
@@ -91,35 +127,37 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                 user.uid,
                 trade.side,
                 trade.entryPrice,
-                currentPrice,
+                currentPrice || trade.entryPrice,
                 trade.amount,
                 trade.profitPercent,
                 'delivery',
                 1
             ).then(result => {
-                let resolvedExitPrice = result.exitPrice;
+                let resolvedExitPrice = parseFloat(result.exitPrice) || currentPrice || trade.entryPrice;
                 if (!resolvedExitPrice || resolvedExitPrice === trade.entryPrice) {
                     const jitter = trade.entryPrice * (0.0004 + Math.random() * 0.0006);
                     resolvedExitPrice = result.outcome === 'win'
                         ? (trade.side === 'buy' ? trade.entryPrice + jitter : trade.entryPrice - jitter)
                         : (trade.side === 'buy' ? trade.entryPrice - jitter : trade.entryPrice + jitter);
                 }
+                const resolvedPnl = result.pnl !== undefined
+                    ? parseFloat(result.pnl)
+                    : (result.outcome === 'win' ? trade.amount * (trade.profitPercent / 100) : -trade.amount);
                 setForcedOutcome(result.outcome);
                 setCompletionInfo({
                     exitPrice: resolvedExitPrice,
                     closedAt: new Date(),
                     outcome: result.outcome,
-                    pnl: result.pnl
+                    pnl: result.outcome === 'loss' ? -Math.abs(resolvedPnl) : Math.abs(resolvedPnl)
                 });
-                console.log("Trade settled:", result);
             }).catch(err => {
                 console.error("Error settling trade:", err);
                 // Fallback: still determine outcome for display
-                determineTradeOutcome(user.uid, trade.side, trade.entryPrice, currentPrice)
+                determineTradeOutcome(user.uid, trade.side, trade.entryPrice, currentPrice || trade.entryPrice)
                     .then(outcome => {
-                        let fallbackExit = currentPrice;
+                        let fallbackExit = currentPrice || trade.entryPrice;
                         const jitter = trade.entryPrice * (0.0004 + Math.random() * 0.0006);
-                        if (!fallbackExit || fallbackExit === trade.entryPrice || 
+                        if (!fallbackExit || fallbackExit === trade.entryPrice ||
                             (outcome === 'win' && ((trade.side === 'buy' && fallbackExit <= trade.entryPrice) || (trade.side === 'sell' && fallbackExit >= trade.entryPrice))) ||
                             (outcome === 'loss' && ((trade.side === 'buy' && fallbackExit >= trade.entryPrice) || (trade.side === 'sell' && fallbackExit <= trade.entryPrice)))) {
                             fallbackExit = outcome === 'win'
@@ -140,11 +178,13 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
     }, [timeLeft, initialDuration, tradeSettled, user, trade, currentPrice]);
 
     function parseDuration(dur) {
-        if (dur.endsWith("s")) return parseInt(dur);
-        if (dur.endsWith("m")) return parseInt(dur) * 60;
+        if (typeof dur === "number") return dur;
+        if (dur && typeof dur === "string") {
+            if (dur.endsWith("s")) return parseInt(dur);
+            if (dur.endsWith("m")) return parseInt(dur) * 60;
+        }
         return 60;
     }
-
 
     const formatDateTime = (date) => {
         if (!date) return "";
@@ -157,6 +197,10 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
         const seconds = d.getSeconds().toString().padStart(2, '0');
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
+
+    const safeEntryPrice = parseFloat(trade.entryPrice) || 0;
+    const safeCurrentPrice = parseFloat(currentPrice) || safeEntryPrice;
+    const safeAmount = parseFloat(trade.amount) || 0;
 
     return (
         <div className="active-trade-overlay">
@@ -181,15 +225,15 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                         <div className="trade-grid-details">
                             <div className="detail-item">
                                 <span className="label">Investment</span>
-                                <span className="value">${trade.amount}</span>
+                                <span className="value">${safeAmount}</span>
                             </div>
                             <div className="detail-item">
                                 <span className="label">Entry Price</span>
-                                <span className="value">${trade.entryPrice.toLocaleString()}</span>
+                                <span className="value">${safeEntryPrice.toLocaleString()}</span>
                             </div>
                             <div className="detail-item">
                                 <span className="label">Current Price</span>
-                                <span className="value">${currentPrice.toLocaleString()}</span>
+                                <span className="value">${safeCurrentPrice.toLocaleString()}</span>
                             </div>
                             <div className="detail-item">
                                 <span className="label">Potential Profit</span>
@@ -248,8 +292,8 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                 <button className="close-icon-btn" onClick={onClose}>×</button>
                             </div>
 
-                            <div className={`pnl-summary ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
-                                {completionInfo.pnl >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl).toFixed(4)}
+                            <div className={`pnl-summary ${(completionInfo.pnl || 0) >= 0 ? "positive" : "negative"}`}>
+                                {(completionInfo.pnl || 0) >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl || 0).toFixed(4)}
                             </div>
 
                             <div className="trade-details-list">
@@ -259,15 +303,15 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Amount</span>
-                                    <span className="detail-value">{trade.amount.toFixed(4)}</span>
+                                    <span className="detail-value">{safeAmount.toFixed(4)}</span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Opening Price</span>
-                                    <span className="detail-value">{trade.entryPrice.toFixed(6)}</span>
+                                    <span className="detail-value">{safeEntryPrice.toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Closing Price</span>
-                                    <span className="detail-value">{completionInfo.exitPrice.toFixed(6)}</span>
+                                    <span className="detail-value">{(parseFloat(completionInfo.exitPrice) || safeEntryPrice).toFixed(6)}</span>
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">Duration</span>
@@ -279,8 +323,8 @@ export default function ActiveTradeModal({ trade, currentPrice, onClose }) {
                                 </div>
                                 <div className="detail-row">
                                     <span className="detail-label">P/L</span>
-                                    <span className={`detail-value ${completionInfo.pnl >= 0 ? "positive" : "negative"}`}>
-                                        {completionInfo.pnl >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl).toFixed(4)}
+                                    <span className={`detail-value ${(completionInfo.pnl || 0) >= 0 ? "positive" : "negative"}`}>
+                                        {(completionInfo.pnl || 0) >= 0 ? "+ " : "- "}{Math.abs(completionInfo.pnl || 0).toFixed(4)}
                                     </span>
                                 </div>
                                 <div className="detail-row">

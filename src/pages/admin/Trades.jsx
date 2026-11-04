@@ -16,6 +16,16 @@ export default function Trades() {
     const [forcePnl, setForcePnl] = useState("");
     const [activeTab, setActiveTab] = useState("active"); // "active" or "history"
 
+    const computeDefaultPnl = (trade, resultType) => {
+        if (!trade) return "";
+        const amt = parseFloat(trade.amount) || 0;
+        if (resultType === "win") {
+            const pct = parseFloat(trade.profitPercent) || 20;
+            return (amt * (pct / 100)).toFixed(2);
+        }
+        return amt.toFixed(2);
+    };
+
     const loadTrades = React.useCallback(async () => {
         try {
             setLoading(true);
@@ -63,6 +73,7 @@ export default function Trades() {
             loadTrades();
         } catch (error) {
             console.error("Error forcing trade result:", error);
+            alert("Failed to force trade result: " + (error.message || "Unknown error"));
         }
     };
 
@@ -94,23 +105,26 @@ export default function Trades() {
             render: (value) => <span style={{ fontWeight: 600 }}>{value}</span>
         },
         {
-            header: "Type",
-            key: "type",
-            render: (value) => (
-                <span className={`badge badge-${value === 'buy' ? 'success' : 'danger'}`}>
-                    {value?.toUpperCase()}
-                </span>
-            )
+            header: "Side",
+            key: "side",
+            render: (value, row) => {
+                const dir = value || row.type;
+                return (
+                    <span className={`badge badge-${dir === 'buy' ? 'success' : 'danger'}`}>
+                        {dir?.toUpperCase()}
+                    </span>
+                );
+            }
         },
         {
             header: "Amount",
             key: "amount",
-            render: (value) => `$${value?.toFixed(2)}`
+            render: (value) => `$${(parseFloat(value) || 0).toFixed(2)}`
         },
         {
             header: "Entry Price",
             key: "entryPrice",
-            render: (value) => `$${value?.toFixed(2)}`
+            render: (value) => `$${(parseFloat(value) || 0).toFixed(2)}`
         },
         {
             header: "Status",
@@ -126,9 +140,12 @@ export default function Trades() {
             key: "pnl",
             render: (value, row) => {
                 if (row.status === 'active') return '-';
+                const numVal = parseFloat(value) || 0;
+                const isLoss = row.result === 'loss' || numVal < 0;
+                const displayVal = isLoss ? -Math.abs(numVal) : Math.abs(numVal);
                 return (
-                    <span style={{ color: value >= 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
-                        {value >= 0 ? '+' : ''}${value?.toFixed(2)}
+                    <span style={{ color: displayVal >= 0 ? '#10b981' : '#ef4444', fontWeight: 600 }}>
+                        {displayVal >= 0 ? '+' : '-'}${Math.abs(displayVal).toFixed(2)}
                     </span>
                 );
             }
@@ -146,6 +163,8 @@ export default function Trades() {
                 className="action-btn action-btn-primary"
                 onClick={() => {
                     setSelectedTrade(row);
+                    setForceResult("win");
+                    setForcePnl(computeDefaultPnl(row, "win"));
                     setShowForceModal(true);
                 }}
             >
@@ -225,7 +244,7 @@ export default function Trades() {
                     <div className="form-group">
                         <label className="form-label">Trade</label>
                         <div className="user-info-display">
-                            {selectedTrade?.asset} - ${selectedTrade?.amount?.toFixed(2)}
+                            {selectedTrade?.asset} - ${(parseFloat(selectedTrade?.amount) || 0).toFixed(2)} ({selectedTrade?.profitPercent || 20}%)
                         </div>
                     </div>
 
@@ -234,7 +253,11 @@ export default function Trades() {
                         <select
                             className="form-input"
                             value={forceResult}
-                            onChange={(e) => setForceResult(e.target.value)}
+                            onChange={(e) => {
+                                const nextRes = e.target.value;
+                                setForceResult(nextRes);
+                                setForcePnl(computeDefaultPnl(selectedTrade, nextRes));
+                            }}
                         >
                             <option value="win">Win</option>
                             <option value="loss">Loss</option>
@@ -242,7 +265,7 @@ export default function Trades() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">P&L Amount ($)</label>
+                        <label className="form-label">{forceResult === "win" ? "Profit Amount ($)" : "Loss Amount ($)"}</label>
                         <input
                             type="number"
                             className="form-input"
@@ -250,6 +273,7 @@ export default function Trades() {
                             value={forcePnl}
                             onChange={(e) => setForcePnl(e.target.value)}
                             step="0.01"
+                            min="0"
                         />
                     </div>
 
@@ -263,7 +287,7 @@ export default function Trades() {
                         <button
                             className="btn btn-primary"
                             onClick={handleForceResult}
-                            disabled={!forcePnl}
+                            disabled={forcePnl === "" || isNaN(parseFloat(forcePnl))}
                         >
                             Confirm
                         </button>

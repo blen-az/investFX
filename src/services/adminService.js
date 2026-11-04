@@ -12,6 +12,7 @@ import {
     where,
     orderBy,
     limit,
+    runTransaction,
     serverTimestamp
 } from "firebase/firestore";
 
@@ -679,63 +680,138 @@ export const getAllTrades = async () => {
 // Force trade result
 export const forceTradeResult = async (tradeId, result, pnl) => {
     try {
-        const tradeRef = doc(db, "trades", tradeId);
-        const tradeSnap = await getDoc(tradeRef);
+        return await runTransaction(db, async (transaction) => {
+            const tradeRef = doc(db, "trades", tradeId);
+            const tradeSnap = await transaction.get(tradeRef);
 
-        if (!tradeSnap.exists()) {
-            throw new Error("Trade not found");
-        }
+            if (!tradeSnap.exists()) {
+                throw new Error("Trade not found");
+            }
 
-        const tradeData = tradeSnap.data();
+            const tradeData = tradeSnap.data();
 
-        // Idempotency check
-        if (tradeData.status === "closed") {
-            throw new Error("Trade is already closed");
-        }
+            // Idempotency check
+            if (tradeData.status === "closed") {
+                throw new Error("Trade is already closed");
+            }
 
-        const updates = {
-            status: "closed",
-            result: result,
-            pnl: pnl,
-            closedAt: new Date(),
-            forcedBy: "admin"
-        };
-
-        // Handle wallet update
-        if (result === "win" || result === "tie") {
             const walletRef = doc(db, "wallets", tradeData.uid);
-            const walletSnap = await getDoc(walletRef);
+            const walletSnap = await transaction.get(walletRef);
 
-            if (walletSnap.exists()) {
+            const tradeAmount = parseFloat(tradeData.amount) || 0;
+            const rawPnl = parseFloat(pnl);
+            const defaultProfit = tradeAmount * ((parseFloat(tradeData.profitPercent) || 20) / 100);
+
+            let signedPnl = 0;
+            let walletDelta = 0; // Amount to add/subtract relative to current post-open wallet balance
+
+            if (result === "win") {
+                const profitAmount = !isNaN(rawPnl) && rawPnl > 0 ? Math.abs(rawPnl) : defaultProfit;
+                signedPnl = profitAmount;
+                // Principal was deducted at openTrade, so return principal + profit
+                walletDelta = tradeAmount + profitAmount;
+            } else if (result === "loss") {
+                const lossAmount = !isNaN(rawPnl) && rawPnl > 0 ? Math.abs(rawPnl) : tradeAmount;
+                signedPnl = -lossAmount;
+                // Principal (tradeAmount) was already deducted at openTrade.
+                // If lossAmount == tradeAmount, walletDelta is 0.
+                // If lossAmount < tradeAmount, refund the un-lost difference.
+                // If lossAmount > tradeAmount, deduct the extra loss beyond principal.
+                walletDelta = tradeAmount - lossAmount;
+            } else if (result === "tie") {
+                signedPnl = 0;
+                walletDelta = tradeAmount;
+            }
+
+            // Calculate a realistic exitPrice
+            const entryPrice = parseFloat(tradeData.entryPrice) || 0;
+            const side = tradeData.side || "buy";
+            const jitter = entryPrice * (0.0004 + Math.random() * 0.0006);
+            let exitPrice = tradeData.exitPrice || entryPrice;
+            if (entryPrice > 0) {
+                if (result === "win") {
+                    exitPrice = side === "buy" ? entryPrice + jitter : entryPrice - jitter;
+                } else if (result === "loss") {
+                    exitPrice = side === "buy" ? entryPrice - jitter : entryPrice + jitter;
+                }
+            }
+
+            if (walletSnap.exists() && walletDelta !== 0) {
                 const walletData = walletSnap.data();
                 const isDemo = tradeData.isDemo === true;
-                const currentBalance = isDemo
-                    ? (walletData.demoBalance !== undefined ? parseFloat(walletData.demoBalance) : 10000)
-                    : (parseFloat(walletData.tradingBalance) || 0);
 
-                // Calculate return amount
-                // If Win: Principal + PnL
-                // If Tie: Principal only (PnL is usually 0 but we ignore it for safety or add it if strictly 0)
-                let returnAmount = 0;
-                const tradeAmount = parseFloat(tradeData.amount) || 0;
-                const pnlAmount = parseFloat(pnl) || 0;
+                if (isDemo) {
+                    const currentDemo = walletData.demoBalance !== undefined ? parseFloat(walletData.demoBalance) : 10000;
+                    transaction.update(walletRef, {
+                        demoBalance: Math.max(0, currentDemo + walletDelta),
+                        updatedAt: serverTimestamp()
+                    });
+                } else {
+                    const tradingBalance = parseFloat(walletData.tradingBalance) || 0;
+                    const mainBalance = parseFloat(
+                        walletData.mainBalance !== undefined ? walletData.mainBalance : walletData.balance
+                    ) || 0;
 
-                if (result === "win") {
-                    returnAmount = tradeAmount + pnlAmount;
-                } else if (result === "tie") {
-                    returnAmount = tradeAmount;
+                    const targetField = tradeData.walletField === "mainBalance"
+                        ? "mainBalance"
+                        : tradeData.walletField === "tradingBalance"
+                            ? "tradingBalance"
+                            : (tradingBalance > 0 || mainBalance === 0 ? "tradingBalance" : "mainBalance");
+
+                    const walletUpdates = {
+                        updatedAt: serverTimestamp()
+                    };
+
+                    if (targetField === "mainBalance") {
+                        const newMain = Math.max(0, mainBalance + walletDelta);
+                        walletUpdates.mainBalance = newMain;
+
+                        const assets = walletData.assets
+                            ? JSON.parse(JSON.stringify(walletData.assets))
+                            : { USDT: { name: "Tether", symbol: "USDT", total: 0, networks: { TRC20: 0 } } };
+                        if (!assets.USDT) assets.USDT = { name: "Tether", symbol: "USDT", total: 0, networks: { TRC20: 0 } };
+                        if (!assets.USDT.networks) assets.USDT.networks = { TRC20: 0 };
+                        assets.USDT.total = newMain;
+                        const firstNetwork = Object.keys(assets.USDT.networks)[0] || "TRC20";
+                        assets.USDT.networks[firstNetwork] = newMain;
+                        walletUpdates.assets = assets;
+                    } else {
+                        const nextTrading = tradingBalance + walletDelta;
+                        if (nextTrading >= 0) {
+                            walletUpdates.tradingBalance = nextTrading;
+                        } else {
+                            // Overflow deduction into mainBalance if tradingBalance wasn't enough
+                            walletUpdates.tradingBalance = 0;
+                            const newMain = Math.max(0, mainBalance + nextTrading);
+                            walletUpdates.mainBalance = newMain;
+
+                            const assets = walletData.assets
+                                ? JSON.parse(JSON.stringify(walletData.assets))
+                                : { USDT: { name: "Tether", symbol: "USDT", total: 0, networks: { TRC20: 0 } } };
+                            if (!assets.USDT) assets.USDT = { name: "Tether", symbol: "USDT", total: 0, networks: { TRC20: 0 } };
+                            if (!assets.USDT.networks) assets.USDT.networks = { TRC20: 0 };
+                            assets.USDT.total = newMain;
+                            const firstNetwork = Object.keys(assets.USDT.networks)[0] || "TRC20";
+                            assets.USDT.networks[firstNetwork] = newMain;
+                            walletUpdates.assets = assets;
+                        }
+                    }
+
+                    transaction.update(walletRef, walletUpdates);
                 }
-
-                const balanceField = isDemo ? "demoBalance" : "tradingBalance";
-                await updateDoc(walletRef, {
-                    [balanceField]: currentBalance + returnAmount,
-                    updatedAt: new Date()
-                });
             }
-        }
 
-        await updateDoc(tradeRef, updates);
-        return { success: true };
+            transaction.update(tradeRef, {
+                status: "closed",
+                result: result,
+                pnl: signedPnl,
+                exitPrice,
+                closedAt: serverTimestamp(),
+                forcedBy: "admin"
+            });
+
+            return { success: true };
+        });
     } catch (error) {
         console.error("Error forcing trade result:", error);
         throw error;
